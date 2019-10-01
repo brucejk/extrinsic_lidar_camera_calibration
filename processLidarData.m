@@ -1,7 +1,9 @@
 clear; clc;
 
 % Single variable called point_cloud
-data = load('LiDARTag_data/velodyne_points-verification3--2019-09-03-23-03.mat');
+mat_file_path = 'LiDARTag_data/velodyne_points-verification3--2019-09-03-23-03.mat';
+pc = loadPointCloud(mat_file_path, bagfile);
+data = getPayload(pc, : , :);
 [scans, points_per_scan, values] = size(data.point_cloud);
 
 %% Step 1: Calculate the d, theta, phi from the x, y, z of point  cloud
@@ -11,6 +13,7 @@ data = load('LiDARTag_data/velodyne_points-verification3--2019-09-03-23-03.mat')
 xs = data.point_cloud(:,:,1);
 ys = data.point_cloud(:,:,2);
 zs = data.point_cloud(:,:,3);
+ring = data.point_cloud(:,:,5);
 
 d     = sqrt(xs.^2 + ys.^2 + zs.^2);
 phi   = atan2(zs ./ sqrt(xs.^2 + ys.^2));
@@ -46,7 +49,23 @@ d_hat = numerator ./ denominator;
 %% Step 3: Find the delta_d to minimize the projection error
 % This delta_d represents the range offset in the LiDAR
 
+num_beams = 32; % config of lidar
+delta_D = zeros(num_beams);
 
+for n = 1:num_beams
+    sorted_d = [];
+    sorted_d_hat = [];
+
+    for i=1:scans
+        for j = 1:points_per_scan
+                if( ring(i,j)== n)
+                    sorted_d = [sorted_d, d(i,j)];
+                    sorted_d_hat = [sorted_d_hat, d_hat(i,j)];
+                end
+         end
+    end    
+    delta_D(n)= optimizeDistance(sorted_d, sorted_d_hat);
+end
 
 
 
