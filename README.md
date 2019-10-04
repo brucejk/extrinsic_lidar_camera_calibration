@@ -1,7 +1,10 @@
 # extrinsic_lidar_camera_calibration
 ## Overview
 This is a package for extrinsic calibration between a 3D LiDAR and a camera, described in paper: Improvements to Target-Based 3D LiDAR to Camera Calibration. We evaluated our proposed methods and compared them with other approaches in a round-robin validation study, including qualitative results and quantitative results, where we use image corners as ground truth to evaluate our projection accuracy.
-* [note] ALL the code is still on the dev branch. Everything will be cleaned up and well-documented within a week or so. To run the testing code, please checkout the dev branch, place the test datasets in folders, change the two [paths](https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/80a504d057bc2926b0783dc3f0a137f0d83db981/main.m#L61) in main.m, and then hit run!
+
+
+**[IMPORTANT note]**
+ALL the code is still on the dev branch. Everything will be cleaned up and well-documented within a week or so. To run the testing code, please checkout the dev branch, place the test datasets in folders, change the two [paths](https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/80a504d057bc2926b0783dc3f0a137f0d83db981/main.m#L61) in main.m, and then hit run!
 
 * Authors: Bruce JK Huang and Jessy W. Grizzle
 * Maintainer: [Bruce JK Huang](https://www.brucerobot.com/), brucejkh[at]gmail.com
@@ -49,7 +52,7 @@ Please downlaod bagfiles from [here](https://drive.google.com/drive/folders/1qaw
 
 
 ## Running
-ALL the code are still on the dev branch. Everything will be cleaned up, well-documented merge to master branch by 10/1/2019. To run the testing code, please checkout to the dev branch and the put the dataset in the two folders mentioned above and then go to the main.m and then hit run!
+ALL the code are still on the dev branch. Everything will be cleaned up, well-documented merge to master branch by 10/8/2019. To run the testing code, please checkout to the dev branch and the put the dataset in the two folders mentioned above and then go to the main.m and then hit run!
 (if you happen to change the name of the folder, please change the [path](https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/320a56c0e751453f1c09fef8146775788c27f5fe/main.m#L61) in the main.m as well)
 
 
