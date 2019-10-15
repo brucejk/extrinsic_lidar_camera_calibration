@@ -29,16 +29,16 @@ distortion_param = [0.099769, -0.240277, 0.002463, 0.000497, 0.000000];
 %%% bag_file_path: bag files of images 
 %%% mat_file_path: mat files of extracted lidar target's point clouds
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-skip = 0; 
+skip = 1; 
 display = 1; % show numerical results
 validation_flag = 1; % validate results
 base_line_method = 2;
 correspondance_per_pose = 4; % 4 correspondance on a target
 calibration_method = "4 points";
 load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
-load_dir = "NewPaper/14-Oct-2019 10:52:55/";
-bag_file_path = "bagfiles/";
-mat_file_path = "LiDARTag_data/";
+load_dir = "NewPaper/14-Oct-2019 21:02:50/";
+bag_file_path = "../repo/bagfiles/";
+mat_file_path = "../repo/LiDARTag_data/";
 
 % save into results into folder         
 save_name = "NewPaper";
@@ -71,7 +71,7 @@ diary Debug % save terminal outputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 opts.num_refinement = 5 ; % 4 rounds of refinement
 opts.num_lidar_target_pose = 5; % how many LiDARTag poses to optimize H_LC (5) (2)
-opts.num_scan = 5; % how many scans accumulated to optimize one LiDARTag pose (3)
+opts.num_scan = 30; % how many scans accumulated to optimize one LiDARTag pose (3)
 opts.num_training = 1; %%% how many training set to use (2)
 opts.num_validation = 7; % use how many different datasets to verify the calibration result
 
@@ -189,29 +189,50 @@ if ~skip
     mkdir(save_dir);
     save(save_dir + 'saved_parameters.mat', 'opts', 'validation_flag');
     save(save_dir + 'saved_chosen_indices.mat', 'skip_indices', 'bag_training_indices', 'bag_validation_indices', 'bag_chosen_indices');
-end
-
-% loading training image
-for i = 1:opts.num_training
-    current_index = bag_training_indices(i);
-    loadBagImg(training_img_fig_handles(i), bag_file_path, bag_with_tag_list(current_index), "not display", "not clean");
-end
-
-for i = 1:opts.num_validation
-    current_index = bag_validation_indices(i);
-    loadBagImg(validation_fig_handles(i), bag_file_path, bag_with_tag_list(current_index), "not display", "not clean");
-end
-
-
-if skip == 1 || skip == 2
-    % load saved data
+else
     load(load_dir + "X_base_line.mat");
     load(load_dir + "X_train.mat");
     load(load_dir + "Y.mat")
     load(load_dir + "save_validation.mat")
     load(load_dir + "array.mat")
     load(load_dir + "BagData.mat")
-else
+end
+
+% loading training image
+for k = 1:opts.num_training
+    current_index = bag_training_indices(k);
+    loadBagImg(training_img_fig_handles(k), bag_file_path, bag_with_tag_list(current_index), "not display", "not clean");
+    if skip==1 || skip == 2
+        for j = 1:BagData(current_index).num_tag
+            for i = 1:size(BagData(current_index).lidar_target(j).scan(:))
+                showLinedLiDARTag(training_pc_fig_handles(k), ...
+                                  BagData(current_index).bagfile, ...
+                                  BagData(current_index).lidar_target(j).scan(i), "display");
+                showLinedAprilTag(training_img_fig_handles(k), ...
+                                  BagData(current_index).camera_target(j), "display");
+            end
+        end
+    end
+end
+
+for k = 1:opts.num_validation
+    current_index = bag_validation_indices(k);
+    loadBagImg(validation_fig_handles(k), bag_file_path, bag_with_tag_list(current_index), "not display", "not clean");
+    if skip==1 || skip == 2
+        for j = 1:BagData(current_index).num_tag
+            for i = 1:size(BagData(current_index).lidar_target(j).scan(:))
+                showLinedLiDARTag(validation_pc_fig_handles(k), ...
+                                  BagData(current_index).bagfile, ...
+                                  BagData(current_index).lidar_target(j).scan(i), "display");
+                showLinedAprilTag(validation_fig_handles(k), ...
+                                  BagData(current_index).camera_target(j), "display");
+            end
+        end
+    end
+end
+
+
+if skip == 0
     disp("********************************************")
     disp(" Optimizing LiDAR Target Corners")
     disp("********************************************")
@@ -697,6 +718,7 @@ for i = 1 : length(bag_chosen_indices)
         lidar_target(j).results(i).mean_NV = mean([BagData(current_index).lidar_target(j).scan(:).normal_vector], 2)';
         lidar_target(j).results(i).std_mean = std([BagData(current_index).lidar_target(j).scan(:).centroid]');
         lidar_target(j).results(i).std_NV = std([BagData(current_index).lidar_target(j).scan(:).normal_vector]');
+        lidar_target(j).results(i).std_NV_norm_100 = 100*norm(lidar_target(j).results(i).std_NV);
         centroid_vec = [centroid_vec; lidar_target(j).results(i).mean_centriod];
         nv_vec = [nv_vec; lidar_target(j).results(i).mean_NV];
 %         disp("----------pose:")
@@ -731,7 +753,3 @@ disp("small target")
 disp(struct2table(lidar_target(2).results(:)))
 disp('======================================================================')
 disp(struct2table(results_diff))
-
-
-
-         
