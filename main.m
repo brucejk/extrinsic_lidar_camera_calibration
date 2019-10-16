@@ -37,8 +37,8 @@ correspondance_per_pose = 4; % 4 correspondance on a target
 calibration_method = "4 points";
 load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
 load_dir = "NewPaper/15-Oct-2019 15:32:28/";
-bag_file_path = "../repo/bagfiles/";
-mat_file_path = "../repo/LiDARTag_data/";
+bag_file_path = "/home/brucebot/workspace/griztag/src/griz_tag/bagfiles/matlab/";
+mat_file_path = "../../LiDARTag_data/";
 
 % save into results into folder         
 save_name = "NewPaper";
@@ -71,7 +71,7 @@ diary Debug % save terminal outputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 opts.num_refinement = 5 ; % 4 rounds of refinement
 opts.num_lidar_target_pose = 5; % how many LiDARTag poses to optimize H_LC (5) (2)
-opts.num_scan = 35; % how many scans accumulated to optimize one LiDARTag pose (3)
+opts.num_scan = 5; % how many scans accumulated to optimize one LiDARTag pose (3)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,7 +98,7 @@ opt.H_LC.rpy_init = [90 0 90];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 random_select = 0;
 trained_ids = [4, 10, 11];
-skip_indices = [1, 2, 3, 11, 12]; %% skip non-standard 
+c = [1, 2, 3, 11, 12]; %% skip non-standard 
 skip_indices = [1, 12]; %% skip non-standard 
 [BagData, TestData] = getBagData();
 bag_with_tag_list  = [BagData(:).bagfile];
@@ -112,7 +112,7 @@ opts.num_validation = size(bag_with_tag_list, 2) - ...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp("Refining corners of camera targets ...")
-BagData = refineImageCorners(bag_file_path, BagData, 'not display');
+BagData = refineImageCorners(bag_file_path, BagData, skip_indices,'not display');
 
 
 % create figure handles
@@ -483,7 +483,7 @@ if skip == 2
     load(load_dir + "SR.mat");
     load(load_dir + "save_validation.mat")
 end
-%%
+%
 disp("****************** NSNR-training ******************")
 disp('NSNR_H_LC: ')
 disp(' R:')
