@@ -22,7 +22,7 @@ function [bag_data, H_LT] = get4CornersReturnHLT(scan_num, tag_num, opt, mat_fil
                     0  target_len/2  target_len/2 1;
                     0  target_len/2 -target_len/2 1]';
     
-    corners = inv(opt.H_opt) * target_lidar;
+    corners = opt.H_opt \ target_lidar;
     corners = sortrows(corners', 3, 'descend')';
     centroid = mean(corners(1:3,:), 2);
     normals = cross(corners(1:3,1)-corners(1:3,2), corners(1:3,1)-corners(1:3,3));
@@ -37,7 +37,7 @@ function [bag_data, H_LT] = get4CornersReturnHLT(scan_num, tag_num, opt, mat_fil
     bag_data.lidar_target(tag_num).scan(scan_num).pc_points = X_clean;
     bag_data.lidar_target(tag_num).scan(scan_num).centroid = centroid;
     bag_data.lidar_target(tag_num).scan(scan_num).normal_vector = normals;
-
+    bag_data.lidar_target(tag_num).scan(scan_num).H = inv(opt.H_opt);
 
 %             HCamera = getAprilTagPose(app, app.image_num);
     % AprilTag.corners = getAprilTagCorners(bag_file, tag_num);
