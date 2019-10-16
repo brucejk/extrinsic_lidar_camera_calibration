@@ -29,14 +29,14 @@ distortion_param = [0.099769, -0.240277, 0.002463, 0.000497, 0.000000];
 %%% bag_file_path: bag files of images 
 %%% mat_file_path: mat files of extracted lidar target's point clouds
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-skip = 1; 
+skip = 0; 
 display = 1; % show numerical results
 validation_flag = 1; % validate results
 base_line_method = 2;
 correspondance_per_pose = 4; % 4 correspondance on a target
 calibration_method = "4 points";
 load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
-load_dir = "NewPaper/14-Oct-2019 21:02:50/";
+load_dir = "NewPaper/15-Oct-2019 15:32:28/";
 bag_file_path = "../repo/bagfiles/";
 mat_file_path = "../repo/LiDARTag_data/";
 
@@ -71,9 +71,7 @@ diary Debug % save terminal outputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 opts.num_refinement = 5 ; % 4 rounds of refinement
 opts.num_lidar_target_pose = 5; % how many LiDARTag poses to optimize H_LC (5) (2)
-opts.num_scan = 30; % how many scans accumulated to optimize one LiDARTag pose (3)
-opts.num_training = 1; %%% how many training set to use (2)
-opts.num_validation = 7; % use how many different datasets to verify the calibration result
+opts.num_scan = 35; % how many scans accumulated to optimize one LiDARTag pose (3)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,17 +97,16 @@ opt.H_LC.rpy_init = [90 0 90];
 %  -- used the optimized H_LC to validate the results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 random_select = 0;
-trained_ids = [5];
+trained_ids = [4, 10, 11];
 skip_indices = [1, 2, 3, 11, 12]; %% skip non-standard 
-skip_indices = [1, 2, 3, 12]; %% skip non-standard 
+skip_indices = [1, 12]; %% skip non-standard 
 [BagData, TestData] = getBagData();
 bag_with_tag_list  = [BagData(:).bagfile];
 bag_testing_list = [TestData(:).bagfile];
 test_pc_mat_list = [TestData(:).pc_file];
 opts.num_training = length(trained_ids); 
-opts.num_validation = min(size(bag_with_tag_list, 2) - ...
-                         length(skip_indices) - opts.num_training, ...
-                         opts.num_validation);
+opts.num_validation = size(bag_with_tag_list, 2) - ...
+                      length(skip_indices) - opts.num_training;
 % opts.num_training = min(length(trained_ids), opts.num_training);     
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -486,7 +483,7 @@ if skip == 2
     load(load_dir + "SR.mat");
     load(load_dir + "save_validation.mat")
 end
-
+%%
 disp("****************** NSNR-training ******************")
 disp('NSNR_H_LC: ')
 disp(' R:')
@@ -501,7 +498,7 @@ disp(NSNR_opt_total_cost)
 disp(' Training Error Per Corner (pixel)')
 disp(NSNR_opt_total_cost/sqrt(size(Y_base_line, 2)))
 ans_error_submatrix = [bag_training_indices(1); 
-                       BagData(bag_training_indices(1)).bagfile
+                       BagData(bag_training_indices(1)).bagfile; ...
                        NSNR_opt_total_cost/sqrt(size(Y_base_line, 2))];
 
 disp("****************** NSR-training ******************")
@@ -554,6 +551,7 @@ if length(bag_training_indices)>1
     for i = 2:length(bag_training_indices)
         index = bag_training_indices(i);
         ans_error_submatrix(1) = index;
+        ans_error_submatrix(2) = BagData(index).bagfile;
         ans_error_big_matrix = [ans_error_big_matrix, ans_error_submatrix];
     end
 end
@@ -584,19 +582,21 @@ if validation_flag
         fprintf("---dataset: %s\n", bag_with_tag_list(current_index))
         ans_error_submatrix = [bag_validation_indices(i); 
                                BagData(bag_validation_indices(i)).bagfile];
+        current_num_tag = BagData(bag_validation_indices(i)).num_tag;
+        current_num_scan = current_num_tag * correspondance_per_pose * opts.num_lidar_target_pose;
         disp("-- Error Per Corner (pixel)")
         disp(' NSNR validation Error Per Corner (pixel)')
-        disp(NSNR_validation_cost(i).total_cost/ sqrt(size(Y_validation, 2)/opts.num_validation))
-        ans_error_submatrix = [ans_error_submatrix; NSNR_validation_cost(i).total_cost/sqrt(size(Y_validation, 2)/opts.num_validation)];
+        disp(NSNR_validation_cost(i).total_cost/ sqrt(current_num_scan))
+        ans_error_submatrix = [ans_error_submatrix; NSNR_validation_cost(i).total_cost/sqrt(current_num_scan)];
         disp(' NSR validation Error Per Corner (pixel)')
         disp(NSR_validation_cost(i).total_cost/ sqrt(size(Y_validation, 2)/opts.num_validation))
-        ans_error_submatrix = [ans_error_submatrix; NSR_validation_cost(i).total_cost/sqrt(size(Y_validation, 2)/opts.num_validation)];
+        ans_error_submatrix = [ans_error_submatrix; NSR_validation_cost(i).total_cost/sqrt(current_num_scan)];
         disp(' SNR validation Error Per Corner (pixel)')
         disp(SNR_validation_cost(i).total_cost/ sqrt(size(Y_validation, 2)/opts.num_validation))
-        ans_error_submatrix = [ans_error_submatrix; SNR_validation_cost(i).total_cost/sqrt(size(Y_validation, 2)/opts.num_validation)];
+        ans_error_submatrix = [ans_error_submatrix; SNR_validation_cost(i).total_cost/sqrt(current_num_scan)];
         disp(' SR validation Error Per Corner (pixel)')
         disp(SR_validation_cost(i).total_cost/ sqrt(size(Y_validation, 2)/opts.num_validation))
-        ans_error_submatrix = [ans_error_submatrix; SR_validation_cost(i).total_cost/sqrt(size(Y_validation, 2)/opts.num_validation)];
+        ans_error_submatrix = [ans_error_submatrix; SR_validation_cost(i).total_cost/sqrt(current_num_scan)];
         ans_error_big_matrix = [ans_error_big_matrix, ans_error_submatrix];
     end
     
