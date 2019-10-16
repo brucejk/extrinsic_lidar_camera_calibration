@@ -98,7 +98,6 @@ opt.H_LC.rpy_init = [90 0 90];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 random_select = 0;
 trained_ids = [4, 10, 11];
-c = [1, 2, 3, 11, 12]; %% skip non-standard 
 skip_indices = [1, 12]; %% skip non-standard 
 [BagData, TestData] = getBagData();
 bag_with_tag_list  = [BagData(:).bagfile];
