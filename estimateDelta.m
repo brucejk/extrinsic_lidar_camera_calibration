@@ -1,12 +1,19 @@
-function [delta, opt]= estimateDelta(opt, data, plane, delta)
+function [delta, opt]= estimateDelta(opt, data, plane, delta, num_beams, num_targets)
     tic;
-    for ring = 1:length(data)
-
-        if size(data(ring).points,2) == 0
-            delta(ring).H = eye(4);
-            continue
+    for ring = 1:num_beams
+        % If not enough data for a ring, don't try to calibrate it
+        valid_target_num = num_targets;
+        for target = 1:num_targets
+            if size(data{target}(ring).points,2) == 0
+                delta(ring).H = eye(4);
+                valid_target_num = valid_target_num -1;
+            end
         end
-        ring
+        
+        if valid_target_num < 2
+            continue;
+        end
+%         ring
 %         dbstop in estimateDelta.m at 13 if ring>=32
         theta_x = optimvar('theta_x', 1, 1,'LowerBound',-90,'UpperBound',90); % 1x1
         theta_y = optimvar('theta_y', 1, 1,'LowerBound',-90,'UpperBound',90); % 1x1
@@ -17,10 +24,10 @@ function [delta, opt]= estimateDelta(opt, data, plane, delta)
 %         theta_y = 0;
 %         theta_z = 0;
 %         T = [0 0 0];
-%         cost = optimizeIntrinsicCost(data(ring), plane, theta_x, theta_y, theta_z, T);
+%         cost = optimizeMultiIntrinsicCost(data, plane, ring, theta_x, theta_y, theta_z, T);
 %                        
         prob = optimproblem;
-        f = fcn2optimexpr(@optimizeIntrinsicCost, data(ring), plane, ...
+        f = fcn2optimexpr(@optimizeMultiIntrinsicCost, data, plane, ring,...
                            theta_x, theta_y, theta_z, T);
         prob.Objective = f;
         x0.theta_x = opt.rpy_init(1);
