@@ -24,6 +24,19 @@ Please follow more detail instruction as [below](https://github.com/UMich-BipedL
 ## Abstract
 The homogeneous transformation between a LiDAR and monocular camera is required for sensor fusion tasks, such as SLAM. While determining such a transformation is not considered glamorous in any sense of the word, it is nonetheless crucial for many modern autonomous systems. Indeed, an error of a few degrees in rotation or a few percent in translation can lead to 20 cm translation errors at a distance of 5 m when overlaying a LiDAR image on a camera image. The biggest impediments to determining the transformation accurately are the relative sparsity of LiDAR point clouds and systematic errors in their distance measurements. This paper proposes (1) the use of targets of known dimension and geometry to ameliorate target pose estimation in face of the quantization and systematic errors inherent in a LiDAR image of a target, and (2) a fitting method for the LiDAR to monocular camera transformation that fundamentally assumes the camera image data is the most accurate information in one's possession. 
 
+## Application Videos 
+The 3D-LiDAR map shown in the videos used this package to calibrate the LiDAR to camera (to get the transformatoin between the LiDAR and camera). Briefly speaking, we project point coulds from the LiDAR back to the semantic labeled images using the obtained transformation and then associate labels with the point to build the 3D LiDAR semantic map.
+
+[Halloween Edition: Cassie Autonomy](https://www.youtube.com/watch?v=4OUr2DspYoo) 
+
+[Autonomous Navigation and 3D Semantic Mapping on Bipedal Robot Cassie Blue (Shorter Version)](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
+
+[Autonomous Navigation and 3D Semantic Mapping on Bipedal Robot Cassie Blue (Longer Version)](https://youtu.be/N8THn5YGxPw)
+<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/Halloween.png" width="640">
+<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps.png" width="640">
+<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps2.png" width="640">
+
+
 ## Quick View
 Using the obtained transformation, LiDAR points are mapped onto a semantically segmented image. Each point is associated with the label of a pixel. The road is marked as white; static objects such buildings as orange; the grass as yellow-green, and dark green indicates trees.
 
