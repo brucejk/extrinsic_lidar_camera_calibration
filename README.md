@@ -36,7 +36,6 @@ The 3D-LiDAR map shown in the videos used this package to calibrate the LiDAR to
 <img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps.png" width="640">
 <img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps2.png" width="640">
 
-
 ## Quick View
 Using the obtained transformation, LiDAR points are mapped onto a semantically segmented image. Each point is associated with the label of a pixel. The road is marked as white; static objects such buildings as orange; the grass as yellow-green, and dark green indicates trees.
 
@@ -50,8 +49,8 @@ The below shows that a calibration result with little disturbance from the well-
 <img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/disturbance.png" width="640"> 
 <img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/undisturbance.png" width="640">
 
-## Presentation and Video (coming strong in a week)
-https://www.brucerobot.com/
+## Presentation and Video
+https://www.brucerobot.com/calibration
 
 ## Calibration Targets
 Any **square** targets would be fine. The dimensions are assumed known.
