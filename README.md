@@ -32,9 +32,11 @@ The 3D-LiDAR map shown in the videos used this package to calibrate the LiDAR to
 [Autonomous Navigation and 3D Semantic Mapping on Bipedal Robot Cassie Blue (Shorter Version)](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
 
 [Autonomous Navigation and 3D Semantic Mapping on Bipedal Robot Cassie Blue (Longer Version)](https://youtu.be/N8THn5YGxPw)
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/Halloween.png" width="640">
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps.png" width="640">
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps2.png" width="640">
+
+
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/Halloween.png" width="640">](https://www.youtube.com/watch?v=4OUr2DspYoo)
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps.png" width="640">](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps2.png" width="640">](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
 
 ## Quick View
 Using the obtained transformation, LiDAR points are mapped onto a semantically segmented image. Each point is associated with the label of a pixel. The road is marked as white; static objects such buildings as orange; the grass as yellow-green, and dark green indicates trees.
