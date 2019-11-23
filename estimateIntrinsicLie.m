@@ -3,9 +3,10 @@ num_beams = 32; % config of lidar
  
 % Single variable called point_cloud
 % mat_file_path = '../repo/LiDARTag_data/velodyne_points-lab8-closer-big--2019-09-06-15-28.mat';
-num_targets = 2;
+num_targets = 3;
 mat_file_path = {'F:\Calibration\extrinsic_lidar_camera_calibration\LiDARTag_data\velodyne_points-lab3-closer-big--2019-09-06-08-38.mat',...
-                 'F:\Calibration\extrinsic_lidar_camera_calibration\LiDARTag_data\velodyne_points-lab7-closer-big--2019-09-06-15-14.mat'};
+                 'F:\Calibration\extrinsic_lidar_camera_calibration\LiDARTag_data\velodyne_points-lab7-closer-big--2019-09-06-15-14.mat',...
+                 'F:\Calibration\extrinsic_lidar_camera_calibration\LiDARTag_data\velodyne_points-wavefield5-big--2019-09-07-20-24.mat'};
              
 pc = cell(1,num_targets);
 for t = 1:num_targets
