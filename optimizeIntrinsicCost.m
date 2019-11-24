@@ -9,7 +9,8 @@ function cost = optimizeIntrinsicCost(X, plane, D_corr, theta_corr, phi_corr)
     X_prime(3,:) = (X.points(1,:)+ D_corr).*cos(X.points(2,:)+theta_corr);
     
     plane_centroids = repmat(plane.centriod, [1,size(X_prime, 2)]);
-    diff = abs([X_prime - plane_centroids]);
+%     diff = abs([X_prime - plane_centroids]);
+    diff = X_prime - plane_centroids;
     normals = repmat(plane.unit_normals, [1,size(X_prime, 2)]);
 %     cost = norm([plane.normals .* diff(1:3,:)],'fro');
     cost = sum(abs(dot(normals, diff(1:3,:))));
