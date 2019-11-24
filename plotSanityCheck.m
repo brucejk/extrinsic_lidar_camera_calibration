@@ -1,6 +1,6 @@
 %% plot
-clc;
-num_targets=2;
+close all;
+num_targets=1;
 
 for i =1:num_targets
     w = null(plane{i}.unit_normals'); % Find two orthonormal vectors which are orthogonal to v
@@ -12,7 +12,7 @@ for i =1:num_targets
     surf(X,Y,Z);
     hold on;
 %     scatter3(data{i}(1,:),data{i}(2,:),data{i}(3,:), 30, 'b.');
-    for ring =7:7
+    for ring =1:num_beams
         if (isempty(data_split_with_ring{i}(ring).points))
             continue;
         else
@@ -20,11 +20,13 @@ for i =1:num_targets
                      data_split_with_ring_raw{i}(ring).points(2,:),...
                      data_split_with_ring_raw{i}(ring).points(3,:), 50, 'b.');
             transformedPoints = zeros(size(data_split_with_ring{i}(ring).points));
+%             transformedPoints(1,:) = (data_split_with_ring{i}(ring).points(1,:)+ 0.005).*sin(data_split_with_ring{i}(ring).points(2,:)).*cos(data_split_with_ring{i}(ring).points(3,:));
+%             transformedPoints(2,:) = (data_split_with_ring{i}(ring).points(1,:)+ 0.005).*sin(data_split_with_ring{i}(ring).points(2,:)).*sin(data_split_with_ring{i}(ring).points(3,:));
+%             transformedPoints(3,:) = (data_split_with_ring{i}(ring).points(1,:)+ 0.005).*cos(data_split_with_ring{i}(ring).points(2,:));
             transformedPoints(1,:) = (data_split_with_ring{i}(ring).points(1,:)+ delta(ring).D).*sin(data_split_with_ring{i}(ring).points(2,:)+delta(ring).theta).*cos(data_split_with_ring{i}(ring).points(3,:)+ delta(ring).phi);
             transformedPoints(2,:) = (data_split_with_ring{i}(ring).points(1,:)+ delta(ring).D).*sin(data_split_with_ring{i}(ring).points(2,:)+delta(ring).theta).*sin(data_split_with_ring{i}(ring).points(3,:)+ delta(ring).phi);
             transformedPoints(3,:) = (data_split_with_ring{i}(ring).points(1,:)+ delta(ring).D).*cos(data_split_with_ring{i}(ring).points(2,:)+delta(ring).theta);
             scatter3(transformedPoints(1,:),transformedPoints(2,:),transformedPoints(3,:), 50, '.');
-            ring
         end
     end
     

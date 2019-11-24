@@ -12,15 +12,15 @@ function [delta, opt]= estimateDelta(opt, data, plane, delta, num_beams, num_tar
             end
         end
         
-        if valid_target_num < 1
+        if valid_target_num < num_targets
             continue;
         end
 %         ring
 %         dbstop in estimateDelta.m at 13 if ring>=32
-%         D_corr = 0;
+%         D_corr = -0.01;
 %         theta_corr = 0;
 %         phi_corr = 0;
-%         cost = optimizeMultiIntrinsicCost(data, plane, ring, D_corr, theta_corr, phi_corr);
+%         cost = optimizeMultiIntrinsicCost(data, plane, ring, D_corr, theta_corr, phi_corr)
 
 %         theta_x = optimvar('theta_x', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
 %         theta_y = optimvar('theta_y', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
@@ -39,7 +39,7 @@ function [delta, opt]= estimateDelta(opt, data, plane, delta, num_beams, num_tar
         x0.phi_corr = opt.phi_corr_init;
 %         x0.T = opt.T_init;
 
-        options = optimoptions('fmincon', 'MaxIter',5e3, 'Display','off', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
+        options = optimoptions('fmincon', 'MaxIter',5e2, 'Display','iter', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
         max_trail = 5;
         num_tried = 1;
         status = 0;
