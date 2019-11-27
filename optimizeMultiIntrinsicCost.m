@@ -1,6 +1,6 @@
-function cost = optimizeMultiIntrinsicCost (X, plane, ring, theta_x, theta_y, theta_z, T)
+function cost = optimizeMultiIntrinsicCost (X, plane, ring, theta_x, theta_y, theta_z, T, S)
     cost = 0;
     for i = 1: length(X)
-        cost = cost + optimizeIntrinsicCost(X{i}(ring), plane{i}, theta_x, theta_y, theta_z, T);
+        cost = cost + optimizeIntrinsicCost(X{i}(ring), plane{i}, theta_x, theta_y, theta_z, T, S);
     end
 end
