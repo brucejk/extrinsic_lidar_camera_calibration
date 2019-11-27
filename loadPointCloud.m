@@ -6,9 +6,7 @@ function point_cloud = loadPointCloud(path, name)
     end
     
     if ~isfile(file)
-        disp('Invalid path when loading dataset')
-        fprintf("path: %s\n", file);
-        return
+        error('Invalid path when loading dataset: path %s', file)
     else
         pc = load(file);
         point_cloud = pc.point_cloud; % [scan, point, [X, Y, Z, I, R]]
