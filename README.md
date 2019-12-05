@@ -155,7 +155,7 @@ Jiunn-Kai Huang and J. Grizzle, "Improvements to Target-Based 3D LiDAR to Camera
   year={2019}
 }
 ```
-If you use LiDARTag as you LiDAR targets, please cite 
+If you use [LiDARTag](https://arxiv.org/abs/1908.10349) as you LiDAR targets, please cite 
 ```
 @article{huang2019lidartag,
   title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
