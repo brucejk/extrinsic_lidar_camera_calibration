@@ -90,7 +90,15 @@ If you would like to see how the LiDAR vertices are optimized, please place the 
 - Give initial guess to the LiDAR to camera transformation
 - Edit the _trained_ids_ and _skip_indices_ (ids are from _getBagData.m_).
 - If you have more validation dataset (containing targets), set the _validation_flag_ to 1 and then use put the related information to _getBagData.m_.
-- Place several _square_ boards with known dimensions. When placing boards, make sure the left corner is taller than the right corner.
+- Place several _square_ boards with known dimensions. When placing boards, make sure the left corner is taller than the right corner. We use fiducial tags that can be detected both from LiDARs and cameras. Physically, they are the same tags. However, if the tag is detected from LiDARs, we call it [LiDARTag](https://arxiv.org/abs/1908.10349) and on the other hand, if is is detected from cameras, it is called AprilTag. Please check out this [link](https://drive.google.com/open?id=1Twx7y6yxr-s2qAoCa4XliCxNuINAlXNn) to download the target images. If you use these targets as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
+  year={2019}
+}
+```
 - Use you favorite methods to extract corners of camera targets and then write them in _getBagData.m_. When writing the corners, Please follow **top-left-right-bottom** order. 
 - Given point patches of LiDAR targets, saved them into .mat files and also put them _getBagData.m_. Please make sure you have correctly match your _lidar_target_ with _camera_target_. 
 - RUN _justCalibrate.m_! That's it!
@@ -138,7 +146,6 @@ For the method GL_1-R, five sets of estimated LiDAR vertices for each target hav
 
 ## Citations
 The detail is described in: 
-
 Jiunn-Kai Huang and J. Grizzle, "Improvements to Target-Based 3D LiDAR to Camera Calibration" ([PDF](https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/LiDAR2CameraCalibration.pdf))([arXiv](https://arxiv.org/abs/1910.03126))
 ```
 @article{huang2019improvements,
@@ -148,3 +155,12 @@ Jiunn-Kai Huang and J. Grizzle, "Improvements to Target-Based 3D LiDAR to Camera
   year={2019}
 }
 ```
+If you use LiDARTag as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
+  year={2019}
+}
+
