@@ -55,8 +55,16 @@ The below shows that a calibration result with little disturbance from the well-
 https://www.brucerobot.com/calibration
 
 ## Calibration Targets
-Any **square** targets would be fine. The dimensions are assumed known.
-note: You can place any number of targets with different size in different datasets.
+Any **square** targets would be fine. The dimensions are assumed known. We use fiducial tags that can be detected both from LiDARs and cameras. Physically, they are the same tags. However, if the tag is detected from LiDARs, we call it [LiDARTag](https://arxiv.org/abs/1908.10349) and on the other hand, if is is detected from cameras, it is called AprilTag. Please check out this [link](https://drive.google.com/open?id=1Twx7y6yxr-s2qAoCa4XliCxNuINAlXNn) to download the target images. If you use these targets as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
+  year={2019}
+}
+```
+note: You can place any number of targets with different size in different datasets. 
 
 ## Installation 
 * Which toolboxes are used in this package: 
