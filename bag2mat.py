@@ -28,7 +28,31 @@
  * AUTHOR: Bruce JK Huang (bjhuang@umich.edu)
  * WEBSITE: https://www.brucerobot.com/
  */
+
+
+[HOW TO USE]
+To run this file, please change the path in main function and change topics names if
+you have other topics you would like to extract.
+
+If you have all patches extracted, please set extracted = 1, then it will only convert
+the bagfiles to mat-files.
+
+If you have not extracted patches from /velodyne_points, please set extracted = 0,
+and specify a cuboid in the readPointsAndSave function.
+
+If you have all the extracted files in a folder, please set load_folder = 1, it will
+go ahead convert all the files to mat-files; please also remember to set the topic
+names.
+
+Please run this by:
+    python bag2mat.py [bagfile.bag] [event-name]
+    [bagfile.bag]: name of the bagfile
+    [event-name]: whatever you would like to name this
 '''
+
+
+
+
 import rosbag
 import scipy.io as sio
 import sensor_msgs.point_cloud2 as pc2
@@ -75,6 +99,7 @@ def readPointsAndSave(bag, topic, time, if_filter):
                 if point is None:
                     continue;
 
+                ### XXX: MODIFY the cuboid
                 if if_filter == 1: # extract 3 payloads
                     ## tag 1 
                     # filter by x
@@ -129,7 +154,7 @@ def readPointsAndSave(bag, topic, time, if_filter):
         sio.savemat(name + time + '.mat', {'point_cloud': point_cloud})
         print 'saved: ', str(name + time + '.mat')
 
-def convertToMatFile(path_to_bagfile, topics, name):
+def convertToMatFile(path_to_bagfile, topics, name, extracted):
     now = datetime.datetime.now()
     time = now.strftime("%Y-%m-%d-%H-%M")
     event_name = name + "--" + time
@@ -137,35 +162,39 @@ def convertToMatFile(path_to_bagfile, topics, name):
 
     for topic in topics:
         if topic == "/velodyne_points":
-            # show all points
-            # readPointsAndSave(bag, topic, event_name, 0) 
-
-            # extract targets 
-            readPointsAndSave(bag, topic, event_name, 1)
+            if extracted:
+                # show all points
+                readPointsAndSave(bag, topic, event_name, 0) 
+            else:
+                # extract targets 
+                readPointsAndSave(bag, topic, event_name, 1)
         else:
-            # extract targets from other topic
-            readPointsAndSave(bag, topic, event_name, 1) 
+            # conver to mat-file from other topics
+            # assume patches have been extracted out
+            readPointsAndSave(bag, topic, event_name, 0) 
 
 
     bag.close()
     print 'finished bagfile: ', bagfile
 
 if __name__ == '__main__':
-    load_folder = 0 # load conver all files in a folder
+    # XXX: MODIFY
+    load_folder = 0 #  conver all files in a folder
+    extracted = 0 # if extraction needed
     path = "/PATH_TO_BAGFILES/"
+    read_topic = "/LiDARTag"
 
     if load_folder:
         if len(sys.argv)==1:
-            read_topic = "/LiDARTag"
         elif len(sys.argv)==2:
             path = sys.argv[1]
-            read_topic = "/LiDARTag"
         elif len(sys.argv)==3:
             path = sys.argv[1]
             read_topic = sys.argv[2]
         else:
             print("wrong number of arguments")
             sys.exit();
+
         print 'Loading rosbag from: ', path
         print 'Topic is: ', read_topic
 
@@ -175,7 +204,9 @@ if __name__ == '__main__':
         # total, training, testing, bad_scan (too many points), original scan_num
         for bag in sorted(ros_bags):
             bag_id = int(str(bag[bag.rfind('.')-2]) + str(bag[bag.rfind('.')-1]))
-            convertToMatFile(bag_id, bag, read_topic)
+            
+            # assume patches have been extracted
+            convertToMatFile(bag_id, bag, read_topic, 1) 
     else:
         if len(sys.argv)==1:
             bag_name = "bagfile.bag" 
@@ -183,7 +214,6 @@ if __name__ == '__main__':
             read_topic1 = "/LiDARTag"
             read_topic2 = "/LiDARTag/DetectedPC"
             read_topic3 = "/velodyne_points"
-            # read_topic = "/LiDARTag/lidar_tag/Payload"
         elif len(sys.argv)==2:
             bag_name = sys.argv[1]
             event_name = "event-name"
@@ -212,6 +242,6 @@ if __name__ == '__main__':
         print 'Loading rosbag: ', bagfile
         print 'Topics are: ', topics
 
-        convertToMatFile(bagfile, topics, event_name)
+        convertToMatFile(bagfile, topics, event_name, extracted)
 
     print 'finished loading bagfiles' 
