@@ -109,6 +109,7 @@ If you would like to see how the LiDAR vertices are optimized, please place the 
 ```
 - Use you favorite methods to extract corners of camera targets and then write them in _getBagData.m_. When writing the corners, Please follow **top-left-right-bottom** order. 
 - Given point patches of LiDAR targets, saved them into .mat files and also put them _getBagData.m_. Please make sure you have correctly match your _lidar_target_ with _camera_target_. 
+- If you have trouble extracting patches of LiDAR targets, or converting bagfiles to mat-files, I have also provided another python script to conver a bagfile to a mat-file and extract patches. Please check out bag2mat.py.
 - RUN _justCalibrate.m_! That's it!
 
 note: You can place any number of targets with different size in different datasets.
