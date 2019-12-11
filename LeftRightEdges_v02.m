@@ -77,7 +77,8 @@ for i1=1:n1
     payload=payload(:,RingNotZero);
     [~,n3]=size(payload);
     payload=[payload;i1*ones(1,n3);ExpNmbr*ones(1,n3)];
-    if min(payload(1,:)) > 0
+    % if min(payload(1,:)) > 0
+    if min(abs(payload(1,:))) > 0
         PayLoad=[PayLoad,payload];
     end
     
