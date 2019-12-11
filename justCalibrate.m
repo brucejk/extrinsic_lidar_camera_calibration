@@ -237,7 +237,9 @@ fprintf("-- number of validation set: %i\n", size(bag_validation_indices, 2))
 fprintf("-- number of refinement: %i\n", opts.num_refinement)
 fprintf("-- number of LiDARTag's poses: %i\n", opts.num_lidar_target_pose)
 fprintf("-- number of scan to optimize a LiDARTag pose: %i\n", opts.num_scan)
-c = datestr(datetime); 
+% c = datestr(datetime); 
+c = datestr(datetime,'dd-mm-yyyy-SS-MM-HH'); 
+
 path.save_dir = path.save_name + "/" + c + "/";
 
 
