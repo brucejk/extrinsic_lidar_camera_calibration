@@ -1,6 +1,6 @@
 %% plot
 close all;
-num_targets=1;
+% num_targets=1;
 
 for i =1:num_targets
     w = null(plane{i}.unit_normals'); % Find two orthonormal vectors which are orthogonal to v
