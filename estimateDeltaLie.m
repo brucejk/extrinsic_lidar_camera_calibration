@@ -1,4 +1,4 @@
-function [delta, opt]= estimateDelta(opt, data, plane, delta, num_beams, num_targets)
+function [delta, opt]= estimateDeltaLie(opt, data, plane, delta, num_beams, num_targets)
     tic;
     for ring = 1:num_beams
         if(checkRingsCrossDataset(data, delta, num_targets, ring))
@@ -6,9 +6,9 @@ function [delta, opt]= estimateDelta(opt, data, plane, delta, num_beams, num_tar
         end
 %         ring
 %         dbstop in estimateDelta.m at 13 if ring>=32
-        theta_x = optimvar('theta_x', 1, 1,'LowerBound',-10,'UpperBound',10); % 1x1
-        theta_y = optimvar('theta_y', 1, 1,'LowerBound',-10,'UpperBound',10); % 1x1
-        theta_z = optimvar('theta_z', 1, 1,'LowerBound',-10,'UpperBound',10); % 1x1
+        theta_x = optimvar('theta_x', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
+        theta_y = optimvar('theta_y', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
+        theta_z = optimvar('theta_z', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
         T = optimvar('T', 1, 3,'LowerBound', -0.1,'UpperBound',0.1); % 1x3
         S = optimvar('S', 1, 3);
 
@@ -17,10 +17,10 @@ function [delta, opt]= estimateDelta(opt, data, plane, delta, num_beams, num_tar
 %         theta_z = 0;
 %         S = [1 1 1];
 %         T = [0 0 0];
-%         cost = optimizeMultiIntrinsicCost(data, plane, ring, theta_x, theta_y, theta_z, T, S);
+%         cost = optimizeMultiIntrinsicCostLie(data, plane, ring, theta_x, theta_y, theta_z, T, S);
                        
         prob = optimproblem;
-        f = fcn2optimexpr(@optimizeMultiIntrinsicCost, data, plane, ring,...
+        f = fcn2optimexpr(@optimizeMultiIntrinsicCostLie, data, plane, ring,...
                            theta_x, theta_y, theta_z, T, S);
         prob.Objective = f;
         x0.theta_x = opt.rpy_init(1);

@@ -8,7 +8,8 @@ function skip = checkRingsCrossDataset(data, delta, num_targets, ring)
         end
     end
 
-    if valid_target_num < min(3, num_targets) % less than this, skip the ring
+%     if valid_target_num < min(3, num_targets) % less than this, skip the ring
+    if valid_target_num < num_targets
         skip = true;
     else
         skip = false;
