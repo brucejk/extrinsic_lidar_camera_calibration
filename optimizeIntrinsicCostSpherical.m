@@ -1,4 +1,4 @@
-function cost = optimizeIntrinsicCost(X, plane, D_corr, theta_corr, phi_corr)
+function cost = optimizeIntrinsicCostSpherical(X, plane, D_corr, theta_corr, phi_corr)
 %     H = eye(4);
 %     H(1:3,1:3) = rotx(theta_x) * roty(theta_y) * rotz(theta_z);
 %     H(1:3,4) = T';

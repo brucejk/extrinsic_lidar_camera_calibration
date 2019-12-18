@@ -1,4 +1,4 @@
-function [delta, opt]= estimateDelta(opt, data, plane, delta, num_beams, num_targets)
+function [delta, opt]= estimateDeltaSpherical(opt, data, plane, delta, num_beams, num_targets)
     tic;
     for ring = 1:num_beams
         % If not enough data for a ring, don't try to calibrate it
@@ -31,7 +31,7 @@ function [delta, opt]= estimateDelta(opt, data, plane, delta, num_beams, num_tar
         phi_corr = optimvar('phi_corr', 1, 1,'LowerBound',deg2rad(-2),'UpperBound',deg2rad(2)); % 1x1
                         
         prob = optimproblem;
-        f = fcn2optimexpr(@optimizeMultiIntrinsicCost, data, plane, ring,...
+        f = fcn2optimexpr(@optimizeMultiIntrinsicCostSpherical, data, plane, ring,...
                            D_corr, theta_corr, phi_corr);
         prob.Objective = f;
         x0.D_corr = opt.D_corr_init;
