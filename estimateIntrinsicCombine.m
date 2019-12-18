@@ -22,7 +22,7 @@ mat_file_path = {path+'velodyne_points-Intrinsic-LargeTag--2019-11-21-22-04.mat'
                  path+'velodyne_points-upper7-SmallTag--2019-12-05-20-29.mat',...
                  path+'velodyne_points-upper8-SmallTag--2019-12-05-20-29.mat'};
 % mat_file_path = {'/home/brucebot/workspace/griztag/src/matlab/matlab/LiDARTag_data/velodyne_points-wavefield3-big--2019-09-07-19-04.mat'};
-opt_formulation = "Lie"; % Lie or Spherical
+opt_formulation = "Spherical"; % Lie or Spherical
 %%
 if (opt_formulation == "Lie")
     estimateIntrinsicLie(mat_file_path);

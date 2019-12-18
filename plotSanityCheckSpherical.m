@@ -1,7 +1,7 @@
 % %% plot
 % close all;
 % % num_targets=1;
-function plotSanityCheckSpherical(plane,data_split_with_ring, data_split_with_ring_raw, delta)
+function plotSanityCheckSpherical(num_targets,plane,data_split_with_ring, data_split_with_ring_raw, delta)
     for i =1:num_targets
         w = null(plane{i}.unit_normals'); % Find two orthonormal vectors which are orthogonal to v
         [P,Q] = meshgrid(-1:1); % Provide a gridwork (you choose the size)

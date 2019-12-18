@@ -43,7 +43,8 @@ function  estimateIntrinsicSpherical(mat_file_path)
         opt.delta.D_corr_init = 0;
         opt.delta.theta_corr_init = 0;
         opt.delta.phi_corr_init = 0;
-        delta = estimateDelta(opt.delta, data_split_with_ring, plane, delta(num_beams), num_beams, num_targets);
+        delta = estimateDeltaSpherical(opt.delta, data_split_with_ring, plane, delta(num_beams), num_beams, num_targets);
     end
     disp('done')
+    plotSanityCheckSpherical(num_targets, plane,data_split_with_ring, data_split_with_ring_raw, delta);
 end
