@@ -22,10 +22,47 @@ mat_file_path = {path+'velodyne_points-Intrinsic-LargeTag--2019-11-21-22-04.mat'
                  path+'velodyne_points-upper7-SmallTag--2019-12-05-20-29.mat',...
                  path+'velodyne_points-upper8-SmallTag--2019-12-05-20-29.mat'};
 % mat_file_path = {'/home/brucebot/workspace/griztag/src/matlab/matlab/LiDARTag_data/velodyne_points-wavefield3-big--2019-09-07-19-04.mat'};
-opt_formulation = "Spherical"; % Lie or Spherical
+num_beams = 32;
+num_scans = 1;
+num_targets = length(mat_file_path);
+num_iters = 3; % user defined iterations
+
+pc = cell(1,num_targets);
+for t = 1:num_targets
+ pc{t} = loadPointCloud(mat_file_path{t});
+end
+
+
+for i = 1: num_scans
+    data = cell(1,num_targets);% XYZIR 
+    for t = 1:num_targets
+        data{t} = getPayload(pc{t}, i , 1);
+    end
+end
 %%
+opt_formulation = "Spherical"; % Lie or Spherical
+
 if (opt_formulation == "Lie")
     estimateIntrinsicLie(mat_file_path);
+    
 elseif (opt_formulation == "Spherical")
-     estimateIntrinsicSpherical(mat_file_path);
+    % preprocess the data
+    spherical_data = cell(1,num_targets);
+    data_split_with_ring = cell(1,num_targets);
+    data_split_with_ring_raw = cell(1,num_targets);
+    for t = 1:num_targets
+        spherical_data{t} = Cartesian2Spherical(data{t});
+        data_split_with_ring{t} = splitPointsBasedOnRing(spherical_data{t}, num_beams);
+        data_split_with_ring_raw{t} = splitPointsBasedOnRing(data{t}, num_beams);
+    end
+    
+    % iteratively optimize the intrinsic parameters
+    for k = 1: num_iters
+        [delta, plane] = estimateIntrinsicSpherical(num_beams, num_targets, num_scans, data_split_with_ring, data_split_with_ring_raw);
+        % update the corrected points
+        data_split_with_ring = updateDataSpherical(num_beams, num_targets, data_split_with_ring, delta);
+        data_split_with_ring_raw = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta);
+    end
+    disp('done')
+    plotSanityCheckSpherical(num_targets, plane, data_split_with_ring, data, delta);   
 end
