@@ -127,11 +127,12 @@ function [cross_big_3d, edges]= KaessNewConstraintCorners(target_size, path, pc_
     edges.RU=U*[1 0; 0 1; 0 0]*([1 0;mu2 0] *REupperall +  [0;bRU])  + center;
     edges.RL=U*[1 0; 0 1; 0 0]*([1 0;mu1 0] *RElowerall +  [0;bRL] ) + center;
 
-    LEupperall_new = ([1 0;mu1 0] *LEupperall + [0;bLU] );
-    LElowerall_new = ([1 0;mu2 0] *LElowerall + [0;bLL] );
-    REupperall_new = ([1 0;mu2 0] *REupperall +  [0;bRU]);
-    RElowerall_new = ([1 0;mu1 0] *RElowerall +  [0;bRL] );
+    LEupperall_new = ([1 0;mu1 0] *LEupperall + [0;bLU]);
+    LElowerall_new = ([1 0;mu2 0] *LElowerall + [0;bLL]);
+    REupperall_new = ([1 0;mu2 0] *REupperall + [0;bRU]);
+    RElowerall_new = ([1 0;mu1 0] *RElowerall + [0;bRL]);
 
+    
     modelInliers_TL = polyfit(LEupperall_new(1,:)', LEupperall_new(2,:)', 1);
     modelInliers_BL = polyfit(LElowerall_new(1,:)', LElowerall_new(2,:)', 1);
 
@@ -144,11 +145,21 @@ function [cross_big_3d, edges]= KaessNewConstraintCorners(target_size, path, pc_
 
     cross_T=intersection(modelInliers_TL, modelInliers_TR);
 
-
     cross_B=intersection(modelInliers_BR, modelInliers_BL);
 
     cross_big_2d = [cross_T, cross_L, cross_R, cross_B];
+%     figure(400)
+%     hold on
+%     plot(LEupperall_new(1, :), LEupperall_new(2, :))
+%     plot(LElowerall_new(1, :), LElowerall_new(2, :))
+%     plot(REupperall_new(1, :), REupperall_new(2, :))
+%     plot(RElowerall_new(1, :), RElowerall_new(2, :))
+%     title('2D edges')
+%     scatter(cross_big_2d(1, :), cross_big_2d(2, :));
     cross_big_3d = U*[1 0; 0 1;0 0]*cross_big_2d + center;
     cross_big_3d = [cross_big_3d; ones(1,size(cross_big_3d,2))];
-
+    
+%     figure(500)
+%     hold on
+%     scatter3(cross_big_3d(1, :), cross_big_3d(2, :), cross_big_3d(3, :))
  end
