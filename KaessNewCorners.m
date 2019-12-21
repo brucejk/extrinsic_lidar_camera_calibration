@@ -24,7 +24,12 @@
  * The views and conclusions contained in the software and documentation are those
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the Regents of The University of Michigan.
+<<<<<<< HEAD
  *  * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
+=======
+ * 
+ * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
+>>>>>>> 8c6b9a3c657c2f4d84771478a617b1c7ef898cef
  * WEBSITE: https://www.brucerobot.com/
 %}
 
@@ -39,8 +44,6 @@ function [cross_big_3d, edges]= KaessNewCorners(target_size, path, pc_mat, pc_it
     img_fig_handles = createFigHandle(3, "picked points vis");
 
 %     [U, center, LEupper, LElower, REupper, RElower, ~, ~] = clickedToFindEdges(img_fig_handles, pnts, d, pc_iter);
-    
-    
     [nL1,nL2,nL3]=size(LEupper);
     LEupperall=reshape(LEupper,nL1,nL2*nL3);
     I=find( (LEupperall(1,:)~= 10) & (LEupperall(2,:)~= 10) ); 
@@ -64,7 +67,6 @@ function [cross_big_3d, edges]= KaessNewCorners(target_size, path, pc_mat, pc_it
     I=find( (RElowerall(1,:)~= 10) & (RElowerall(2,:)~= 10) ); 
     edges.RL=U*[1 0; 0 1; 0 0]*RElowerall(:,I) + center;
     RElowerall_new = RElowerall(:, I);
-
 
     [x_TL, y_TL, modelInliers_TL] = ransacLine(LEupperal_new(1:2, :)', ransac_threshold);
 
