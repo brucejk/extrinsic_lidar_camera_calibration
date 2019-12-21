@@ -24,7 +24,12 @@
  * The views and conclusions contained in the software and documentation are those
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the Regents of The University of Michigan.
+<<<<<<< HEAD
  *  * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
+=======
+ * 
+ * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
+>>>>>>> 8c6b9a3c657c2f4d84771478a617b1c7ef898cef
  * WEBSITE: https://www.brucerobot.com/
 %}
 
@@ -39,8 +44,6 @@ function [cross_big_3d, edges]= KaessNewCorners(target_size, path, pc_mat, pc_it
     img_fig_handles = createFigHandle(3, "picked points vis");
 
 %     [U, center, LEupper, LElower, REupper, RElower, ~, ~] = clickedToFindEdges(img_fig_handles, pnts, d, pc_iter);
-    
-    
     [nL1,nL2,nL3]=size(LEupper);
     LEupperall=reshape(LEupper,nL1,nL2*nL3);
     I=find( (LEupperall(1,:)~= 10) & (LEupperall(2,:)~= 10) ); 
@@ -64,7 +67,6 @@ function [cross_big_3d, edges]= KaessNewCorners(target_size, path, pc_mat, pc_it
     I=find( (RElowerall(1,:)~= 10) & (RElowerall(2,:)~= 10) ); 
     edges.RL=U*[1 0; 0 1; 0 0]*RElowerall(:,I) + center;
     RElowerall_new = RElowerall(:, I);
-
 
     [x_TL, y_TL, modelInliers_TL] = ransacLine(LEupperal_new(1:2, :)', ransac_threshold);
 
@@ -90,18 +92,18 @@ function [cross_big_3d, edges]= KaessNewCorners(target_size, path, pc_mat, pc_it
     cross_big_3d = [cross_big_3d; ones(1,size(cross_big_3d,2))];
     cross_big_3d = sortrows(cross_big_3d', 3, 'descend')';
      
-    figure(103)
-    scatter(LEupperal_new(1,:), LEupperal_new(2,:),'.r'), hold on,
-    scatter(LElowerall_new(1,:), LElowerall_new(2,:), '.b'), hold on,
-    scatter(REupperall_new(1,:), REupperall_new(2,:), '.g'), hold on, grid on, axis equal
-    scatter(RElowerall_new(1,:), RElowerall_new(2,:), '.k'),
-    plot(x_BL, y_BL, 'r-')
-    plot(x_TL, y_TL, 'b-')
-    plot(x_TR, y_TR, 'g-')
-    plot(x_BR, y_BR, 'k-')
-    plot([cross_L(1) cross_B(1)], [cross_L(2) cross_B(2)], 'r-')
-    plot([cross_L(1) cross_T(1)], [cross_L(2) cross_T(2)], 'b-')
-    plot([cross_R(1) cross_T(1)], [cross_R(2) cross_T(2)], 'g-')
-    plot([cross_R(1) cross_B(1)], [cross_R(2) cross_B(2)], 'k-')
-    scatter(cross_big_2d(1,:), cross_big_2d(2,:), 'd')
+    % figure(103)
+    % scatter(LEupperal_new(1,:), LEupperal_new(2,:),'.r'), hold on,
+    % scatter(LElowerall_new(1,:), LElowerall_new(2,:), '.b'), hold on,
+    % scatter(REupperall_new(1,:), REupperall_new(2,:), '.g'), hold on, grid on, axis equal
+    % scatter(RElowerall_new(1,:), RElowerall_new(2,:), '.k'),
+    % plot(x_BL, y_BL, 'r-')
+    % plot(x_TL, y_TL, 'b-')
+    % plot(x_TR, y_TR, 'g-')
+    % plot(x_BR, y_BR, 'k-')
+    % plot([cross_L(1) cross_B(1)], [cross_L(2) cross_B(2)], 'r-')
+    % plot([cross_L(1) cross_T(1)], [cross_L(2) cross_T(2)], 'b-')
+    % plot([cross_R(1) cross_T(1)], [cross_R(2) cross_T(2)], 'g-')
+    % plot([cross_R(1) cross_B(1)], [cross_R(2) cross_B(2)], 'k-')
+    % scatter(cross_big_2d(1,:), cross_big_2d(2,:), 'd')
  end

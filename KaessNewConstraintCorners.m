@@ -132,7 +132,6 @@ function [cross_big_3d, edges]= KaessNewConstraintCorners(target_size, path, pc_
     REupperall_new = ([1 0;mu2 0] *REupperall + [0;bRU]);
     RElowerall_new = ([1 0;mu1 0] *RElowerall + [0;bRL]);
 
-    
     modelInliers_TL = polyfit(LEupperall_new(1,:)', LEupperall_new(2,:)', 1);
     modelInliers_BL = polyfit(LElowerall_new(1,:)', LElowerall_new(2,:)', 1);
 
@@ -158,6 +157,8 @@ function [cross_big_3d, edges]= KaessNewConstraintCorners(target_size, path, pc_
 %     scatter(cross_big_2d(1, :), cross_big_2d(2, :));
     cross_big_3d = U*[1 0; 0 1;0 0]*cross_big_2d + center;
     cross_big_3d = [cross_big_3d; ones(1,size(cross_big_3d,2))];
+    cross_big_3d = sortrows(cross_big_3d', 3, 'descend')';
+
     
 %     figure(500)
 %     hold on
