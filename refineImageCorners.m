@@ -29,7 +29,12 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function BagData = refineImageCorners(path, BagData, skip_indices, display)
+function BagData = refineImageCorners(path, BagData, skip_indices, display, t_clean)
+    if nargin > 4
+        clean = t_clean;
+    else
+        clean = 1;
+    end
     extend_fac = 2;
     corner_array = [1 1 2 3
                     2 3 4 4];
@@ -49,15 +54,20 @@ function BagData = refineImageCorners(path, BagData, skip_indices, display)
         
         if checkDisplay(display)
             figure(1000)
-            clf('reset')
+            if clean
+                clf('reset')
+                imshow(img)
+            end
             hold on
-            imshow(img)
+
             title(file)
             
             figure(2000)
-            clf('reset')
+            if clean
+                clf('reset')
+                imshow(BW)
+            end
             hold on
-            imshow(BW)
             title(file)
         end
         for j = 1:BagData(k).num_tag
