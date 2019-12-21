@@ -158,6 +158,8 @@ function [cross_big_3d, edges]= KaessNewConstraintCorners(target_size, path, pc_
 %     scatter(cross_big_2d(1, :), cross_big_2d(2, :));
     cross_big_3d = U*[1 0; 0 1;0 0]*cross_big_2d + center;
     cross_big_3d = [cross_big_3d; ones(1,size(cross_big_3d,2))];
+    cross_big_3d = sortrows(cross_big_3d', 3, 'descend')';
+
     
 %     figure(500)
 %     hold on
