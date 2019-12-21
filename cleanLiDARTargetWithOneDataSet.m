@@ -47,17 +47,17 @@ function [X_clean, clean_up] = cleanLiDARTargetWithOneDataSet(X, target_len, opt
     clean_up.std = N*(X_std(1));
     clean_up.L_infinity = L_infinity;
     clean_up.L_1 = sum(X_ref(1:3,:), 1);
-%     figure(200);
-%     clf('reset')
-%     scatter3(X_ref(1,:), X_ref(2,:), X_ref(3,:))
-%     xlabel('x') 
-%     ylabel('y') 
-%     zlabel('z') 
-%     axis equal
-%     hold on;
-%     scatter3(X_ref_clean_yz(1,:), X_ref_clean_yz(2,:), X_ref_clean_yz(3,:))
-%     scatter3(X_ref_clean(1,:), X_ref_clean(2,:), X_ref_clean(3,:))
-%     axis equal
-%     view(90,0)
-%     hold off;    
+    figure(200);
+    clf('reset')
+    scatter3(X_ref(1,:), X_ref(2,:), X_ref(3,:))
+    xlabel('x') 
+    ylabel('y') 
+    zlabel('z') 
+    axis equal
+    hold on;
+    scatter3(X_ref_clean_yz(1,:), X_ref_clean_yz(2,:), X_ref_clean_yz(3,:))
+    scatter3(X_ref_clean(1,:), X_ref_clean(2,:), X_ref_clean(3,:))
+    axis equal
+    view(90,0)
+    hold off;    
 end
