@@ -127,6 +127,9 @@ function [bag_data, H_LT] = getAll4CornersReturnHLT(tag_num, opt, path, bag_data
             end
             similarity_table(pc_iter).mins = sum(mink([similarity_table(pc_iter).scan(:).diff], opts.num_lidar_target_pose));
         end
+        if ~exist(path.save_dir, 'dir')
+            mkdir(path.save_dir)
+        end
         save(path.save_dir + extractBetween(bag_data.bagfile,"",".bag") + '_' + tag_num + '_' + '_all_scan_corners.mat', 'similarity_table', 'scan_total');
     else
         load(path.load_all_vertices + extractBetween(bag_data.bagfile,"",".bag") + '_' + tag_num + '_' + '_all_scan_corners.mat');
