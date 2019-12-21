@@ -81,7 +81,8 @@ path.load_all_vertices = "NewPaper/16-Nov-2019 14:53:58/";
 % path.load_all_vertices = "ALL_LiDAR_vertices/";
 path.bag_file_path = "bagfiles/";
 path.mat_file_path = "LiDARTag_data/";
-
+path.load_dir = "NewPaper/15-Nov-2019 19:00:42/";
+path.load_all_vertices = "NewPaper/16-Nov-2019 14:53:58/";
 
 % save into results into folder         
 path.save_name = "ICRA2020";
