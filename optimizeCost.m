@@ -54,6 +54,12 @@ function opt = optimizeCost(opt, X, target_size, box_width)
             tic;
             opt = optimizeConstraintCustomizedCost(opt, X, target_size, box_width);
             opt.computation_time = toc;
+        case 'The Wall'
+            opt.metric = "PointToAxis";
+            opt.unit = "L1-inspired";
+            tic;
+            opt = optimizeBoundaries(opt, opts, X);
+            opt.computation_time = toc;
         case 'Coherent Point Drift'
             opt.metric = "--";
             opt.unit = "RMSE";
