@@ -61,7 +61,7 @@ end
 %IndScans=[5:10]; % Selected Scans
 %IndScans=[40:120]; % Selected Scans
 % IndScans=[20:40]; % Selected Scans
-IndScans=[1:3]; % Selected Scans
+IndScans=[1:20]; % Selected Scans
 %IndScans=[50:100]; % Selected Scans
 %IndScans=[50:150]; % Selected Scans
 %
@@ -103,6 +103,7 @@ end
 
 % figure()
 % scatter3(PayLoad(1,:), PayLoad(2,:), PayLoad(3,:), '.'), view(-90,3)
+% axis equal
 % title('Original Data')
 
 %% Clean Data 
@@ -110,8 +111,16 @@ meanData=mean(PayLoad(1:3,:),2);
 error=abs(PayLoad(1:3,:)-meanData);
 distance=sum(error,1);
 K=find(distance < d*1.025);
-PayLoadClean=PayLoad(:,K);
+PayLoadClean=PayLoad(:, K);
 meanClean=mean(PayLoadClean(1:3,:),2);
+
+opt.H_TL.rpy_init = [45 2 3];
+opt.H_TL.T_init = [2, 0, 0];
+opt.H_TL.H_init = eye(4);
+opt.H_TL.method = "Constraint Customize"; 
+opt.H_TL.UseCentroid = 1;
+[~, ~, clean_up_indices, ~] = cleanLiDARTargetWithOneDataSetWithIndices(PayLoadClean, d/sqrt(2), opt.H_TL);
+PayLoadClean=PayLoad(:, clean_up_indices);
 
 % Check for entire rings being removed
 FirstRing=min(PayLoadClean(5,:));
@@ -120,13 +129,12 @@ LastRing=max(PayLoadClean(5,:));
 RingNumbers=[FirstRing:1:LastRing];
 NRings=length(RingNumbers);
 
-% figure()
+% figure(500)
 % scatter3(PayLoadClean(1,:), PayLoadClean(2,:), PayLoadClean(3,:), '.'),  view(-90,3)
+% axis equal
 % title('Cleaned Up Data')
 
 %% Build a projection to a plane that will be used to find Edge Data
-
-
 K=find( and(( PayLoadClean(6,:) > IndScans(1) ),( PayLoadClean(6,:) < IndScans(end))  ));
 
 XYZ=PayLoadClean(1:3,K);
@@ -146,10 +154,11 @@ NScans=max(PayLoadClean(6,:))- min(PayLoadClean(6,:));
 % Uc; is used for the projection;
 
 %% Project to a plane, find ring lines and the edges of the target edges
-Data=PayLoadClean(1:3,:);
-temp=Uc'*(Data-mean(Data,2));
+% Data=PayLoadClean(1:3,:);
+% temp=Uc'*(Data-mean(Data,2));
 % data2D=temp(Ind2D,:); %Project out the distance component
-% figure(),plot(data2D(1,:),data2D(2,:),'.b'), grid on, axis equal, hold on
+% figure(600),plot(data2D(1,:),data2D(2,:),'.b'), grid on, axis equal, hold on
+% title("Projected points")
 
 % loop over with target shaped as a diamond
 LE=10*ones(2,NRings,NScans); RE=LE; i=0;
@@ -185,13 +194,13 @@ Iend=i;
 %find the rings for the various parts of the diamond
 LEavg=zeros(2,Iend);
 for i=1:Iend
-LEtemp=squeeze(LE(:,i,:));
-I=find( (LEtemp(1,:)~= 10) & (LEtemp(2,:)~= 10) ); 
-LEtemp=LEtemp(:,I);
-LEavg(:,i)=mean(LEtemp,2);
-REtemp=squeeze(RE(:,i,:));
-REtemp=REtemp(:,I);
-REavg(:,i)=mean(REtemp,2);
+    LEtemp=squeeze(LE(:,i,:));
+    I=find( (LEtemp(1,:)~= 10) & (LEtemp(2,:)~= 10) ); 
+    LEtemp=LEtemp(:,I);
+    LEavg(:,i)=mean(LEtemp,2);
+    REtemp=squeeze(RE(:,i,:));
+    REtemp=REtemp(:,I);
+    REavg(:,i)=mean(REtemp,2);
 end
 U=Uc;
 center=meanClean;
@@ -205,8 +214,12 @@ I=find(RingNumbers<= iRing);
 LElower=LE(:,1:iRing,:);
 I=find(RingNumbers >= iRing);
 LEupper=LE(:,iRing:end,:);
-
-
+% figure(600)
+% hold on
+% scatter(RElower(1,2:end), RElower(2,2:end))
+% scatter(REupper(1,2:end), REupper(2,2:end))
+% scatter(LElower(1,2:end), LElower(2,2:end))
+% scatter(LEupper(1,2:end), LEupper(2,2:end))
 
 end
 
