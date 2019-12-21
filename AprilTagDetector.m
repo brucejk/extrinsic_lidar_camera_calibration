@@ -34,9 +34,9 @@ clc
 addpath('/home/brucebot/test')
 path = "/home/brucebot/workspace/griztag/src/griz_tag/bagfiles/matlab/";
 % file = "3Tags-OldLiDAR.bag";
-% file = "lab_angled.bag";
+% file = "lab_angled.bag"; 
 % file = "lab2-closer.bag";
-file = "lab4-closer-cleaner.bag";
+file = "the-wall-intrinsic-upper2.bag";
 % file = "wall1.bag";
 % file = "wavefield_3tag_closer.bag";
 bagselect = rosbag(path + file);
