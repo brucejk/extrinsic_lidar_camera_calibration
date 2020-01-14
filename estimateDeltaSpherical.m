@@ -1,7 +1,6 @@
 function [delta, opt]= estimateDeltaSpherical(opt, data, plane, delta, num_beams, num_targets)
     tic;
     for ring = 1:num_beams
-        % If not enough data for a ring, don't try to calibrate it
         valid_target_num = num_targets;
         for target = 1:num_targets
             if size(data{target}(ring).points,2) == 0

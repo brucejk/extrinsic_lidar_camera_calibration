@@ -1,7 +1,16 @@
 function [delta, opt]= estimateDeltaLie(opt, data, plane, delta, num_beams, num_targets)
     tic;
     for ring = 1:num_beams
-        if(checkRingsCrossDataset(data, delta, num_targets, ring))
+        valid_target_num = num_targets;
+        for target = 1:num_targets
+            if size(data{target}(ring).points, 2) == 0
+                delta(ring).H = eye(4);
+                delta(ring).Affine = eye(4);
+                valid_target_num = valid_target_num -1;
+            end
+        end
+        
+        if valid_target_num < num_targets
             continue
         end
 %         ring
@@ -10,12 +19,12 @@ function [delta, opt]= estimateDeltaLie(opt, data, plane, delta, num_beams, num_
         theta_y = optimvar('theta_y', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
         theta_z = optimvar('theta_z', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
         T = optimvar('T', 1, 3,'LowerBound', -0.1,'UpperBound',0.1); % 1x3
-        S = optimvar('S', 1, 3);
+        S = optimvar('S', 1, 1);
 
 %         theta_x = 0;
 %         theta_y = 0;
 %         theta_z = 0;
-%         S = [1 1 1];
+%         S = 1;
 %         T = [0 0 0];
 %         cost = optimizeMultiIntrinsicCostLie(data, plane, ring, theta_x, theta_y, theta_z, T, S);
                        
@@ -26,7 +35,7 @@ function [delta, opt]= estimateDeltaLie(opt, data, plane, delta, num_beams, num_
         x0.theta_x = opt.rpy_init(1);
         x0.theta_y = opt.rpy_init(2);
         x0.theta_z = opt.rpy_init(3);
-        x0.S = [1 1 1];
+        x0.S = opt.scale_init;
         x0.T = opt.T_init;
 
         options = optimoptions('fmincon', 'MaxIter',5e2, 'Display','off', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
@@ -49,9 +58,9 @@ function [delta, opt]= estimateDeltaLie(opt, data, plane, delta, num_beams, num_
         delta(ring).H = eye(4);
         delta(ring).H(1:3, 1:3) = R_final;
         delta(ring).H(1:3, 4) = sol.T;
-        Scaling = [sol.S(1) 0        0        0
-                   0        sol.S(2) 0        0
-                   0        0        sol.S(3) 0
+        Scaling = [sol.S    0        0        0
+                   0        sol.S    0        0
+                   0        0        sol.S    0
                    0        0        0        1];
         delta(ring).Affine = Scaling * delta(ring).H;
         

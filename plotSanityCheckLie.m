@@ -1,7 +1,7 @@
 %% plot
 % clc, close all;
 % num_targets=1;
-function plotSanityCheckLie(num_targets, plane,data_split_with_ring,delta)
+function plotSanityCheckLie(num_targets, plane,data, data_split_with_ring)
     mesh_size = [-1, 1];
     for i =1:num_targets
         w = null(plane{i}.unit_normals'); % Find two orthonormal vectors which are orthogonal to v
@@ -12,21 +12,18 @@ function plotSanityCheckLie(num_targets, plane,data_split_with_ring,delta)
         figure(1);
         surf(X,Y,Z);
         hold on;
-    %     axis equal
-    %     scatter3(data{i}(1,:),data{i}(2,:),data{i}(3,:), 30, 'b.');
+%         axis equal
+        scatter3(data{i}(1,:),data{i}(2,:),data{i}(3,:), 30, 'b.');
         for ring =1:32
-            if(checkRingsCrossDataset(data_split_with_ring, delta, num_targets, ring))
-                continue
-            end
-            if (isempty(data_split_with_ring{i}(ring).points) || size(data_split_with_ring{i}(ring).points, 2) < 10)
+%             if(checkRingsCrossDataset(data_split_with_ring, num_targets, ring))
+%                 continue
+%             end
+            if (isempty(data_split_with_ring{i}(ring).points))
                 continue;
             else
-%                 ring
                 scatter3(data_split_with_ring{i}(ring).points(1,:),...
                          data_split_with_ring{i}(ring).points(2,:),...
-                         data_split_with_ring{i}(ring).points(3,:), 200, 'b.');
-                transformedPoints = delta(ring).Affine * data_split_with_ring{i}(ring).points;
-                scatter3(transformedPoints(1,:),transformedPoints(2,:),transformedPoints(3,:), 200, 'r.');
+                         data_split_with_ring{i}(ring).points(3,:), 50, 'r.');
             end
         end   
     end

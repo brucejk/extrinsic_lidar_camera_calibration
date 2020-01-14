@@ -1,20 +1,9 @@
-function estimateIntrinsicLie(mat_file_path)
-    num_beams = 32;
-    num_targets = size(mat_file_path,2);                          
-    pc = cell(1,num_targets);
-    for t = 1:num_targets
-        pc{t} = loadPointCloud(mat_file_path{t});
-    end
-    num_scans = 1;
+function [delta, plane] = estimateIntrinsicLie(num_beams, num_targets, num_scans, data_split_with_ring)
     delta(num_beams).H = struct();
+    delta(num_beams).Affine = struct();
     %%
     for i = 1: num_scans
-        scans = 1;
-        data = cell(1,num_targets);% XYZIR 
-        for t = 1:num_targets
-            data{t} = getPayload(pc{t}, i , 1);
-        end
-        % Step 2: Calculate 'ground truth' points by projecting the angle onto the
+        % Calculate 'ground truth' points by projecting the angle onto the
         % normal plane
         %
         % Assumption: we have the normal plane at this step in the form:
@@ -28,19 +17,21 @@ function estimateIntrinsicLie(mat_file_path)
         opt.corners.UseCentroid = 1;
 
         plane = cell(1,num_targets);
-        data_split_with_ring = cell(1,num_targets);
         for t = 1:num_targets
-            [plane{t}, ~] = estimateNormal(opt.corners, data{t}(1:3, :), 0.8051);
-            data_split_with_ring{t} = splitPointsBasedOnRing(data{t}, num_beams);
+            X = [];
+            for j = 1: num_beams
+                X = [X,data_split_with_ring{t}(j).points];
+            end
+            [plane{t}, ~] = estimateNormal(opt.corners, X(1:3, :), 0.8051);
         end
 
         opt.delta.rpy_init = [0 0 0];
         opt.delta.T_init = [0, 0, 0];
+        opt.delta.scale_init = 1;
         opt.delta.H_init = eye(4);
         delta = estimateDeltaLie(opt.delta, data_split_with_ring, plane, delta(num_beams), num_beams, num_targets);
     end
-    disp('done')
-    plotSanityCheckLie(num_targets, plane,data_split_with_ring,delta);
+
 end
 
 

@@ -25,7 +25,7 @@ mat_file_path = {path+'velodyne_points-Intrinsic-LargeTag--2019-11-21-22-04.mat'
 num_beams = 32;
 num_scans = 1;
 num_targets = length(mat_file_path);
-num_iters = 3; % user defined iterations
+num_iters = 10; % user defined iterations
 
 pc = cell(1,num_targets);
 for t = 1:num_targets
@@ -40,12 +40,24 @@ for i = 1: num_scans
     end
 end
 %%
-opt_formulation = "Spherical"; % Lie or Spherical
+opt_formulation = ["Lie","Spherical"]; % Lie or Spherical
 
-if (opt_formulation == "Lie")
-    estimateIntrinsicLie(mat_file_path);
+method = 1;
+
+if (opt_formulation(method) == "Lie")
+    data_split_with_ring = cell(1,num_targets);
+    for t = 1:num_targets
+        data_split_with_ring{t} = splitPointsBasedOnRing(data{t}, num_beams);
+    end 
     
-elseif (opt_formulation == "Spherical")
+    for k = 1: num_iters
+        [delta, plane] = estimateIntrinsicLie(num_beams, num_targets, num_scans, data_split_with_ring);
+        data_split_with_ring = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta, opt_formulation(method));
+    end
+    disp('done')
+    plotSanityCheckLie(num_targets, plane, data, data_split_with_ring);
+    
+elseif (opt_formulation(method) == "Spherical")
     % preprocess the data
     spherical_data = cell(1,num_targets);
     data_split_with_ring = cell(1,num_targets);
@@ -61,8 +73,8 @@ elseif (opt_formulation == "Spherical")
         [delta, plane] = estimateIntrinsicSpherical(num_beams, num_targets, num_scans, data_split_with_ring, data_split_with_ring_raw);
         % update the corrected points
         data_split_with_ring = updateDataSpherical(num_beams, num_targets, data_split_with_ring, delta);
-        data_split_with_ring_raw = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta);
+        data_split_with_ring_raw = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta, opt_formulation(method));
     end
     disp('done')
-    plotSanityCheckSpherical(num_targets, plane, data_split_with_ring, data, delta);   
+    plotSanityCheckSpherical(num_targets, plane, data_split_with_ring_raw, data);   
 end
