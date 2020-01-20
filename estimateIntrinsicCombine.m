@@ -54,7 +54,7 @@ if (opt_formulation(method) == "Lie")
     for k = 1: num_iters
         [delta, plane] = estimateIntrinsicLie(num_beams, num_targets, num_scans, data_split_with_ring);
         data_split_with_ring = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta, opt_formulation(method));
-        distance{k} = points2PlaneDistance(data_split_with_ring, plane, num_beams); 
+        distance{k} = point2PlaneDistance(data_split_with_ring, plane, num_beams, num_targets); 
     end
     
     disp('done')
@@ -78,7 +78,7 @@ elseif (opt_formulation(method) == "Spherical")
         % update the corrected points
         data_split_with_ring = updateDataSpherical(num_beams, num_targets, data_split_with_ring, delta);
         data_split_with_ring_raw = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta, opt_formulation(method));
-        distance{k} = points2PlaneDistance(data_split_with_ring_raw, plane, num_beams); 
+        distance{k} = point2PlaneDistance(data_split_with_ring_raw, plane, num_beams, num_targets); 
     end
     disp('done')
     plotSanityCheckSpherical(num_targets, plane, data_split_with_ring_raw, data);   
