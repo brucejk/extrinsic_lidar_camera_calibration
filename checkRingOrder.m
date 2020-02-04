@@ -55,12 +55,13 @@ function [ring_ordered, ring_misorder_list] = checkRingOrder(data_split_with_rin
     z_axis = [ring_order(:).z_axis];
     ind_non_zeros = find(z_axis);
     ring_ordered = issorted(z_axis(ind_non_zeros));
-    [x,idx]=sort([ring_order(:).z_axis]);
-    ring_misorder_list=ring_order(idx);
     if ring_ordered
         disp("Rings are ordered!")
+        ring_misorder_list = ring_order;
     else
+        [x,idx]=sort([ring_order(:).z_axis]);
+        ring_misorder_list=ring_order(idx);
         warning("Rings are mis-ordered.....")
-        [ring_order(:).ring;ring_misorder_list.ring]'
+        [ring_order(:).ring; ring_misorder_list.ring]'
     end
 end
