@@ -63,6 +63,7 @@ function [delta, opt]= estimateDeltaLie(opt, data, plane, delta, num_beams, num_
                    0        sol.S    0        0
                    0        0        sol.S    0
                    0        0        0        1];
+        delta(ring).Scaling = Scaling;
         delta(ring).Affine = Scaling * delta(ring).H;
         
         delta(ring).opt_total_cost = fval;
