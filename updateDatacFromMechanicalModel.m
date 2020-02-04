@@ -1,9 +1,9 @@
-function data = updateDatacFromMechanicalModel(num_beams, num_targets, data_split_with_ring, delta)
+function data = updateDatacFromMechanicalModel(num_beams, num_targets, data_split_with_ring, delta, valid_rings_targets)
 %     data = cell(1,17);
     data = data_split_with_ring;
     for i =1:num_targets
         for ring = 1: num_beams
-            if (isempty(data_split_with_ring{i}(ring).points))
+            if (skipApplying(valid_rings_targets, ring, data_split_with_ring, i))
                   continue;
             else
 %                 data = zeros(size(data_split_with_ring{i}(ring).points));
