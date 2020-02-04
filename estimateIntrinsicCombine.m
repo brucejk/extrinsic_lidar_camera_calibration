@@ -26,7 +26,7 @@ opts.method = 1; % Lie; Spherical
 opts.iterative = 1;
 
 opts.num_beams = 32;
-opts.num_scan = 1;
+opts.num_scans = 1;
 opts.num_iters = 10; % user defined iterations
 
 % path = "/home/chenxif/Documents/me590/Calibration/IntrinsicCalibration/extracted_tags/";
@@ -66,7 +66,7 @@ for t = 1:num_targets
 end
 
 disp("Pre-processing payload points...")
-for i = 1: opts.num_scan
+for i = 1: opts.num_scans
     data = struct('point_cloud', cell(1,num_targets), 'tag_size', cell(1,num_targets));% XYZIR 
     for t = 1:num_targets
         data(t).payload_points = getPayload(pc(t).point_cloud, i , 1);
