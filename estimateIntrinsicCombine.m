@@ -69,24 +69,26 @@ disp("Pre-processing payload points...")
 for i = 1: opts.num_scans
     data = struct('point_cloud', cell(1,num_targets), 'tag_size', cell(1,num_targets));% XYZIR 
     for t = 1:num_targets
-        data(t).payload_points = getPayload(pc(t).point_cloud, i , 1);
+        data(t).payload_points = getPayload(pc(t).point_cloud, i , opts.num_scans);
         data(t).tag_size = mat_files(t).tag_size;
     end
 end
 disp("Done loading data!")
+
+
 %% optimization intrinsic parameters
 clc
 % if ones want to re-run this process
-opts.iterative = 1;
+opts.iterative = 10;
 opts.method = 1; % Lie; Spherical
-
+opts.num_iters = 10;
 
 if (opt_formulation(opts.method) == "Lie")
-    data_split_with_ring = cell(1,num_targets);
+    data_split_with_ring_cartesian = cell(1,num_targets);
 
     disp("Parsing data...")
     for t = 1:num_targets
-        data_split_with_ring{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams);
+        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams);
     end 
     
     disp("Optimizing using Lie Group method...")
@@ -97,33 +99,26 @@ if (opt_formulation(opts.method) == "Lie")
     distance(opts.num_iters).ring(opts.num_beams) = struct();
     for k = 1: opts.num_iters
         fprintf("--- Working on %i/%i\n", k, opts.num_iters)
-        [delta, plane] = estimateIntrinsicLie(opts.num_beams, num_targets, opts.num_scans, data_split_with_ring);
+        [delta, plane, valid_rings_and_targets] = estimateIntrinsicLie(opts.num_beams, num_targets, opts.num_scans, data_split_with_ring_cartesian);
         if k == 1
-            distance_original = point2PlaneDistance(data_split_with_ring, plane, opts.num_beams, num_targets); 
+            distance_original = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
         end
         % update the corrected points
-        data_split_with_ring = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring, delta, opt_formulation(opts.method));
-        distance(k) = point2PlaneDistance(data_split_with_ring, plane, opts.num_beams, num_targets); 
+        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring_cartesian, delta, valid_rings_and_targets, opt_formulation(opts.method));
+        distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
     end
 
-    disp('Done optimization')
-    if opts.show_results
-        disp("Now plotting....")
-        plotSanityCheckLie(num_targets, plane, data, data_split_with_ring);
-        disp("Done plotting!")
-    end
-    
 elseif (opt_formulation(opts.method) == "Spherical")
     % preprocess the data
     spherical_data = cell(1,num_targets);
     data_split_with_ring = cell(1, num_targets);
-    data_split_with_ring_raw = cell(1, num_targets);
+    data_split_with_ring_cartesian = cell(1, num_targets);
 
     disp("Parsing data...")
     for t = 1:num_targets
         spherical_data{t} = Cartesian2Spherical(data(t).payload_points);
         data_split_with_ring{t} = splitPointsBasedOnRing(spherical_data{t}, opts.num_beams);
-        data_split_with_ring_raw{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams);
+        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams);
     end
     
     disp("Optimizing using a mechanical model...")
@@ -136,26 +131,30 @@ elseif (opt_formulation(opts.method) == "Spherical")
      % iteratively optimize the intrinsic parameters
     for k = 1: opts.num_iters
         fprintf("--- Working on %i/%i\n", k, opts.num_iters)
-        [delta, plane] = estimateIntrinsicFromMechanicalModel(opts.num_beams, num_targets, opts.num_scans, data_split_with_ring, data_split_with_ring_raw);
+        [delta, plane, valid_rings_and_targets] = estimateIntrinsicFromMechanicalModel(opts.num_beams, num_targets, opts.num_scans, data_split_with_ring, data_split_with_ring_cartesian);
         if k == 1
-            distance_original = point2PlaneDistance(data_split_with_ring, plane, opts.num_beams, num_targets); 
+            distance_original = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
         end
+        
         % update the corrected points
-        data_split_with_ring = updateDatacFromMechanicalModel(opts.num_beams, num_targets, data_split_with_ring, delta);
-        data_split_with_ring_raw = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring, delta, opt_formulation(opts.method));
-        distance(k) = point2PlaneDistance(data_split_with_ring_raw, plane, opts.num_beams, num_targets); 
+        data_split_with_ring = updateDatacFromMechanicalModel(opts.num_beams, num_targets, data_split_with_ring, delta, valid_rings_and_targets);
+        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring, delta, valid_rings_and_targets, opt_formulation(opts.method));
+        distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
     end
-    disp('Done optimization')
-    if opts.show_results
-        disp("Now plotting....")
-        plotSanityCheckSpherical(num_targets, plane, data_split_with_ring_raw, data);   
-        disp("Done plotting!")
-    end
+end
+disp('Done optimization')
+
+% show graphical results
+if opts.show_results
+    disp("Now plotting....")
+    plotCalibratedResults(num_targets, plane, data_split_with_ring_cartesian, data, opt_formulation(opts.method));   
+    disp("Done plotting!")
 end
 
 
-% showing results
-disp("Showing results...")
+% show numerical results
+disp("Showing numerical results...")
+disp("Showing current estimate")
 results = struct('ring', {distance(end).ring(:).ring}, ...
                  'num_points', {distance(end).ring(:).num_points}, ...
                  'mean_original', {distance_original.ring(:).mean}, ...
@@ -165,10 +164,11 @@ results = struct('ring', {distance(end).ring(:).ring}, ...
                  'mean_diff_in_mm', num2cell(([distance_original.ring(:).mean] - [distance(end).ring(:).mean]) * 1e3), ...
                  'std_diff_in_mm', num2cell(([distance_original.ring(:).std] - [distance(end).ring(:).std])* 1e3));
 struct2table(distance(end).ring(:))
+disp("Showing comparison")
 struct2table(results)
 
-%% check if ring mis-ordered
+% check if ring mis-ordered
 disp("If the rings are mis-ordered...")
-[order mis_ordered_list] = checkRingOrder(data_split_with_ring, delta, num_targets, opts.num_beams, opts);
+[order mis_ordered_list] = checkRingOrder(data_split_with_ring_cartesian, delta, num_targets, opts.num_beams, opts);
 
 disp("All processes has finished")
