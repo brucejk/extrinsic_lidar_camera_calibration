@@ -33,6 +33,3 @@ function [delta, plane] = estimateIntrinsicLie(num_beams, num_targets, num_scans
     end
 
 end
-
-
-
