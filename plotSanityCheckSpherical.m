@@ -11,7 +11,7 @@ function plotSanityCheckSpherical(num_targets,plane,data_split_with_ring_raw, da
         figure(1);
         surf(X,Y,Z);
         hold on;
-        scatter3(data{i}(1,:),data{i}(2,:),data{i}(3,:), 30, 'b.');
+        scatter3(data(i).payload_points(1,:),data(i).payload_points(2,:),data(i).payload_points(3,:), 30, 'b.');
         for ring =1:32
             if (isempty(data_split_with_ring_raw{i}(ring).points))
                 continue;

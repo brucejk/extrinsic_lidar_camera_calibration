@@ -1,7 +1,7 @@
 %% plot
 % clc, close all;
 % num_targets=1;
-function plotSanityCheckLie(num_targets, plane,data, data_split_with_ring)
+function plotSanityCheckLie(num_targets, plane, data, data_split_with_ring)
     mesh_size = [-1, 1];
     for i =1:num_targets
         w = null(plane{i}.unit_normals'); % Find two orthonormal vectors which are orthogonal to v
@@ -13,7 +13,7 @@ function plotSanityCheckLie(num_targets, plane,data, data_split_with_ring)
         surf(X,Y,Z);
         hold on;
 %         axis equal
-        scatter3(data{i}(1,:),data{i}(2,:),data{i}(3,:), 30, 'b.');
+        scatter3(data(i).payload_points(1,:), data(i).payload_points(2,:), data(i).payload_points(3,:), 30, 'b.');
         for ring =1:32
 %             if(checkRingsCrossDataset(data_split_with_ring, num_targets, ring))
 %                 continue
