@@ -21,7 +21,7 @@ function distance = point2PlaneDistance(data, plane, num_beams, num_targets)
         if sum_points > 0
             distance.ring(n).mean = mean(X,2);
             ring_centroid = mean(points_array, 2);
-            distance.ring(n).ring_centroid = ring_centroid(1:3);
+            distance.ring(n).ring_centroid = ring_centroid(1:3)';
             distance.ring(n).z_axis = ring_centroid(3);
             distance.ring(n).std = std(X);
         else
