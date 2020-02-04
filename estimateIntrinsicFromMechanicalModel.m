@@ -1,4 +1,4 @@
-function  [delta, plane] = estimateIntrinsicFromMechanicalModel(num_beams, num_targets, num_scans, data_split_with_ring, data_split_with_ring_raw)
+function  [delta, plane, valid_targets] = estimateIntrinsicFromMechanicalModel(num_beams, num_targets, num_scans, data_split_with_ring, data_split_with_ring_raw)
     delta(num_beams).D = struct();
     delta(num_beams).theta = struct();
     delta(num_beams).phi = struct();
@@ -29,7 +29,6 @@ function  [delta, plane] = estimateIntrinsicFromMechanicalModel(num_beams, num_t
         opt.delta.D_corr_init = 0;
         opt.delta.theta_corr_init = 0;
         opt.delta.phi_corr_init = 0;
-        delta = estimateDeltaFromMechanicalModel(opt.delta, data_split_with_ring, plane, delta(num_beams), num_beams, num_targets);
+        [delta, ~, valid_targets] = estimateDeltaFromMechanicalModel(opt.delta, data_split_with_ring, plane, delta(num_beams), num_beams, num_targets);
     end
-
 end
