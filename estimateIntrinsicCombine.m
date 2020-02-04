@@ -1,4 +1,19 @@
-clear; clc;
+clc; % DO NOT add 'clear' here
+
+if exist('pc','var') &&  exist('data', 'var') && exist('mat_files', 'var')
+% if exist('pc','var') 
+    disp("Data have been loaded, it may take a while to reload them.")
+    prompt = "Are you sure you want to reload them again? [Y] [N]";
+    urs_ans = input(prompt, 's');
+    if contains(urs_ans, 'N','IgnoreCase', true)
+        disp('Reload datasets cancelled')
+        return
+    else
+        clear
+        disp("ALL varialbes cleared! ")
+        disp("Keep reloading datasets...")
+    end
+end
 
 % Single variable called point_cloud
 opts.path = "/home/brucebot/workspace/griztag/src/matlab/matlab/slider/intrinsic_latest/data/";
@@ -14,10 +29,9 @@ opts.num_beams = 32;
 opts.num_scan = 1;
 opts.num_iters = 10; % user defined iterations
 
-% mat_file_path = {'../repo/LiDARTag_data/velodyne_points-lab8-closer-big--2019-09-06-15-28.mat'};
-
 % path = "/home/chenxif/Documents/me590/Calibration/IntrinsicCalibration/extracted_tags/";
-disp("Loading data sets...")
+
+disp("Loading names of data sets...")
 if ~opts.load_all
     mat_files = struct('file_name', {opts.path+'velodyne_points-Intrinsic-LargeTag--2019-11-21-22-04.mat';...
                      opts.path+'velodyne_points-Intrinsic-SmallTag--2019-11-21-22-00.mat';...
@@ -45,14 +59,14 @@ end
 % mat_file_path = {'/home/brucebot/workspace/griztag/src/matlab/matlab/LiDARTag_data/velodyne_points-wavefield3-big--2019-09-07-19-04.mat'};
 num_targets = length(mat_files);
 
-
+disp("Loading point cloud from .mat files")
 pc = struct('point_cloud', cell(1,num_targets));
 for t = 1:num_targets
     pc(t).point_cloud = loadPointCloud(mat_files(t).file_name);
 end
 
-
-for i = 1: opts.num_scans
+disp("Pre-processing payload points...")
+for i = 1: opts.num_scan
     data = struct('point_cloud', cell(1,num_targets), 'tag_size', cell(1,num_targets));% XYZIR 
     for t = 1:num_targets
         data(t).payload_points = getPayload(pc(t).point_cloud, i , 1);
@@ -138,7 +152,10 @@ elseif (opt_formulation(opts.method) == "Spherical")
         disp("Done plotting!")
     end
 end
-%% showing results
+
+
+% showing results
+disp("Showing results...")
 results = struct('ring', {distance(end).ring(:).ring}, ...
                  'num_points', {distance(end).ring(:).num_points}, ...
                  'mean_original', {distance_original.ring(:).mean}, ...
@@ -150,7 +167,7 @@ results = struct('ring', {distance(end).ring(:).ring}, ...
 struct2table(distance(end).ring(:))
 struct2table(results)
 
-% check if ring mis-ordered
+%% check if ring mis-ordered
 disp("If the rings are mis-ordered...")
 [order mis_ordered_list] = checkRingOrder(data_split_with_ring, delta, num_targets, opts.num_beams, opts);
 
