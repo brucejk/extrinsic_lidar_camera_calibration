@@ -37,8 +37,9 @@ function [delta, opt]= estimateDeltaLie(opt, data, plane, delta, num_beams, num_
         x0.theta_z = opt.rpy_init(3);
         x0.S = opt.scale_init;
         x0.T = opt.T_init;
-
-        options = optimoptions('fmincon', 'MaxIter',5e2, 'Display','iter', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
+    
+        % 'Display','iter'
+        options = optimoptions('fmincon', 'MaxIter',5e2, 'Display','off', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
         max_trail = 5;
         num_tried = 1;
         status = 0;
