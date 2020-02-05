@@ -1,3 +1,4 @@
+%% Load datasets
 clc; % DO NOT add 'clear' here
 
 if exist('pc','var') &&  exist('data', 'var') && exist('mat_files', 'var')
@@ -16,11 +17,12 @@ if exist('pc','var') &&  exist('data', 'var') && exist('mat_files', 'var')
 end
 
 % Single variable called point_cloud
+
 opts.path = "/home/brucebot/workspace/griztag/src/matlab/matlab/slider/intrinsic_latest/data/";
 opts.path = "./data/";
 opts.load_all = 1;
 
-opts.show_results = 0;
+opts.show_results = 1;
 opt_formulation = ["Lie","Spherical"]; % Lie or Spherical
 opts.method = 1; % Lie; Spherical
 opts.iterative = 1;
@@ -56,7 +58,6 @@ if ~opts.load_all
 else
     mat_files = loadFilesFromAFolder(opts.path, '*Tag*.mat');
 end
-% mat_file_path = {'/home/brucebot/workspace/griztag/src/matlab/matlab/LiDARTag_data/velodyne_points-wavefield3-big--2019-09-07-19-04.mat'};
 num_targets = length(mat_files);
 
 disp("Loading point cloud from .mat files")
@@ -66,8 +67,8 @@ for t = 1:num_targets
 end
 
 disp("Pre-processing payload points...")
+data = struct('point_cloud', cell(1,num_targets), 'tag_size', cell(1,num_targets));% XYZIR 
 for i = 1: opts.num_scans
-    data = struct('point_cloud', cell(1,num_targets), 'tag_size', cell(1,num_targets));% XYZIR 
     for t = 1:num_targets
         data(t).payload_points = getPayload(pc(t).point_cloud, i , opts.num_scans);
         data(t).tag_size = mat_files(t).tag_size;
@@ -76,7 +77,7 @@ end
 disp("Done loading data!")
 
 
-%% optimization intrinsic parameters
+%% Optimize intrinsic parameters
 clc
 % if ones want to re-run this process
 opts.iterative = 10;
@@ -144,10 +145,11 @@ elseif (opt_formulation(opts.method) == "Spherical")
 end
 disp('Done optimization')
 
-% show graphical results
+%% Show graphical results
 if opts.show_results
     disp("Now plotting....")
-    plotCalibratedResults(num_targets, plane, data_split_with_ring_cartesian, data, opt_formulation(opts.method));   
+    plotCalibratedResults(num_targets, plane, data_split_with_ring_cartesian, data);
+%     plotCalibratedResults(num_targets, plane, data_split_with_ring_cartesian, data, opt_formulation(opts.method));
     disp("Done plotting!")
 end
 
