@@ -45,6 +45,7 @@ function [ring_ordered, ring_misorder_list] = checkRingOrder(data_split_with_rin
             ring_order(ring).z_axis = 0;
         end
     end
+    
     z_axis = [ring_order(:).z_axis];
     ind_non_zeros = find(z_axis);
     ring_ordered = issorted(z_axis(ind_non_zeros));
