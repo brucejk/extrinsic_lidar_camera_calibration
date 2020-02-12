@@ -1,4 +1,4 @@
-function [delta, plane, valid_targets] = estimateIntrinsicLie(num_beams, num_targets, num_scans, data_split_with_ring)
+function [delta, plane, valid_targets] = estimateIntrinsicLie(num_beams, num_targets, num_scans, data_split_with_ring, object_list)
     delta(num_beams).H = struct();
     delta(num_beams).Affine = struct();
     
@@ -17,13 +17,21 @@ function [delta, plane, valid_targets] = estimateIntrinsicLie(num_beams, num_tar
         opt.corners.UseCentroid = 1;
 
         plane = cell(1,num_targets);
+        
         for t = 1:num_targets
-            X = [];
-            for j = 1: num_beams
-                X = [X, data_split_with_ring{t}(j).points];
+            if ~exist('object_list', 'var')
+                X = [];
+                for j = 1: num_beams
+                    X = [X, data_split_with_ring{t}(j).points];
+                end
+                [plane{t}, ~] = estimateNormal(opt.corners, X(1:3, :), 0.8051);
+            else
+                plane{t}.centroid =  [object_list(t).centroid; 1];
+                plane{t}.normals =  object_list(t).normal;
+                plane{t}.unit_normals = object_list(t).normal/(norm(object_list(t).normal));
             end
-            [plane{t}, ~] = estimateNormal(opt.corners, X(1:3, :), 0.8051);
         end
+
 
         opt.delta.rpy_init = [0 0 0];
         opt.delta.T_init = [0, 0, 0];
