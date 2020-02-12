@@ -8,11 +8,11 @@ function distance = point2PlaneDistance(data, plane, num_beams, num_targets)
             point = data{t}(n).points;
             num_points = size(point, 2); 
             if num_points > 0
-                plane_centroids = repmat(plane{t}.centriod, [1, num_points]);
+                plane_centroids = repmat(plane{t}.centroid, [1, num_points]);
                 points_array = [points_array point];
                 diff = [point - plane_centroids];
                 normals = repmat(plane{t}.unit_normals, [1, num_points]);
-                X = [X abs(dot(normals, diff(1:3,:)))];
+                X = [X (dot(normals, diff(1:3,:)))];
             end
             sum_points = sum_points + num_points;
         end
