@@ -1,6 +1,12 @@
 function data = splitPointsBasedOnRing(points, num_beams)
     data(num_beams) = struct();
     total = 0;
+    if isempty(points)
+        warning("No point is on this target")
+        data(num_beams).points = [];
+        data(num_beams).point_with_I = [];
+        return
+    end
     for n = 0:num_beams-1
         if ~any(points(5,:)==n)
 %             disp("n")
