@@ -80,7 +80,7 @@ disp("Done loading data!")
 %% Optimize intrinsic parameters
 clc
 % if ones want to re-run this process
-opts.iterative = 10;
+opts.iterative = 0;
 opts.method = 1; % Lie; Spherical
 opts.num_iters = 10;
 
