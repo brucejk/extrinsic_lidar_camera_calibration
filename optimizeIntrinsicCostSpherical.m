@@ -8,7 +8,7 @@ function cost = optimizeIntrinsicCostSpherical(X, plane, D_corr, theta_corr, phi
     X_prime(2,:) = (X.points(1,:)+ D_corr).*sin(X.points(2,:)+theta_corr).*sin(X.points(3,:)+ phi_corr);
     X_prime(3,:) = (X.points(1,:)+ D_corr).*cos(X.points(2,:)+theta_corr);
     
-    plane_centroids = repmat(plane.centriod, [1,size(X_prime, 2)]);
+    plane_centroids = repmat(plane.centroid, [1,size(X_prime, 2)]);
 %     diff = abs([X_prime - plane_centroids]);
     diff = X_prime - plane_centroids;
     normals = repmat(plane.unit_normals, [1,size(X_prime, 2)]);
