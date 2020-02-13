@@ -42,7 +42,7 @@ function fig_handle = createFigHandle(num_handles, name)
     fig_handle = [];
     for i=1:num_handles
         fig = figure('Name', name + "-" + num2str(i), ...
-                               'NumberTitle', 'off', 'Visible', 'off');
+                     'NumberTitle', 'off', 'Visible', 'off');
         fig_handle = [fig_handle; axes('parent', fig)];
     end
 end
