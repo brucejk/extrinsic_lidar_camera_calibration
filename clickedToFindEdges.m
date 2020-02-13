@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function [Uc, meanClean, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D] = clickedToFindEdges(img_fig_handles, pnts, d, ExpNmbr)
+function [Uc, meanClean, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D] = clickedToFindEdges(base_line, pnts, d, ExpNmbr)
 
 % pnts is the pioint cloud structure that Bruce builds up
 
@@ -61,7 +61,11 @@ end
 %IndScans=[5:10]; % Selected Scans
 %IndScans=[40:120]; % Selected Scans
 % IndScans=[20:40]; % Selected Scans
-IndScans=[1:20]; % Selected Scans
+if isfield(base_line,'pc_iter') && isfield(base_line, 'num_scan')
+    IndScans=[base_line.pc_iter:base_line.pc_iter + base_line.num_scan]; % Selected Scans
+else
+    IndScans=[1:20];
+end
 %IndScans=[50:100]; % Selected Scans
 %IndScans=[50:150]; % Selected Scans
 %
@@ -101,25 +105,29 @@ for i=FR:LR
     end
 end
 
-current_img_handle = img_fig_handles(1);
-hold(current_img_handle, 'on');
-for i = 1:LR
-    ring_points = PayLoad(:, (PayLoad(5, :)==i));
-    if size(ring_points, 2) > 0         
-        scatter3(current_img_handle, ring_points(1,:), ring_points(2,:), ring_points(3,:), '.'), view(-90,3)
-        txt_x = mean(ring_points(1, :));
-        txt_y = mean(ring_points(2, :));
-        txt_z = mean(ring_points(3, :));
-        text(current_img_handle, txt_x, txt_y, txt_z, num2str(i))
+if base_line.show_results
+    current_img_handle = base_line.img_hangles(1);
+    hold(current_img_handle, 'on');
+    for i = 1:LR
+        ring_points = PayLoad(:, (PayLoad(5, :)==i));
+        if size(ring_points, 2) > 0         
+            scatter3(current_img_handle, ring_points(1,:), ring_points(2,:), ring_points(3,:), '.'), 
+            view(current_img_handle, -90,3)
+            txt_x = mean(ring_points(1, :));
+            txt_y = mean(ring_points(2, :));
+            txt_z = mean(ring_points(3, :));
+            text(current_img_handle, txt_x, txt_y, txt_z, num2str(i))
+        end
     end
+    set(get(current_img_handle, 'parent'),'visible','on');% show the current axes
+    axis(current_img_handle, 'equal')
+    xlabel(current_img_handle, 'x')
+    ylabel(current_img_handle, 'y')
+    zlabel(current_img_handle, 'z')
+    title(current_img_handle, 'Original Data')
+    hold(current_img_handle, 'off');
 end
-set(get(current_img_handle, 'parent'),'visible','on');% show the current axes
-axis equal
-xlabel('x')
-ylabel('y')
-zlabel('z')
-title(current_img_handle, 'Original Data')
-hold(current_img_handle, 'off');
+
 
 %% Clean Data 
 meanData=mean(PayLoad(1:3,:),2);
@@ -129,13 +137,15 @@ K=find(distance < d*1.025);
 PayLoadClean=PayLoad(:, K);
 meanClean=mean(PayLoadClean(1:3,:),2);
 
-opt.H_TL.rpy_init = [45 2 3];
-opt.H_TL.T_init = [2, 0, 0];
-opt.H_TL.H_init = eye(4);
-opt.H_TL.method = "Constraint Customize"; 
-opt.H_TL.UseCentroid = 1;
-[~, ~, clean_up_indices, ~] = cleanLiDARTargetWithOneDataSetWithIndices(PayLoadClean, d/sqrt(2), opt.H_TL);
-PayLoadClean=PayLoadClean(:, clean_up_indices);
+if base_line.L1_cleanup 
+    opt.H_TL.rpy_init = [45 2 3];
+    opt.H_TL.T_init = [2, 0, 0];
+    opt.H_TL.H_init = eye(4);
+    opt.H_TL.method = "Constraint Customize"; 
+    opt.H_TL.UseCentroid = 1;
+    [~, ~, clean_up_indices, ~] = cleanLiDARTargetWithOneDataSetWithIndices(PayLoadClean, d/sqrt(2), opt.H_TL);
+    PayLoadClean=PayLoad(:, clean_up_indices);
+end
 
 % Check for entire rings being removed
 FirstRing=min(PayLoadClean(5,:));
@@ -144,16 +154,19 @@ LastRing=max(PayLoadClean(5,:));
 RingNumbers=[FirstRing:1:LastRing];
 NRings=length(RingNumbers);
 
-current_img_handle = img_fig_handles(2);
-hold(current_img_handle, 'on');
-scatter3(current_img_handle, PayLoadClean(1,:), PayLoadClean(2,:), PayLoadClean(3,:), '.'),  view(-90,3)
-set(get(current_img_handle, 'parent'),'visible','on');% show the current axes
-axis equal
-xlabel('x')
-ylabel('y')
-zlabel('z')
-title(current_img_handle, 'Cleaned Up Data')
-hold(current_img_handle, 'off');
+if base_line.show_results
+    current_img_handle = base_line.img_hangles(2);
+    hold(current_img_handle, 'on');
+    scatter3(current_img_handle, PayLoadClean(1,:), PayLoadClean(2,:), PayLoadClean(3,:), '.')
+    view(current_img_handle, -90,3)
+    axis(current_img_handle, 'equal')
+    xlabel(current_img_handle, 'x')
+    ylabel(current_img_handle, 'y')
+    zlabel(current_img_handle, 'z')
+    title(current_img_handle, 'Cleaned Up Data')
+    hold(current_img_handle, 'off');
+    set(get(current_img_handle, 'parent'),'visible','on');% show the current axes
+end
 %% Build a projection to a plane that will be used to find Edge Data
 K=find( and(( PayLoadClean(6,:) > IndScans(1) ),( PayLoadClean(6,:) < IndScans(end))  ));
 
@@ -178,17 +191,19 @@ NScans=max(PayLoadClean(6,:))- min(PayLoadClean(6,:));
 Data=PayLoadClean(1:3,:);
 temp=Uc'*(Data-mean(Data,2));
 PayLoadClean2D=temp(Ind2D,:); %Project out the distance component
-current_img_handle = img_fig_handles(3);
-hold(current_img_handle, 'on');
-plot(current_img_handle, PayLoadClean2D(1,:), PayLoadClean2D(2,:), '.b')
-set(get(current_img_handle, 'parent'),'visible','on');% show the current axes
-view(-180, 90)
-axis equal
-xlabel('x')
-ylabel('y')
-title(current_img_handle, 'Projected 2D points')
-hold(current_img_handle, 'off');
 
+if base_line.show_results
+    current_img_handle = base_line.img_hangles(3);
+    hold(current_img_handle, 'on');
+    scatter(current_img_handle, PayLoadClean2D(1,:), PayLoadClean2D(2,:), '.b')
+    set(get(current_img_handle, 'parent'),'visible','on');% show the current axes
+    view(current_img_handle, -180, 90)
+    axis(current_img_handle, 'equal')
+    xlabel(current_img_handle, 'x')
+    ylabel(current_img_handle, 'y')
+    title(current_img_handle, 'Projected 2D points')
+    hold(current_img_handle, 'off');
+end
 
 disp("select polygons of interests")
 disp("choosing LEupper")
