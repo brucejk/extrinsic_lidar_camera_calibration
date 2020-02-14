@@ -4,5 +4,7 @@ function img = getImagefromStruct(imgStruct)
     imgMsg.Height = imgStruct.Height;
     imgMsg.Width = imgStruct.Width;
     imgMsg.Data = imgStruct.Data;
-    img = readImage(imgMsg);
+    img.image = readImage(imgMsg);
+    img.height = imgStruct.Height;
+    img.width = imgStruct.Width;
 end
