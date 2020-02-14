@@ -29,85 +29,174 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-clc, clear, close all
+% clc, clear, close all
+clc, clear
 path = "../../LiDARTag_data/";
-pc_mat = 'velodyne_points-lab4-closer-big--2019-09-06-13-49.mat';
-target_size = 0.8051;
+use_bag = 1;
+use_big_tag = 0;
+
+
+if use_bag == 1
+    if use_big_tag==1
+        pc_mat = 'velodyne_points-lab3-closer-big--2019-09-06-08-38.mat';
+        target_size = 0.8051;
+    else 
+        pc_mat = 'velodyne_points-lab3-closer-small--2019-09-06-08-35.mat';
+        target_size = 0.158;
+    end
+elseif use_bag == 2
+    if use_big_tag==1
+        pc_mat = 'velodyne_points-lab4-closer-big--2019-09-06-13-49.mat';
+        target_size = 0.8051;
+    else 
+        pc_mat = 'velodyne_points-lab4-closer-small--2019-09-06-13-38.mat';
+        target_size = 0.158;
+    end
+elseif use_bag == 3
+    if use_big_tag==1
+        pc_mat = 'velodyne_points-lab5-closer-bag--2019-09-06-14-27.mat';
+        target_size = 0.8051;
+    else 
+        pc_mat = 'velodyne_points-lab5-closer-small--2019-09-06-14-23.mat';
+        target_size = 0.158;
+    end
+end
 
 pc = load(string(path) + string(pc_mat)); 
 pnts = pc.point_cloud; % [scan, point, [X, Y, X, I, R]]
 ransac_threshold = 0.02;
 
 d=target_size*sqrt(2);% Large Target size
-img_fig_handles = createFigHandle(3, "vis");
+% img_fig_handles = createFigHandleWithNumber(3, 1, "vis");
 
-edge_method = 1;
-if edge_method == 1
-    [U,center,~,RE,~,~,LEupper,LElower,REupper,RElower,~,~,~] = LeftRightEdges_v02(pnts, d);
-elseif edge_method == 2
-    [U, center, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D] = clickedToFindEdges(img_fig_handles, pnts, d);
-elseif edge_method == 3
-   [U, center, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D] = L1CostToFindEdges(img_fig_handles, pnts, d);
+base_line.optimized_method = 2;
+base_line.edge_method = 3;
+base_line.more_tags = 1;
+base_line.show_results = 1;
+base_line.L1_cleanup = 0;
+base_line.img_hangles = createFigHandleWithNumber(4, 4, "base_line_vis vis"); %% don't change
+
+if base_line.edge_method == 1
+    [U,center,~,~,~,~,LEupper,LElower,REupper,RElower,~,~,~, flag_changed] = LeftRightEdges_v02(base_line, pnts, d);
+elseif base_line.edge_method == 2
+    [U, center, LEupper, LElower, REupper, RElower, ~, ~, flag_changed] = clickedToFindEdges(base_line, pnts, d);
+elseif base_line.edge_method == 3
+    [U, center, LEupper, LElower, REupper, RElower, ~, ~, flag_changed] = L1CostToFindEdges(base_line, pnts, d);
 end
 
 [nL1,nL2,nL3]=size(LEupper);
 LEupperall=reshape(LEupper,nL1,nL2*nL3);
 I=find( (LEupperall(1,:)~= 10) & (LEupperall(2,:)~= 10) ); 
-edges.LU=U*[1 0; 0 1;0 0]*LEupperall(:,I) + center;
-LEupperal_new = LEupperall(:, I);
+if ~flag_changed
+    edges.LU=U*[1 0; 0 1;0 0]*LEupperall(:,I) + center;
+    LEupperal_new = LEupperall(:, I);
+else
+    edges.LU=U*[1 0; 0 1;0 0]*LEupperall([2,1],I) + center;
+    LEupperal_new = LEupperall([2, 1], I);
+end
 
 [nL1,nL2,nL3]=size(LElower);
 LElowerall=reshape(LElower,nL1,nL2*nL3);
 I=find( (LElowerall(1,:)~= 10) & (LElowerall(2,:)~= 10) ); 
-edges.LL=U*[1 0; 0 1;0 0]*LElowerall(:,I) + center;
-LElowerall_new = LElowerall(:, I);
+if ~flag_changed
+    edges.LL=U*[1 0; 0 1;0 0]*LElowerall(:,I) + center;
+    LElowerall_new = LElowerall(:, I);
+else
+    edges.LL=U*[1 0; 0 1;0 0]*LElowerall([2,1],I) + center;
+    LElowerall_new = LElowerall([2,1], I);
+end
+
 
 [nR1,nR2,nR3]=size(REupper);
 REupperall=reshape(REupper,nR1,nR2*nR3);
 I=find( (REupperall(1,:)~= 10) & (REupperall(2,:)~= 10) ); 
-edges.RU=U*[1 0; 0 1; 0 0]*REupperall(:,I) + center;
-REupperall_new = REupperall(:, I);
+if ~flag_changed
+    edges.RU=U*[1 0; 0 1; 0 0]*REupperall(:,I) + center;
+    REupperall_new = REupperall(:, I);
+else
+    edges.RU=U*[1 0; 0 1; 0 0]*REupperall([2,1],I) + center;
+    REupperall_new = REupperall([2,1], I);
+end
+
 
 [nR1,nR2,nR3]=size(RElower);
 RElowerall=reshape(RElower,nR1,nR2*nR3);
 I=find( (RElowerall(1,:)~= 10) & (RElowerall(2,:)~= 10) ); 
-edges.RL=U*[1 0; 0 1; 0 0]*RElowerall(:,I) + center;
-RElowerall_new = RElowerall(:, I);
+if ~flag_changed
+    edges.RL=U*[1 0; 0 1; 0 0]*RElowerall(:,I) + center;
+    RElowerall_new = RElowerall(:, I);
+else
+    edges.RL=U*[1 0; 0 1; 0 0]*RElowerall([2,1],I) + center;
+    RElowerall_new = RElowerall([2,1], I);
+end
+
 
 %%
 [x_TL, y_TL, modelInliers_TL] = ransacLine(LEupperal_new(1:2, :)', ransac_threshold);
-
 [x_BL, y_BL, modelInliers_BL] = ransacLine(LElowerall_new(1:2, :)', ransac_threshold);
-
 [x_TR, y_TR, modelInliers_TR] = ransacLine(REupperall_new(1:2, :)', ransac_threshold);
-
 [x_BR, y_BR, modelInliers_BR] = ransacLine(RElowerall_new(1:2, :)', ransac_threshold);
 
 cross_L=intersection(modelInliers_TL, modelInliers_BL);
-
 cross_R=intersection(modelInliers_TR, modelInliers_BR);
-
 cross_T=intersection(modelInliers_TL, modelInliers_TR);
-
-
 cross_B=intersection(modelInliers_BR, modelInliers_BL);
+
 cross_big_2d = [cross_L, cross_R, cross_T, cross_B];
 
+%%
 cross_big_3d = U*[1 0; 0 1;0 0]*cross_big_2d + center;
 cross_big_3d = [cross_big_3d; ones(1,size(cross_big_3d,2))];
-%%
-figure(103)
-scatter(LEupperal_new(1,:), LEupperal_new(2,:),'.r'), hold on,
-scatter(LElowerall_new(1,:), LElowerall_new(2,:), '.b'), hold on,
-scatter(REupperall_new(1,:), REupperall_new(2,:), '.g'), hold on, grid on, axis equal
-scatter(RElowerall_new(1,:), RElowerall_new(2,:), '.k'),
-plot(x_BL, y_BL, 'r-')
-plot(x_TL, y_TL, 'b-')
-plot(x_TR, y_TR, 'g-')
-plot(x_BR, y_BR, 'k-')
-plot([cross_L(1) cross_B(1)], [cross_L(2) cross_B(2)], 'r-')
-plot([cross_L(1) cross_T(1)], [cross_L(2) cross_T(2)], 'b-')
-plot([cross_R(1) cross_T(1)], [cross_R(2) cross_T(2)], 'g-')
-plot([cross_R(1) cross_B(1)], [cross_R(2) cross_B(2)], 'k-')
-scatter(cross_big_2d(1,:), cross_big_2d(2,:), 'd')
-title("regressed edges")
+%
+if base_line.show_results
+% if 1
+%     current_img_handle = base_line.img_hangles(3);
+%     hold(current_img_handle, 'on')
+%     grid(current_img_handle,  'on')
+%     axis(current_img_handle, 'equal')
+%     scatter(current_img_handle, RElowerall_new(1,:), RElowerall_new(2,:), '.m'),
+%     plot(current_img_handle, x_BL, y_BL, 'r-')
+%     plot(current_img_handle, x_TL, y_TL, 'b-')
+%     plot(current_img_handle, x_TR, y_TR, 'g-')
+%     plot(current_img_handle, x_BR, y_BR, 'k-')
+%     plot(current_img_handle, [cross_L(1) cross_B(1)], [cross_L(2) cross_B(2)], 'r-')
+%     plot(current_img_handle, [cross_L(1) cross_T(1)], [cross_L(2) cross_T(2)], 'b-')
+%     plot(current_img_handle, [cross_R(1) cross_T(1)], [cross_R(2) cross_T(2)], 'g-')
+%     plot(current_img_handle, [cross_R(1) cross_B(1)], [cross_R(2) cross_B(2)], 'm-')
+%     scatter(current_img_handle, cross_big_2d(1,:), cross_big_2d(2,:), 'd')
+    
+    
+    current_img_handle = base_line.img_hangles(4);
+    scatter(current_img_handle, LEupperal_new(1,:), LEupperal_new(2,:),'.r')
+    hold(current_img_handle, 'on')
+    scatter(current_img_handle, LElowerall_new(1,:), LElowerall_new(2,:), '.b')
+    scatter(current_img_handle, REupperall_new(1,:), REupperall_new(2,:), '.g')
+    grid(current_img_handle,  'on')
+    axis(current_img_handle, 'equal')
+    scatter(current_img_handle, RElowerall_new(1,:), RElowerall_new(2,:), '.m'),
+    plot(current_img_handle, x_BL, y_BL, 'r-')
+    plot(current_img_handle, x_TL, y_TL, 'b-')
+    plot(current_img_handle, x_TR, y_TR, 'g-')
+    plot(current_img_handle, x_BR, y_BR, 'k-')
+    plot(current_img_handle, [cross_L(1) cross_B(1)], [cross_L(2) cross_B(2)], 'r-')
+    plot(current_img_handle, [cross_L(1) cross_T(1)], [cross_L(2) cross_T(2)], 'b-')
+    plot(current_img_handle, [cross_R(1) cross_T(1)], [cross_R(2) cross_T(2)], 'g-')
+    plot(current_img_handle, [cross_R(1) cross_B(1)], [cross_R(2) cross_B(2)], 'm-')
+    scatter(current_img_handle, cross_big_2d(1,:), cross_big_2d(2,:), 'd')
+    title(current_img_handle, "regressed edges")
+    set(get(current_img_handle, 'parent'),'visible','on');
+    
+    
+    current_img_handle = base_line.img_hangles(2);
+    hold(current_img_handle, 'on')
+    scatter3(current_img_handle, cross_big_3d(1,1), cross_big_3d(2,1), cross_big_3d(3,1), 'or')
+    scatter3(current_img_handle, cross_big_3d(1,2), cross_big_3d(2,2), cross_big_3d(3,2), 'og')
+    scatter3(current_img_handle, cross_big_3d(1,3), cross_big_3d(2,3), cross_big_3d(3,3), 'ob')
+    scatter3(current_img_handle, cross_big_3d(1,4), cross_big_3d(2,4), cross_big_3d(3,4), 'om')
+    
+    scatter3(current_img_handle, edges.LU(1,:), edges.LU(2,:), edges.LU(3,:), 'sr')
+    scatter3(current_img_handle, edges.LL(1,:), edges.LL(2,:), edges.LL(3,:), 'sg')
+    scatter3(current_img_handle, edges.RU(1,:), edges.RU(2,:), edges.RU(3,:), 'sb')
+    scatter3(current_img_handle, edges.RL(1,:), edges.RL(2,:), edges.RL(3,:), 'sm')
+end
+disp('done')
