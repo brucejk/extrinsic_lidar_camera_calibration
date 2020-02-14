@@ -29,8 +29,12 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function [x, y, modelInliers, inlierPts] = ransacLineWithInlier(points, threshold)
-    sampleSize = floor(0.6*size(points,1)); % number of points to sample per trial
+function [x, y, modelInliers, inlierPts] = ransacLineWithInlier(points, threshold, fraction)
+    if nargin < 3
+        sampleSize = floor(0.6*size(points,1)); % number of points to sample per trial
+    else
+        sampleSize = floor(fraction*size(points,1));
+    end
     maxDistance = threshold; % max allowable distance for inliers
     fitLineFcn = @(points) polyfit(points(:,1),points(:,2),1); % fit function using polyfit
     evalLineFcn = ...   % distance evaluation function
