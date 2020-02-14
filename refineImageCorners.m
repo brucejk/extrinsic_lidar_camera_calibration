@@ -121,8 +121,9 @@ function BagData = refineImageCorners(path, BagData, skip_indices, display, t_cl
                     scatter(p4_ext(1), p4_ext(2))
                     scatter(x_dim, y_dim, 'g.');
                     scatter(inlier_pts(:,1), inlier_pts(:,2), 'm.');
-                    plot(x, y, '-', 'LineWidth',2, 'MarkerSize',10, 'color', [0.8500, 0.3250, 0.0980])
-
+%                     plot(x, y, '-', 'LineWidth',2, 'MarkerSize',10, 'color', [0.8500, 0.3250, 0.0980])
+                    plot(x, y, '-', 'LineWidth',2, 'MarkerSize',10, 'color', [0, 1, 1])
+                    
                     figure(1000)
                     hold on 
                     scatter(BagData(k).camera_target(j).corners(1,:), BagData(k).camera_target(j).corners(2,:))
