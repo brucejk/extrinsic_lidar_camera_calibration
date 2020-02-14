@@ -78,7 +78,7 @@ function [BagData, TestData] = getBagData()
                                            1, 1, 1, 1];
     BagData(1).camera_target(3).corners = [394, 349, 413, 367;
                                            249, 267, 294, 312;
-                                           1, 1, 1, 1];
+                                           1, 1, 1, 1]; 
 
 
 
