@@ -24,12 +24,9 @@
  * The views and conclusions contained in the software and documentation are those
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the Regents of The University of Michigan.
-<<<<<<< HEAD
+ 
+
  *  * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
-=======
- * 
- * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
->>>>>>> 8c6b9a3c657c2f4d84771478a617b1c7ef898cef
  * WEBSITE: https://www.brucerobot.com/
 %}
 

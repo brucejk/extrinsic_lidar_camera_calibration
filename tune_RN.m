@@ -42,8 +42,8 @@ distortion_param = [0.099769, -0.240277, 0.002463, 0.000497, 0.000000];
 opt.H_LC.rpy_init = [90 0 90];
 
 % train data id from getBagData.m
-trained_ids = [5]; % 
-skip_indices = [1, 2, 3, 12]; %% skip non-standard 
+trained_ids = [4]; % 
+skip_indices = [1, 2, 3, 7, 12]; %% skip non-standard 
 
 % validate the calibration result if one has validation dataset(s)
 % (Yes:1; No: 0)
@@ -72,6 +72,12 @@ validation_flag = 1;
 %                   1: ransac edges seperately and the intersect edges to
 %                      estimate corners
 %                   2: apply geometry contrain to estimate the corners
+% base_line.edge_method (1/2/3):
+%                   1: JWG's method
+%                   2: Manual pick edge points 
+%                      -- top-left, bottom-left, top-right, bottom-left
+%                   3: L1-cost to assign edge points
+% base_line.more_tags (0/1): if use all tags in a scene for the baseline
 %%% calibration_method: 
 %                     "4 points"
 %                     "IoU"
@@ -84,7 +90,11 @@ opts.optimizeAllCorners = 0;
 opts.use_top_consistent_vertices = 1;
 skip = 0; 
 debug = 0;
-base_line_method = 1;
+base_line.optimized_method = 2;
+base_line.edge_method = 3;
+base_line.more_tags = 1;
+base_line.show_results = 0;
+base_line.L1_cleanup = 0;
 calibration_method = "4 points";
 
 path.load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
@@ -97,7 +107,6 @@ path.mat_file_path = "../../LiDARTag_data/";
 % path.load_all_vertices = "ALL_LiDAR_vertices/";
 % path.bag_file_path = "bagfiles/";
 % path.mat_file_path = "LiDARTag_data/";
-
 
 % save into results into folder         
 path.save_name = "ICRA2020";
@@ -114,6 +123,7 @@ show_camera_target = 0;
 show_training_results = 0; % 1
 show_validation_results = 0; %1 
 show_testing_results = 0; %1
+show_baseline_results = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% parameters for optimization of lidar targets
@@ -152,7 +162,6 @@ opt.H_TL.H_init = eye(4);
 opt.H_TL.method = "Constraint Customize"; 
 opt.H_TL.UseCentroid = 1;
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% training, validation and testing datasets
 %%% random_select (0/1): randomly select training sets
@@ -172,7 +181,7 @@ opts.num_validation = length(bag_with_tag_list) - length(skip_indices) - opts.nu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp("Refining corners of camera targets ...")
-% BagData = refineImageCorners(path.bag_file_path, BagData, skip_indices, show_image_refinement);
+BagData = refineImageCorners(path.bag_file_path, BagData, skip_indices, show_image_refinement);
 
 % create figure handles
 training_img_fig_handles = createFigHandle(opts.num_training, "training_img");
@@ -180,6 +189,7 @@ training_pc_fig_handles = createFigHandle(opts.num_training, "training_pc");
 validation_fig_handles = createFigHandle(opts.num_validation, "validation_img");
 validation_pc_fig_handles = createFigHandle(opts.num_validation, "validation_pc");
 testing_fig_handles = createFigHandle(size(bag_testing_list, 2), "testing");
+base_line.img_hangles = createFigHandle(6, "base_line_vis"); %% don't change
 
 if random_select
     % get training indices
@@ -366,16 +376,40 @@ if skip == 0
             % base line
             for i = 1:opts.num_lidar_target_pose
                 pc_iter = opts.num_scan*(i-1) + 1;
-                if base_line_method==1
-                    [corners_big, edges] = KaessNewCorners(BagData(current_index).lidar_target(1).tag_size, ...
+                if base_line.optimized_method == 1
+                    [X_corners_big, edges_big] = KaessNewCorners(base_line, BagData(current_index).lidar_target(1).tag_size, ...
                                             path.mat_file_path, BagData(current_index).lidar_target(1).pc_file, pc_iter);
-                elseif base_line_method==2
-                    [corners_big, edges]= KaessNewConstraintCorners(BagData(current_index).lidar_target(1).tag_size,...
+                     Y_corner_big = [BagData(current_index).camera_target(1).corners];
+                    if BagData(current_index).num_tag > 1
+                        if base_line.more_tags == 1
+                            for j = 2:BagData(current_index).num_tag
+                                [corners_tmp, edges_tmp] = KaessNewCorners(base_line, BagData(current_index).lidar_target(j).tag_size, ...
+                                                            path.mat_file_path, BagData(current_index).lidar_target(j).pc_file, pc_iter);
+                                X_corners_big = [X_corners_big, corners_tmp];
+                                edges_big = [edges_big, edges_tmp];
+                                Y_corner_big = [Y_corner_big, BagData(current_index).camera_target(j).corners];
+                            end
+                        end
+                    end
+                elseif base_line.optimized_method == 2
+                    [X_corners_big, edges_big]= KaessNewConstraintCorners_v03(base_line, BagData(current_index).lidar_target(1).tag_size,...
                                             path.mat_file_path, BagData(current_index).lidar_target(1).pc_file, pc_iter);
+                    Y_corner_big = [BagData(current_index).camera_target(1).corners];
+                    if BagData(current_index).num_tag > 1
+                        if base_line.more_tags == 1
+                            for j = 2:BagData(current_index).num_tag
+                                [corners_tmp, edges_tmp] = KaessNewConstraintCorners_v03(base_line, BagData(current_index).lidar_target(j).tag_size,...
+                                            path.mat_file_path, BagData(current_index).lidar_target(j).pc_file, pc_iter);
+                                X_corners_big = [X_corners_big, corners_tmp];
+                                edges_big = [edges_big, edges_tmp];
+                                Y_corner_big = [Y_corner_big, BagData(current_index).camera_target(j).corners];
+                            end
+                        end
+                    end
                 end
-                X_base_line = [X_base_line, corners_big];
-                Y_base_line = [Y_base_line, BagData(current_index).camera_target(1).corners]; %% use big tag
-                X_base_line_edge_points = [X_base_line_edge_points, edges];
+                X_base_line = [X_base_line, X_corners_big];
+                Y_base_line = [Y_base_line, Y_corner_big]; 
+                X_base_line_edge_points = [X_base_line_edge_points, edges_big];
             end
             
         else
@@ -708,7 +742,9 @@ for i = 1:opts.num_training % which dataset
     for j = 1:BagData(current_index).num_tag % which target
         current_corners_SR = [BagData(current_index).lidar_target(j).scan(:).corners];
         current_X_SR = [BagData(current_index).lidar_target(j).scan(:).pc_points];
-%         projectBackToImage(training_img_fig_handles(i), NSNR_P, current_corners_SR, 5, 'g*', "training_SR", "not display", "Not-Clean");
+        if show_baseline_results
+            projectBackToImage(training_img_fig_handles(i), NSNR_P, current_corners_SR, 5, 'kd', "training_SR", "not display", "Not-Clean");
+        end
         projectBackToImage(training_img_fig_handles(i), SR_P, current_corners_SR, 5, 'g*', "training_SR", "not display", "Not-Clean");
         projectBackToImage(training_img_fig_handles(i), SNR_P, current_corners_SR, 5, 'm*', "training_SR", "not display", "Not-Clean");
         projectBackToImage(training_img_fig_handles(i), SR_P, current_X_SR, 3, 'r.', "training_SR", "not display", "Not-Clean"); 
@@ -726,8 +762,10 @@ if validation_flag
             current_target_pc = [BagData(current_index).lidar_target(j).scan(:).pc_points];
             current_corners = checkHomogeneousCorners(current_corners);
             current_target_pc = checkHomogeneousCorners(current_target_pc);
-%             projectBackToImage(validation_fig_handles(i), NSNR_P, current_corners, 5, 'g*', ...
-%                               "validation_SR", "not display", "Not-Clean");
+            if show_baseline_results
+                projectBackToImage(validation_fig_handles(i), NSNR_P, current_corners, 5, 'cd', ...
+                                  "validation_SR", "not display", "Not-Clean");
+            end
             projectBackToImage(validation_fig_handles(i), SR_P, current_corners, 5, 'g*', ...
                               "validation_SR", "not display", "Not-Clean");
             projectBackToImage(validation_fig_handles(i), SNR_P, current_corners, 5, 'm*', ...
@@ -766,18 +804,52 @@ elseif skip == 1
 end
 disp("***************************************************************************************")
 disp("***************************************************************************************")
-disp("==================")
+% disp("------------------")
 disp(" training results")
-disp("==================")
+% disp("------------------")
 disp(struct2table(calibration(1).error_struc.training_results))
-disp("==================")
-disp(" training error")
-disp("==================")
-disp(struct2table(calibration(1).error_struc.training))
-
+[calibration(1).error_struc.training_results.NSNR_RMSE; calibration(1).error_struc.training_results.NSR_RMSE; calibration(1).error_struc.training_results.SNR_RMSE; calibration(1).error_struc.training_results.SR_RMSE]
+% disp("------------------")
+% disp(" training error")
+% disp("------------------")
+% disp(struct2table(calibration(1).error_struc.training))
+%%
 if validation_flag
-    disp("==================")
+%     disp("------------------")
     disp(" validation error")
-    disp("==================")
+%     disp("------------------")
     disp(struct2table(calibration(1).error_struc.validation))
+    disp("NSNR_RMSE")
+    [calibration(1).error_struc.validation.NSNR_RMSE]
+    disp("NSR_RMSE")
+    [calibration(1).error_struc.validation.NSR_RMSE]
+    disp("SNR_RMSE")
+    [calibration(1).error_struc.validation.SNR_RMSE]
+    disp("SR_RMSE")
+    [calibration(1).error_struc.validation.SR_RMSE]
+    
+    disp("-------------")
+    [calibration(1).error_struc.validation.NSNR_RMSE;
+     calibration(1).error_struc.validation.NSR_RMSE;
+     calibration(1).error_struc.validation.SNR_RMSE;
+     calibration(1).error_struc.validation.SR_RMSE]
 end
+
+% function mytable = transposeTable(in_table)
+% myArray = table2cell(in_table(:,2:end) );
+% myArray = cell2table(myArray'); 
+% var_names = cellstr( table2cell(in_table(:,1)) );
+% var_names = matlab.lang.makeValidName(var_names) ;
+% var_names = var_names';
+% myArray.Properties.VariableNames = var_names ;
+% % S = {'my.Name','my_Name','my_Name'};
+% % validValues = matlab.lang.makeValidName(S)
+% % validUniqueValues = matlab.lang.makeUniqueStrings(validValues,{},...
+% %     namelengthmax)
+%   
+% row_names = in_table.Properties.VariableNames(2:end); 
+% row_names = cell2table(row_names');
+% mytable = [row_names , myArray ] ;
+% mytable.Properties.VariableNames(1,1) = in_table.Properties.VariableNames(1,1);
+% clear myArray var_names row_names ii str expression replace newStr 
+% end
