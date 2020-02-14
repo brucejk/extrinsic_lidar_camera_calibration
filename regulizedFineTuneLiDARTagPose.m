@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function X = regulizedFineTuneLiDARTagPose(tag_size_array, X, Y, H_LT, P, correspondance_per_pose, display)
+function [X, bag_data] = regulizedFineTuneLiDARTagPose(tag_size_array, X, Y, H_LT, P, correspondance_per_pose, display, bag_data)
     theta_x = optimvar('theta_x', 1, 1,'LowerBound',-5,'UpperBound',5); % 1x1
     theta_y = optimvar('theta_y', 1, 1,'LowerBound',-5,'UpperBound',5); % 1x1
     theta_z = optimvar('theta_z', 1, 1,'LowerBound',-5,'UpperBound',5); % 1x1
@@ -69,5 +69,8 @@ function X = regulizedFineTuneLiDARTagPose(tag_size_array, X, Y, H_LT, P, corres
 %         dbstop in regulizedFineTuneLiDARTagPose at 40 if det(H_fine_tune)==1
         %regulizedCostOfFineTuneLiDARTagPose(sol.theta_x, sol.theta_y, sol.theta_z, sol.T, X(:,pose_num:pose_num+correspondance_per_pose-1), Y(:,pose_num:pose_num+correspondance_per_pose-1),  H_LT(:, pose_num:pose_num+correspondance_per_pose-1), P, target_size)
         X(:,pose_num:pose_num+correspondance_per_pose-1) = H_fine_tune * X(:,pose_num:pose_num+correspondance_per_pose-1);
+        if nargout == 2 && nargin == 8
+            bag_data.baseline(which_tag).scan(scan_number).corners = cross_big_3d;
+        end
     end
 end
