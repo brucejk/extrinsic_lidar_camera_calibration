@@ -28,7 +28,10 @@
  * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
  * WEBSITE: https://www.brucerobot.com/
 %}
-
+% v1 = [0,0];
+% v2 = [3,0];
+% pt = [-10,5; 0,10; 0,15];
+% distance_2D = pointToLineDistance(pt, v1, v2)
 function distance = pointToLineDistance(pt, v1, v2)
     % v1, v2 is 1x3
     % pt is n x 3
