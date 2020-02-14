@@ -53,7 +53,7 @@ function cost = regulizedCostOfFineTuneLiDARTagPose(theta_x, theta_y, theta_z, T
         cost_x = cost_x + checkCost(X_at_lidar_frame(1, i), -0.001, 0.001);
     end
     total_cost = cost_x + cost_y + cost_z;
-%     cost = norm(C_X_transformed(1:2,:) - Y(1:2,:), 'fro') + 1e7*total_cost; %1e10
-%     cost = norm(C_X_transformed(1:2,:) - Y(1:2,:), 'fro')^2 + 1e9*total_cost; %1e10
-    cost = 1*norm(C_X_transformed(1:2,:) - Y(1:2,:), 'fro')^2 + 1e3*total_cost; %1e10
+    cost = 1*norm(C_X_transformed(1:2,:) - Y(1:2,:), 'fro')^2 + 1e3*total_cost; %1e3 for RSS paper for now
+%     cost = 1*norm(C_X_transformed(1:2,:) - Y(1:2,:), 'fro')^2 + 1e-3*total_cost; %1e3 for RSS paper for now
+
 end
