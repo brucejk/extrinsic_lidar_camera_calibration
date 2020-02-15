@@ -345,20 +345,17 @@ if skip == 0
                 continue;
             end
         end
+        
         % training set
         if any(ismember(bag_training_indices, current_index))
-            BagData(current_index) = get4CornersFromAllScans(opt, BagData(current_index));
-            
-            
-            
-            
+            BagData(current_index) = get4CornersFromAllScans(opt, BagData(current_index));\
 
             % 4 x M*i, M is correspondance per scan, i is scan
-            X_train = [X_train, X_training_tmp]; 
+            X_train = [X_train, BagData(current_index).training_x_ary]; 
 
             % 3 x M*i, M is correspondance per image, i is image
-            Y_train = [Y_train, Y_training_tmp]; 
-            H_LT_big = [H_LT_big, H_LT_tmp];
+            Y_train = [Y_train, BagData(current_index).training_y_ary]; 
+            H_LT_big = [H_LT_big, BagData(current_index).target_H_LT_ary];
             fprintf(" Got training set: %s\n", bag_with_tag_list(current_index))
             training_counter = training_counter + 1;
             
