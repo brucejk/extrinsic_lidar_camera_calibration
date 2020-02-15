@@ -348,7 +348,7 @@ if skip == 0
         
         % training set
         if any(ismember(bag_training_indices, current_index))
-            BagData(current_index) = get4CornersFromAllScans(opt, BagData(current_index));\
+            BagData(current_index) = get4CornersFromAllScans(opt, BagData(current_index));
 
             % 4 x M*i, M is correspondance per scan, i is scan
             X_train = [X_train, BagData(current_index).training_x_ary]; 
