@@ -2,7 +2,7 @@
 % clc, clear
 % path = 'moving_bags/';
 % data = t_getSceneData(path,'*.bag')
-
+% disp("done")
 
 function BagData = getSceneData(path, ext, scene, pair_num)
 
@@ -25,6 +25,11 @@ function BagData = getSceneData(path, ext, scene, pair_num)
         RawData = getData(selected_file);
         BagData(scene).meta = files_from_a_folder(scene);
         BagData(scene).bagfile = convertCharsToStrings(files_from_a_folder(scene).name);
+        BagData(scene).training_x_ary = []; % will be used for other functions
+        BagData(scene).training_y_ary = []; % will be used for other functions
+        BagData(scene).target_H_LT_ary = []; % will be used for other functions
+        BagData(scene).num_tag_ary = []; % will be used for other functions
+        BagData(scene).tag_size_ary = []; % will be used for other functions
 
         if exist('pair_num', 'var')
             start_scan = pair_num;
