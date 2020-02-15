@@ -35,6 +35,17 @@ function opt = optimizeConstraintCustomizedCost(opt, X, target_size, box_width)
     theta_z = optimvar('theta_z', 1, 1,'LowerBound',-90,'UpperBound',90); % 1x1
     T = optimvar('T', 1, 3); % 1x3
     prob = optimproblem;
+    
+    
+%     theta_x = 0;
+%     theta_y = 0;
+%     theta_z = 0;
+%     T = [0 0 0];
+%     
+%     computeConstraintCustomizedCost(X, theta_x, theta_y, theta_z, T, ...
+%                                     target_size, box_width)
+    
+    
     f = fcn2optimexpr(@computeConstraintCustomizedCost, X, ...
                        theta_x, theta_y, theta_z, T, target_size, box_width);
     prob.Objective = f;
@@ -49,7 +60,7 @@ function opt = optimizeConstraintCustomizedCost(opt, X, target_size, box_width)
     num_tried = 1;
     status = 0;
     while status <=0 
-        [sol, fval, status, ~] = solve(prob, x0, 'Options', options);
+        [sol, fval, status, flag] = solve(prob, x0, 'Options', options);
         if status <=0 
             warning("optimization failed")
         end
