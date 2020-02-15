@@ -1,6 +1,7 @@
 % path = '/home/chenxif/Documents/me590/Calibration/ExtrinsicCalibration/data/bagfile';
 % clc, clear
 % path = 'moving_bags/';
+% data = t_getSceneData(path,'*.bag', 3)
 % data = t_getSceneData(path,'*.bag')
 % disp("done")
 
@@ -39,6 +40,7 @@ function BagData = getSceneData(path, ext, scene, pair_num)
             num_scan = size(RawData, 1);
         end
 
+        
         % prepare for parfor loop
         scans(num_scan).num_tag = [];
         scans(num_scan).image = [];
@@ -46,6 +48,7 @@ function BagData = getSceneData(path, ext, scene, pair_num)
         scans(num_scan).camera_target = [];
 
         parfor scan = start_scan : num_scan
+%             scan
             scans(scan).num_tag = length(RawData{scan}.Detections);
             if scans(scan).num_tag == 0
                 continue
@@ -63,7 +66,9 @@ function BagData = getSceneData(path, ext, scene, pair_num)
                                                            1, 1, 1, 1];
             end
         end
+        
         BagData(scene).scans = scans;
+        clear scans;
     end
 end
 
