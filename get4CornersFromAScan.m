@@ -29,11 +29,11 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function bag_data = get4CornersReturnHLT(opt, bag_data)
+function bag_data = get4CornersFromAScan(opt, bag_data)
 % scan_num: scan number of these corner
 % num_scan: how many scans accumulated to get the corners
     for tag = 1:bag_data.num_tag
-        fprintf("----Tag %i/%i", tag, bag_data.num_tag)
+%         fprintf("----Tag %i/%i\n", tag, bag_data.num_tag)
         X = bag_data.lidar_target.payload_points;
         target_len = bag_data.lidar_target(tag).tag_size;
         target_len = 0.22;
