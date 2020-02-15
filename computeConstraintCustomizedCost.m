@@ -43,5 +43,5 @@ function total_cost = computeConstraintCustomizedCost(X, theta_x, theta_y, theta
         cost_x = cost_x + checkCost(x_prime(i), -box_width, box_width);
     end
 %     total_cost = sqrt(cost_x + cost_y + cost_z);
-    total_cost = cost_x + cost_y + cost_z;
+    total_cost = double(cost_x + cost_y + cost_z);
 end
