@@ -1,7 +1,7 @@
 % path = '/home/chenxif/Documents/me590/Calibration/ExtrinsicCalibration/data/bagfile';
 % clc, clear
-% path = './moving_bags';
-% data = getSceneData(path,'*.bag')
+% path = 'moving_bags/';
+% data = t_getSceneData(path,'*.bag')
 
 
 function BagData = getSceneData(path, ext, scene, pair_num)
@@ -21,7 +21,7 @@ function BagData = getSceneData(path, ext, scene, pair_num)
     
     
     for scene = start_scene:num_scene
-        selected_file = convertCharsToStrings(path) + "/" + convertCharsToStrings(files_from_a_folder(scene).name);
+        selected_file = convertCharsToStrings(path) + convertCharsToStrings(files_from_a_folder(scene).name);
         RawData = getData(selected_file);
         BagData(scene).meta = files_from_a_folder(scene);
         BagData(scene).bagfile = convertCharsToStrings(files_from_a_folder(scene).name);
