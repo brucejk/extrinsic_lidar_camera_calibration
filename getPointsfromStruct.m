@@ -16,6 +16,6 @@ function points = getPointsfromStruct(pointStruct)
     pointMsg.RowStep = pointStruct.RowStep;
     pointMsg.Data = pointStruct.Data;
     pointMsg.Fields = pointFields;
-    points = readXYZ(pointMsg);
+    points = double(readXYZ(pointMsg));
     points = [points'; ones(1,size(points,1))];
 end
