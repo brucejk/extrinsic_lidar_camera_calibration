@@ -1,11 +1,11 @@
-path = '/home/chenxif/Documents/me590/Calibration/automatic_calibration/';
+% path = '/home/chenxif/Documents/me590/Calibration/automatic_calibration/';
 % clc, clear
 % path = 'moving_bags/';
-data = t_getSceneData(path,'*.bag', 3)
-% data = t_getSceneData(path,'*.bag')
-disp("done")
+% data = t_getSceneData(path,'*.bag', 3)
+% % data = t_getSceneData(path,'*.bag')
+% disp("done")
 
-function BagData = t_getSceneData(path, ext, scene, pair_num)
+function BagData = getSceneData(path, ext, scene, pair_num)
 
     files_from_a_folder = dir(fullfile(path, ext));
     if exist('scene', 'var')
@@ -26,11 +26,7 @@ function BagData = t_getSceneData(path, ext, scene, pair_num)
         RawData = getData(selected_file);
         BagData(scene).meta = files_from_a_folder(scene);
         BagData(scene).bagfile = convertCharsToStrings(files_from_a_folder(scene).name);
-        BagData(scene).training_x_ary = []; % will be used for other functions
-        BagData(scene).training_y_ary = []; % will be used for other functions
-        BagData(scene).target_H_LT_ary = []; % will be used for other functions
-        BagData(scene).num_tag_ary = []; % will be used for other functions
-        BagData(scene).tag_size_ary = []; % will be used for other functions
+        BagData(scene).array = [];
 
         if exist('pair_num', 'var')
             start_scan = pair_num;
