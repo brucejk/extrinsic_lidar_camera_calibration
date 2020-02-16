@@ -356,6 +356,8 @@ if skip == 0
             % 3 x M*i, M is correspondance per image, i is image
             Y_train = [Y_train, BagData(current_index).array.L1_inspired.training_y]; 
             H_LT_big = [H_LT_big, BagData(current_index).array.L1_inspired.target_H_LT];
+            train_tag_size_array = [train_tag_size_array, BagData(current_index).array.L1_inspired.tag_size];
+            train_num_tag_array = [train_num_tag_array, BagData(current_index).array.L1_inspired.num_tag];
             fprintf(" Got training set: %s\n", bag_with_tag_list(current_index))
             
             if isfield(BagData(current_index).array, 'ransac_normal')
@@ -383,10 +385,11 @@ if skip == 0
     drawnow
     save(path.save_dir + 'X_base_line.mat', 'X_base_line');
     save(path.save_dir + 'X_train.mat', 'X_train', 'H_LT_big', 'X_base_line_edge_points');
-    save(path.save_dir + 'array.mat', 'train_num_tag_array', 'train_tag_size_array', 'validation_num_tag_array', 'validation_tag_size_array');
+    save(path.save_dir + 'array.mat', 'train_num_tag_array', 'train_tag_size_array');
     save(path.save_dir + 'Y.mat', 'Y_train', 'Y_base_line');
     save(path.save_dir + 'BagData.mat', 'BagData');
-    save(path.save_dir + 'save_validation.mat', 'X_validation', 'Y_validation');
+    save(path.save_dir + 'save_validation.mat', 'X_validation', 'Y_validation', 'X_base_line_validation', ...
+                         'Y_base_line_validation', 'X_base_line_edge_points_validation');
 end
 
 %%
@@ -415,16 +418,21 @@ if ~(skip == 2)
             calibration(1).All.SNR = SNR_All; 
             
             % NOT square withOUT refinement
-            disp('---------------------')
-            disp('NSNR ...')
-            disp('---------------------')
-            [NSNR_H_LC, NSNR_P, NSNR_opt_total_cost, NSNR_final, NSNR_All] = optimize4Points(opt.H_LC.rpy_init, ...
+            if ~isempty(X_base_line)
+                disp('---------------------')
+                disp('NSNR ...')
+                disp('---------------------')
+                [NSNR_H_LC, NSNR_P, NSNR_opt_total_cost, NSNR_final, NSNR_All] = optimize4Points(opt.H_LC.rpy_init, ...
                                                                        X_base_line, Y_base_line, ... 
                                                                        intrinsic_matrix, show_pnp_numerical_result); 
+            else
+                [NSNR_H_LC, NSNR_P, NSNR_opt_total_cost, NSNR_final, NSNR_All] = deal(zeros(4,4), zeros(3,4), 0, 0, 0);
+            end
             calibration(1).H_NSNR = NSNR_H_LC;
             calibration(1).P_NSNR = NSNR_P;
             calibration(1).RMSE_NSNR = NSNR_opt_total_cost;
             calibration(1).All.NSNR = NSNR_All;
+
             
             for i = 0: opts.num_refinement-1
                 disp('---------------------')
@@ -445,9 +453,14 @@ if ~(skip == 2)
                 calibration(1).All.SR = SR_All;
 
                 % NOT square with refinement
-                [NSR_H_LC, NSR_P, NSR_opt_total_cost, NSR_final, NSR_All] = optimize4Points(opt.H_LC.rpy_init, ...
-                                                                                            X_not_square_refinement, Y_base_line, ...
-                                                                                            intrinsic_matrix, show_pnp_numerical_result); 
+                if ~isempty(X_not_square_refinement)
+                    [NSR_H_LC, NSR_P, NSR_opt_total_cost, NSR_final, NSR_All] = optimize4Points(opt.H_LC.rpy_init, ...
+                                                                                                X_not_square_refinement, Y_base_line, ...
+                                                                                                intrinsic_matrix, show_pnp_numerical_result); 
+
+                else
+                    [NSR_H_LC, NSR_P, NSR_opt_total_cost, NSR_final, NSR_All] = deal(zeros(4,4), zeros(3,4), 0, 0, 0);
+                end
                 calibration(1).H_NSR = NSR_H_LC;
                 calibration(1).P_NSR = NSR_P;
                 calibration(1).RMSE_NSR = NSR_opt_total_cost;
@@ -462,9 +475,11 @@ if ~(skip == 2)
                     X_train = regulizedFineTuneLiDARTagPose(train_tag_size_array, ...
                                                             X_train, Y_train, H_LT_big, SR_P, ...
                                                             opts.correspondance_per_pose, show_pnp_numerical_result);
-                    X_not_square_refinement = regulizedFineTuneKaessCorners(X_not_square_refinement, Y_base_line,...
+                    if ~isempty(X_not_square_refinement)
+                        X_not_square_refinement = regulizedFineTuneKaessCorners(X_not_square_refinement, Y_base_line,...
                                                                             X_base_line_edge_points, NSR_P, ...
                                                                             opts.correspondance_per_pose, show_pnp_numerical_result);
+                    end
                 end
             end
 
@@ -478,9 +493,13 @@ if ~(skip == 2)
             calibration(1).RMSE.SNR = SNR_opt_total_cost;
             calibration(1).All.SNR = SNR_All;
             
-            [NSNR_H_LC, NSNR_P, NSNR_opt_total_cost, ~, NSNR_All] = optimizeIoU(opt.H_LC.rpy_init, ...
+            if ~isempty(X_base_line)
+                [NSNR_H_LC, NSNR_P, NSNR_opt_total_cost, ~, NSNR_All] = optimizeIoU(opt.H_LC.rpy_init, ...
                                                                                 X_base_line, Y_base_line, ...
                                                                                 intrinsic_matrix, show_pnp_numerical_result); % NOT square withOUT refinement
+            else
+                [NSNR_H_LC, NSNR_P, NSNR_opt_total_cost, ~, NSNR_All] = deal(zeros(4,4), zeros(3,4), 0, 0, 0);
+            end
             calibration(1).H_NSNR = NSNR_H_LC;
             calibration(1).P_NSNR = NSNR_P;
             calibration(1).RMSE_NSNR = NSNR_opt_total_cost;
@@ -499,9 +518,13 @@ if ~(skip == 2)
                 calibration(1).RMSE_SR = SR_opt_total_cost;
                 calibration(1).All.SR = SR_All;
 
-                [NSR_H_LC, NSR_P, NSR_opt_total_cost, ~, NSR_All] = optimizeIoU(opt.H_LC.rpy_init, ...
+                if ~isempty(X_not_square_refinement)
+                    [NSR_H_LC, NSR_P, NSR_opt_total_cost, ~, NSR_All] = optimizeIoU(opt.H_LC.rpy_init, ...
                                                                      X_not_square_refinement, Y_base_line, ...
                                                                      intrinsic_matrix, show_pnp_numerical_result); % NOT square with refinement
+                else
+                    [NSR_H_LC, NSR_P, NSR_opt_total_cost, ~, NSR_All] = deal(zeros(4,4), zeros(3,4), 0, 0, 0);
+                end
                 calibration(1).H_NSR = NSR_H_LC;
                 calibration(1).P_NSR = NSR_P;
                 calibration(1).RMSE_NSR = NSR_opt_total_cost;
@@ -517,9 +540,11 @@ if ~(skip == 2)
                     X_train = regulizedFineTuneLiDARTagPose(train_tag_size_array, ...
                                                             X_train, Y_train, H_LT_big, SR_P, ...
                                                             opts.correspondance_per_pose, show_pnp_numerical_result);
-                    X_not_square_refinement = regulizedFineTuneKaessCorners(X_not_square_refinement, ...
+                    if ~isempty(X_not_square_refinement)
+                        X_not_square_refinement = regulizedFineTuneKaessCorners(X_not_square_refinement, ...
                                                             Y_base_line, X_base_line_edge_points, NSR_P, ...
                                                             opts.correspondance_per_pose, show_pnp_numerical_result);
+                    end
                 end
             end
             
