@@ -91,7 +91,7 @@ opts.optimizeAllCorners = 0;
 opts.refineAllCorners = 0;
 opts.use_top_consistent_vertices = 0;
 opts.randperm_to_fine_vertices = 0;
-skip = 0; 
+skip = 2; 
 debug = 0;
 opts.base_line.optimized_method = 1;
 opts.base_line.edge_method = 3;
@@ -103,7 +103,7 @@ opts.calibration_method = "4 points";
 % opts.calibration_method = "IoU";
 
 path.load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
-path.load_dir = "NewPaper/15-Nov-2019 19:00:42/";
+path.load_dir = "IROS2020/16-Feb-2020 00:08:33/";
 path.load_all_vertices = "NewPaper/16-Nov-2019 14:53:58/";
 path.bag_file_path = 'moving_bags/'; 
 path.mat_file_path = "../../LiDARTag_data/";
