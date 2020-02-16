@@ -1,4 +1,4 @@
-% path = '/home/chenxif/Documents/me590/Calibration/ExtrinsicCalibration/data/bagfile';
+% path = '/home/chenxif/Documents/me590/Calibration/automatic_calibration/';
 % clc, clear
 % path = 'moving_bags/';
 % data = t_getSceneData(path,'*.bag', 3)
@@ -58,7 +58,8 @@ function BagData = getSceneData(path, ext, scene, pair_num)
                 camera_corners = [RawData{scan}.Detections(i).ApriltagDetection.OuterCorners.X
                                   RawData{scan}.Detections(i).ApriltagDetection.OuterCorners.Y];
                 camera_corners = sortrows(camera_corners', 2)';
-                scans(scan).camera_target(i).corners = [camera_corners;
+                refined_camera_corner = refineCameraCorners(camera_corners,scans(scan).image.image, "display",1 );
+                scans(scan).camera_target(i).corners = [refined_camera_corner;
                                                            1, 1, 1, 1];
             end
         end
