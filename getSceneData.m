@@ -2,7 +2,7 @@
 % clc, clear
 % path = 'moving_bags/';
 % data = t_getSceneData(path,'*.bag', 3)
-% data = t_getSceneData(path,'*.bag')
+% % data = t_getSceneData(path,'*.bag')
 % disp("done")
 
 function BagData = getSceneData(path, ext, scene, pair_num)
