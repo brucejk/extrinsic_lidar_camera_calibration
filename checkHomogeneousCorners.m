@@ -30,7 +30,7 @@
 %}
 
 function corners = checkHomogeneousCorners(corners)
-    % assume corners is either 2xn, 3xn or 4xn
+    % Assuming corners is either 2xn, 3xn or 4xn
     % check 2D or 3D
     [n, ~] = size(corners);
     if n < 2
