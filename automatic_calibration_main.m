@@ -637,15 +637,57 @@ disp(sqrt(SR_opt_total_cost/size(Y_train, 2)))
 calibration(1).error_struc.training_results.SR_RMSE = [sqrt(SR_opt_total_cost/size(Y_train, 2))];
 
 
-[t_SNR_count, t_SR_count]   = inAndOutBeforeAndAfter(bag_training_indices, ...
-                                                     opts.num_training, opts, BagData, SNR_P, SR_P);
-[t_NSNR_count, t_NSR_count] = inAndOutBeforeAndAfter(bag_training_indices, ...
-                                                     opts.num_training, opts, BagData, NSNR_P, NSR_P);
+%% with refinement and without refinement (inandout comparision and RMSE)
+%%%%% training
+%%%% 1) L1-inspired
+%%% inandout
+[t_SNR_count, t_SR_count] = inAndOutBeforeAndAfter_v02(bag_training_indices, BagData, SNR_P, SR_P);
+%%% RMSE
+SR_training_cost = verifyCornerAccuracyWRTDataset_v02(bag_training_indices, BagData, SR_P, 'L1_inspired', 'refinement');
+SNR_training_cost = verifyCornerAccuracyWRTDataset_v02(bag_training_indices, BagData, SNR_P, 'L1_inspired', 'no_refinement');
 
-[SNR_count, SR_count]       = inAndOutBeforeAndAfter(bag_validation_indices, ...
-                                                     opts.num_validation, opts, BagData, SNR_P, SR_P);
-[NSNR_count, NSR_count]     = inAndOutBeforeAndAfter(bag_validation_indices, ...
-                                                     opts.num_validation, opts, BagData, NSNR_P, NSR_P);
+%%%% 2) baseline                                           
+if ~isempty(X_not_square_refinement) || ~isempty(X_base_line)
+    %%% InandOut
+    [t_NSNR_count, t_NSR_count] = inAndOutBeforeAndAfter_v02(bag_training_indices, BagData, NSNR_P, NSR_P);
+    %%% RMSE
+    NSR_training_cost = verifyCornerAccuracyWRTDataset_v02(bag_training_indices, BagData, NSR_P, 'ransac_normal', 'refinement');
+    NSNR_training_cost = verifyCornerAccuracyWRTDataset_v02(bag_training_indices, BagData, NSNR_P, 'ransac_normal', 'no_refinement');
+else
+    [t_NSNR_count, t_NSR_count] = deal(-1);
+    [NSR_training_cost, NSNR_training_cost] = deal(-1);
+end
+
+% validation
+% L1-inspired
+%%% verify corner accuracy
+if validation_flag
+    % inandout
+    [SNR_count, SR_count] = inAndOutBeforeAndAfter_v02(bag_validation_indices, BagData, SNR_P, SR_P);
+    % RMSE                                       
+    SR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, SR_P, 'L1_inspired', 'refinement');
+    SNR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, SNR_P, 'L1_inspired', 'no_refinement');
+
+    if ~isempty(X_not_square_refinement) || ~isempty(X_base_line)    
+        [NSNR_count, NSR_count] = inAndOutBeforeAndAfter_v02(bag_validation_indices, BagData, NSNR_P, NSR_P);
+        NSR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, NSR_P, 'ransac_normal', 'refinement');
+        NSNR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, NSNR_P, 'ransac_normal', 'no_refinement');
+    else
+        [NSNR_count, NSR_count] = deal(-1);
+        [NSR_validation_cost, NSNR_validation_cost]  = deal(-1);
+    end
+
+    for i = 1:opts.num_validation
+        calibration(1).error_struc.validation(i).id = bag_validation_indices(i);   
+        calibration(1).error_struc.validation(i).name = extractBetween(BagData(bag_validation_indices(i)).bagfile,"",".bag");
+        calibration(1).error_struc.validation(i).NSNR_RMSE = [NSNR_validation_cost(i).RMSE];
+        calibration(1).error_struc.validation(i).NSR_RMSE = [NSR_validation_cost(i).RMSE];
+        calibration(1).error_struc.validation(i).SNR_RMSE = [SNR_validation_cost(i).RMSE];
+        calibration(1).error_struc.validation(i).SR_RMSE = [SR_validation_cost(i).RMSE];
+    end
+end
+
+
 calibration(1).count.training.SNR = t_SNR_count;
 calibration(1).count.training.SR = t_SR_count;
 calibration(1).count.training.NSR = t_NSR_count;
@@ -655,11 +697,6 @@ calibration(1).count.validation.SNR = SNR_count;
 calibration(1).count.validation.SR = SR_count;
 calibration(1).count.validation.NSR = NSR_count;
 calibration(1).count.validation.NSNR = NSNR_count;
-
-SR_training_cost = verifyCornerAccuracyWRTDataset(bag_training_indices, opts, BagData, SR_P);
-SNR_training_cost = verifyCornerAccuracyWRTDataset(bag_training_indices, opts, BagData, SNR_P);
-NSR_training_cost = verifyCornerAccuracyWRTDataset(bag_training_indices, opts, BagData, NSR_P);
-NSNR_training_cost = verifyCornerAccuracyWRTDataset(bag_training_indices, opts, BagData, NSNR_P);
 
 for i = 1:opts.num_training
         disp('------')
@@ -682,28 +719,7 @@ for i = 1:opts.num_training
         calibration(1).error_struc.training(i).SR_RMSE = [SR_training_cost(i).RMSE];
 end
 
-%%% verify corner accuracy
-if validation_flag
-    SR_validation_cost = verifyCornerAccuracyWRTDataset(bag_validation_indices, opts, BagData, SR_P);
-    SNR_validation_cost = verifyCornerAccuracyWRTDataset(bag_validation_indices, opts, BagData, SNR_P);
-    NSR_validation_cost = verifyCornerAccuracyWRTDataset(bag_validation_indices, opts, BagData, NSR_P);
-    NSNR_validation_cost = verifyCornerAccuracyWRTDataset(bag_validation_indices, opts, BagData, NSNR_P);
-    
-    NSNR_validation_cost_on_its_own = verifyCornerAccuracyWRTDatasetOnItsOwnMethod(opts.base_line, ...
-                                                                                   bag_validation_indices, opts, BagData, NSNR_P);
-    SR_validation_cost_on_its_own = verifyCornerAccuracyWRTDatasetOnItsOwnMethod("GL1-R", ...
-                                                                                 bag_validation_indices, opts, BagData, SR_P);
-    for i = 1:opts.num_validation
-        calibration(1).error_struc.validation(i).id = bag_validation_indices(i);   
-        calibration(1).error_struc.validation(i).name = extractBetween(BagData(bag_validation_indices(i)).bagfile,"",".bag");
-        calibration(1).error_struc.validation(i).NSNR_RMSE_validate_its_own = [NSNR_validation_cost_on_its_own(i).RMSE];
-        calibration(1).error_struc.validation(i).NSNR_RMSE = [NSNR_validation_cost(i).RMSE];
-        calibration(1).error_struc.validation(i).NSR_RMSE = [NSR_validation_cost(i).RMSE];
-        calibration(1).error_struc.validation(i).SNR_RMSE = [SNR_validation_cost(i).RMSE];
-        calibration(1).error_struc.validation(i).SR_RMSE = [SR_validation_cost(i).RMSE];
-        calibration(1).error_struc.validation(i).SR_RMSE_validate_its_own = [SR_validation_cost_on_its_own(i).RMSE];
-    end
-end   
+   
 
 %%% draw results
 % project training target points 
@@ -792,52 +808,27 @@ if validation_flag
     disp(struct2table(calibration(1).error_struc.validation))
 %     disp("NSNR_RMSE--validata on its own method")
 %     [calibration(1).error_struc.validation.baseline.NSNR_RMSE]
-    disp("NSNR_RMSE (validaing on its own)")
-    [calibration(1).error_struc.validation.NSNR_RMSE_validate_its_own]
     disp("NSR_RMSE")
     [calibration(1).error_struc.validation.NSR_RMSE]
     disp("SNR_RMSE")
     [calibration(1).error_struc.validation.SNR_RMSE]
     disp("SR_RMSE")
     [calibration(1).error_struc.validation.SR_RMSE]
-    disp("SR_RMSE (validaing on its own)")
-    [calibration(1).error_struc.validation.SR_RMSE_validate_its_own]
     
     disp("------ALL info-------")
-    [calibration(1).error_struc.validation.NSNR_RMSE_validate_its_own;
-     calibration(1).error_struc.validation.NSNR_RMSE;
+    [calibration(1).error_struc.validation.NSNR_RMSE;
      calibration(1).error_struc.validation.NSR_RMSE;
      calibration(1).error_struc.validation.SNR_RMSE;
-     calibration(1).error_struc.validation.SR_RMSE;
-     calibration(1).error_struc.validation.SR_RMSE_validate_its_own]
+     calibration(1).error_struc.validation.SR_RMSE]
     disp("------paper info-------")
     disp("-- training")
     training_res = [calibration(1).error_struc.training_results.NSNR_RMSE;
                     calibration(1).error_struc.training_results.SNR_RMSE]
 
     disp("-- validating")
-    validating_res = [calibration(1).error_struc.validation.NSNR_RMSE_validate_its_own;
+    validating_res = [calibration(1).error_struc.validation.NSNR_RMSE;
                       calibration(1).error_struc.validation.SNR_RMSE]
     disp('summary')
     validating_mean = mean(validating_res')'
     validating_std = std(validating_res')'
 end
-
-% function mytable = transposeTable(in_table)
-% myArray = table2cell(in_table(:,2:end) );
-% myArray = cell2table(myArray'); 
-% var_names = cellstr( table2cell(in_table(:,1)) );
-% var_names = matlab.lang.makeValidName(var_names) ;
-% var_names = var_names';
-% myArray.Properties.VariableNames = var_names ;
-% % S = {'my.Name','my_Name','my_Name'};
-% % validValues = matlab.lang.makeValidName(S)
-% % validUniqueValues = matlab.lang.makeUniqueStrings(validValues,{},...
-% %     namelengthmax)
-%   
-% row_names = in_table.Properties.VariableNames(2:end); 
-% row_names = cell2table(row_names');
-% mytable = [row_names , myArray ] ;
-% mytable.Properties.VariableNames(1,1) = in_table.Properties.VariableNames(1,1);
-% clear myArray var_names row_names ii str expression replace newStr 
-% end
