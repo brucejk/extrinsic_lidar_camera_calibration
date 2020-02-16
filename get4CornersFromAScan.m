@@ -29,38 +29,11 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function bag_data = get4CornersFromAScan(opt, bag_data)
+function bag_data = get4CornersFromAScan(opt, opts, bag_data)
 % scan_num: scan number of these corner
 % num_scan: how many scans accumulated to get the corners
     for tag = 1:bag_data.num_tag
-%         fprintf("----Tag %i/%i\n", tag, bag_data.num_tag)
-        X = bag_data.lidar_target.payload_points;
-        target_len = bag_data.lidar_target(tag).tag_size;
-        target_len = 0.22;
-        
-        % clean data
-        [X_clean, X_ref, X_std, L_infinity, N] = cleanLiDARTargetCore(opt.H_TL, X, target_len);
-        bag_data.lidar_target(tag).clean_up.std = N*(X_std(1));
-        bag_data.lidar_target(tag).clean_up.L_infinity = L_infinity;
-        bag_data.lidar_target(tag).clean_up.L_1 = sum(X_ref(1:3,:), 1);
-
-        % cost
-        opt_tmp = optimizeCost(opt.H_TL, X_clean, target_len, bag_data.lidar_target(tag).clean_up.std/2);
-        target_lidar = [0 -target_len/2 -target_len/2 1;
-                        0 -target_len/2  target_len/2 1;
-                        0  target_len/2  target_len/2 1;
-                        0  target_len/2 -target_len/2 1]';
-
-        corners = opt_tmp.H_opt \ target_lidar;
-        corners = sortrows(corners', 3, 'descend')';
-        [centroid, normals] = computeCentroidAndNormals(corners);
-
-        bag_data.lidar_target(tag).corners = corners;
-        bag_data.lidar_target(tag).four_corners_line = point3DToLineForDrawing(corners);
-        bag_data.lidar_target(tag).pc_points_original = X;
-        bag_data.lidar_target(tag).pc_points = X_clean;
-        bag_data.lidar_target(tag).centroid = centroid;
-        bag_data.lidar_target(tag).normal_vector = normals;
-        bag_data.lidar_target(tag).H_LT = inv(opt_tmp.H_opt);
+        bag_data = get4CornersL1Inspired(opt, bag_data, tag);
+%         bag_data = KaessNewCorners_v03(opts, bag_data, tag);
     end
 end
