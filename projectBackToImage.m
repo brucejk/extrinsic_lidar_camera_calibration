@@ -44,8 +44,7 @@ function projectBackToImage(image_handle, P, X, marker_size , marker_color, lege
     end
     
     hold(image_handle, 'on');
-    projected_points = P * X;
-    projected_points = projected_points ./ projected_points(3,:);
+    projected_points = projectionMap(X, P);
 %             projected_points = distortedToUndistorted(app, projected_points(1:2,:)');
     scatter(image_handle, projected_points(1,:), projected_points(2,:), marker_size, marker_color, 'DisplayName', legend)
     hold(image_handle, 'off');
