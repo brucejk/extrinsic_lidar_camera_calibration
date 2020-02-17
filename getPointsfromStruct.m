@@ -23,13 +23,13 @@ function [points,XYZIR] = getPointsfromStruct(pointStruct)
     %xyzir points
     fieldnames = readAllFieldNames(pointMsg);
     if any(strcmp(fieldnames,'intensity')) 
-    	intensity = readField(pointMsg,'intensity');
+    	intensity = double(readField(pointMsg,'intensity'));
     else
     	error("No intensity from Rosbag pointcloud2 messages");
     end
     
     if any(strcmp(fieldnames,'ring'))
-    	ring = readField(pointMsg,'ring');
+    	ring = double(readField(pointMsg,'ring'));
     else
     	error("No intensity from Rosbag pointcloud2 messages");
     end
