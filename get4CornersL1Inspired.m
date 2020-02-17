@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function bag_data = get4CornersL1Inspired(opt, bag_data, tag_num)
+function bag_data = get4CornersL1Inspired(opt, opts, bag_data, tag_num)
 
     X = bag_data.lidar_target(tag_num).payload_points;
     target_len = bag_data.lidar_target(tag_num).tag_size;
