@@ -91,7 +91,7 @@ opts.optimizeAllCorners = 0;
 opts.refineAllCorners = 0;
 opts.use_top_consistent_vertices = 0;
 opts.randperm_to_fine_vertices = 0;
-skip = 2; 
+skip = 0; 
 debug = 0;
 opts.base_line.optimized_method = 1;
 opts.base_line.edge_method = 3;
@@ -103,7 +103,7 @@ opts.calibration_method = "4 points";
 % opts.calibration_method = "IoU";
 
 path.load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
-path.load_dir = "IROS2020/16-Feb-2020 00:08:33/";
+path.load_dir = "IROS2020/17-Feb-2020 12:10:07/";
 path.load_all_vertices = "NewPaper/16-Nov-2019 14:53:58/";
 path.bag_file_path = 'moving_bags/'; 
 path.mat_file_path = "../../LiDARTag_data/";
@@ -333,7 +333,7 @@ if skip == 0
     
     for k = 1:length(bag_chosen_indices)
         current_index = bag_chosen_indices(k);
-        fprintf("Working on %s -->", bag_with_tag_list(current_index))
+        fprintf("Working on %s -->\n", bag_with_tag_list(current_index))
         BagData(current_index) = get4CornersFromAllScans(opt, opts, BagData(current_index));
 
         % skip undesire index
@@ -358,7 +358,7 @@ if skip == 0
             H_LT_big = [H_LT_big, BagData(current_index).array.L1_inspired.target_H_LT];
             train_tag_size_array = [train_tag_size_array, BagData(current_index).array.L1_inspired.tag_size];
             train_num_tag_array = [train_num_tag_array, BagData(current_index).array.L1_inspired.num_tag];
-            fprintf(" Got training set: %s\n", bag_with_tag_list(current_index))
+            fprintf("--- Got training set: %s\n\n", bag_with_tag_list(current_index))
             
             if isfield(BagData(current_index).array, 'ransac_normal')
                 X_base_line = [X_base_line, BagData(current_index).array.ransac_normal.training_x];
@@ -379,7 +379,7 @@ if skip == 0
                 Y_base_line_validation = [Y_base_line_validation, BagData(current_index).array.ransac_normal.training_y];
                 X_base_line_edge_points_validation = [X_base_line_edge_points_validation, BagData(current_index).array.ransac_normal.edges];
             end
-            fprintf(" Got verificatoin set: %s\n", bag_with_tag_list(current_index))
+            fprintf("--- Got validation set: %s\n\n", bag_with_tag_list(current_index))
         end
     end
     drawnow
@@ -574,6 +574,7 @@ else
     load(path.load_dir + "save_validation.mat")
 end
 
+%%
 disp("****************** NSNR-training ******************")
 disp('NSNR_H_LC: ')
 disp(' R:')
@@ -637,7 +638,7 @@ disp(sqrt(SR_opt_total_cost/size(Y_train, 2)))
 calibration(1).error_struc.training_results.SR_RMSE = [sqrt(SR_opt_total_cost/size(Y_train, 2))];
 
 
-%% with refinement and without refinement (inandout comparision and RMSE)
+% with refinement and without refinement (inandout comparision and RMSE)
 %%%%% training
 %%%% 1) L1-inspired
 %%% inandout
@@ -655,7 +656,9 @@ if ~isempty(X_not_square_refinement) || ~isempty(X_base_line)
     NSNR_training_cost = verifyCornerAccuracyWRTDataset_v02(bag_training_indices, BagData, NSNR_P, 'ransac_normal', 'no_refinement');
 else
     [t_NSNR_count, t_NSR_count] = deal(-1);
-    [NSR_training_cost, NSNR_training_cost] = deal(-1);
+    zeroCells = num2cell(zeros(3,1));
+    NSR_training_cost = struct('RMSE', zeroCells);
+    NSNR_training_cost = struct('RMSE', zeroCells); 
 end
 
 % validation
@@ -673,8 +676,11 @@ if validation_flag
         NSR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, NSR_P, 'ransac_normal', 'refinement');
         NSNR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, NSNR_P, 'ransac_normal', 'no_refinement');
     else
+%         mat2cell(zeros(3,1), ones(1,3), [1])
+        zeroCells = num2cell(zeros(3,1));
+        NSR_validation_cost = struct('RMSE', zeroCells);
+        NSNR_validation_cost = struct('RMSE', zeroCells);
         [NSNR_count, NSR_count] = deal(-1);
-        [NSR_validation_cost, NSNR_validation_cost]  = deal(-1);
     end
 
     for i = 1:opts.num_validation
@@ -718,9 +724,53 @@ for i = 1:opts.num_training
         disp(SR_training_cost(i).RMSE)
         calibration(1).error_struc.training(i).SR_RMSE = [SR_training_cost(i).RMSE];
 end
+%
+disp("***************************************************************************************")
+disp("***************************************************************************************")
+% disp("------------------")
+disp(" training results")
+% disp("------------------")
+disp(struct2table(calibration(1).error_struc.training_results))
+[calibration(1).error_struc.training_results.NSNR_RMSE; calibration(1).error_struc.training_results.NSR_RMSE; calibration(1).error_struc.training_results.SNR_RMSE; calibration(1).error_struc.training_results.SR_RMSE]
+% disp("------------------")
+% disp(" training error")
+% disp("------------------")
+% disp(struct2table(calibration(1).error_struc.training))
+%
+if validation_flag
+%     disp("------------------")
+    disp(" validation error")
+%     disp("------------------")
+    disp(struct2table(calibration(1).error_struc.validation))
+%     disp("NSNR_RMSE--validata on its own method")
+%     [calibration(1).error_struc.validation.baseline.NSNR_RMSE]
+    disp("NSR_RMSE")
+    [calibration(1).error_struc.validation.NSR_RMSE]
+    disp("SNR_RMSE")
+    [calibration(1).error_struc.validation.SNR_RMSE]
+    disp("SR_RMSE")
+    [calibration(1).error_struc.validation.SR_RMSE]
+    
+    disp("------ALL info-------")
+    [calibration(1).error_struc.validation.NSNR_RMSE;
+     calibration(1).error_struc.validation.NSR_RMSE;
+     calibration(1).error_struc.validation.SNR_RMSE;
+     calibration(1).error_struc.validation.SR_RMSE]
+    disp("------paper info-------")
+    disp("-- training")
+    training_res = [calibration(1).error_struc.training_results.NSNR_RMSE;
+                    calibration(1).error_struc.training_results.SNR_RMSE]
+
+    disp("-- validating")
+    validating_res = [calibration(1).error_struc.validation.NSNR_RMSE;
+                      calibration(1).error_struc.validation.SNR_RMSE]
+    disp('summary')
+    validating_mean = mean(validating_res')'
+    validating_std = std(validating_res')'
+end
 
    
-
+%%
 %%% draw results
 % project training target points 
 for i = 1:opts.num_training % which dataset
@@ -788,47 +838,4 @@ if skip == 0
     save(path.save_dir + 'calibration.mat', 'calibration');
 elseif skip == 1
     save(path.load_dir + 'calibration.mat', 'calibration');
-end
-disp("***************************************************************************************")
-disp("***************************************************************************************")
-% disp("------------------")
-disp(" training results")
-% disp("------------------")
-disp(struct2table(calibration(1).error_struc.training_results))
-[calibration(1).error_struc.training_results.NSNR_RMSE; calibration(1).error_struc.training_results.NSR_RMSE; calibration(1).error_struc.training_results.SNR_RMSE; calibration(1).error_struc.training_results.SR_RMSE]
-% disp("------------------")
-% disp(" training error")
-% disp("------------------")
-% disp(struct2table(calibration(1).error_struc.training))
-%%
-if validation_flag
-%     disp("------------------")
-    disp(" validation error")
-%     disp("------------------")
-    disp(struct2table(calibration(1).error_struc.validation))
-%     disp("NSNR_RMSE--validata on its own method")
-%     [calibration(1).error_struc.validation.baseline.NSNR_RMSE]
-    disp("NSR_RMSE")
-    [calibration(1).error_struc.validation.NSR_RMSE]
-    disp("SNR_RMSE")
-    [calibration(1).error_struc.validation.SNR_RMSE]
-    disp("SR_RMSE")
-    [calibration(1).error_struc.validation.SR_RMSE]
-    
-    disp("------ALL info-------")
-    [calibration(1).error_struc.validation.NSNR_RMSE;
-     calibration(1).error_struc.validation.NSR_RMSE;
-     calibration(1).error_struc.validation.SNR_RMSE;
-     calibration(1).error_struc.validation.SR_RMSE]
-    disp("------paper info-------")
-    disp("-- training")
-    training_res = [calibration(1).error_struc.training_results.NSNR_RMSE;
-                    calibration(1).error_struc.training_results.SNR_RMSE]
-
-    disp("-- validating")
-    validating_res = [calibration(1).error_struc.validation.NSNR_RMSE;
-                      calibration(1).error_struc.validation.SNR_RMSE]
-    disp('summary')
-    validating_mean = mean(validating_res')'
-    validating_std = std(validating_res')'
 end
