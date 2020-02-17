@@ -64,7 +64,7 @@
 % By Jeremy Scheff - jdscheff@gmail.com - http://www.jeremyscheff.com/
 
 
-function percent = parforProgress(N)
+function percent = parforProgress(N, name)
 
 error(nargchk(0, 1, nargin, 'struct'));
 if nargin < 1
