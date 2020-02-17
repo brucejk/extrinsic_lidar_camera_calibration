@@ -32,8 +32,9 @@
 function bag_data = get4CornersFromAScan(opt, opts, bag_data)
 % scan_num: scan number of these corner
 % num_scan: how many scans accumulated to get the corners
-    for tag = 1:bag_data.num_tag
-        bag_data = get4CornersL1Inspired(opt, bag_data, tag);
-%         bag_data = KaessNewCorners_v03(opts, bag_data, tag);
+    for tag_num = 1:bag_data.num_tag
+        bag_data = get4CornersL1Inspired(opt, opts, bag_data, tag_num);
+        bag_data = getRefined4CornersL1Inspired(opt, opts, bag_data, tag_num);
+%         bag_data = KaessNewCorners_v03(opts, bag_data, tag_num);
     end
 end
