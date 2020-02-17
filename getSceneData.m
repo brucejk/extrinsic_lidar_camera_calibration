@@ -1,8 +1,8 @@
 % path = '/home/chenxif/Documents/me590/Calibration/automatic_calibration/';
 % clc, clear
 % path = 'moving_bags/';
-% data = t_getSceneData(path,'*.bag', 4)
-% % data = t_getSceneData(path,'*.bag')
+% % BagData = t_getSceneData(path,'*.bag', 4)
+% BagData = t_getSceneData(path,'*.bag');
 % disp("done")
 
 function BagData = getSceneData(path, ext, scene, pair_num)
@@ -54,15 +54,14 @@ function BagData = getSceneData(path, ext, scene, pair_num)
             for i =1:scans(scan).num_tag
                 [scans(scan).lidar_target(i).payload_points,...
                  scans(scan).lidar_target(i).XYZIR_points ] = getPointsfromStruct(RawData{scan}.Detections(i).LidartagDetection.Points); % [x;y;z;1]
+                
                 total_points = total_points + size(scans(scan).lidar_target(i).payload_points,2);
                 scans(scan).lidar_target(i).tag_size = RawData{scan}.Detections(i).LidartagDetection.Size;
 
                 camera_corners = [RawData{scan}.Detections(i).ApriltagDetection.OuterCorners.X
                                   RawData{scan}.Detections(i).ApriltagDetection.OuterCorners.Y];
                 camera_corners = sortrows(camera_corners', 2)';
-                refined_camera_corner = refineCameraCorners(camera_corners,scans(scan).image.image, "not display", 1);
-                scans(scan).camera_target(i).corners = [refined_camera_corner;
-                                                           1, 1, 1, 1];
+                scans(scan).camera_target(i).corners = refineCameraCorners(camera_corners, scans(scan).image.image, "not display", 1);
             end
         end
         
