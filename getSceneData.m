@@ -3,7 +3,7 @@
 % path = 'moving_bags/';
 % data = t_getSceneData(path,'*.bag', 4)
 % % data = t_getSceneData(path,'*.bag')
-disp("done")
+% disp("done")
 
 function BagData = getSceneData(path, ext, scene, pair_num)
 
