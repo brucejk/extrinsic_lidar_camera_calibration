@@ -33,4 +33,6 @@ function distance = point2PlaneDistance(data, plane, num_beams, num_targets)
         distance.ring(n).mean_in_mm = distance.ring(n).mean * 1e3;
         distance.ring(n).std_in_mm = distance.ring(n).std * 1e3;
     end
+    distance.mean = mean(abs([distance.ring(:).mean]));
+%     distance.std = std([distance.ring(:).mean]);
 end
