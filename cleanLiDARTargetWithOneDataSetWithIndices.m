@@ -24,7 +24,7 @@ function [X_clean, clean_up, remaining_indices, edges] = cleanLiDARTargetWithOne
     clean_up.L_1 = sum(X_ref(1:3,:), 1);
     X_ref_with_all_info = X_original;
     X_ref_with_all_info(1:3, :) = X_ref(1:3,:);
-    edges = findEdgePointsInIdealFrame(opt.H_opt, X_ref_with_all_info, target_len);
+    edges = findEdgePointsInIdealFrame_v02(opt.H_opt, X_ref_with_all_info, target_len);
 %     figure(200);
 %     clf('reset')
 %     scatter3(X_ref(1,:), X_ref(2,:), X_ref(3,:))
