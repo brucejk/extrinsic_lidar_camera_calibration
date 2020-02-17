@@ -1,7 +1,7 @@
 function bag_data = get4CornersFromAllScans(opt, opts, bag_data)
+%     save(path.save_dir + extractBetween(bag_data.bagfile,"",".bag") + '_' + tag_num + '_' + path.event_name + '_all_scan_refined_corners.mat', 'refinement_scan_total');    
     num_scan = length(bag_data.scans(:));
     scans_t(num_scan).all = struct();
-        fprintf('\nProgress:\n');
 %         fprintf(['\n' repmat('.',1,num_scan) '\n\n']);
     
     parforProgress(num_scan);
