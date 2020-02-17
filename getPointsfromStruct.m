@@ -1,4 +1,4 @@
-function points = getPointsfromStruct(pointStruct)
+function [points,XYZIR] = getPointsfromStruct(pointStruct)
     
     len = length(pointStruct.Fields);
     for i =1 : len
@@ -16,6 +16,22 @@ function points = getPointsfromStruct(pointStruct)
     pointMsg.RowStep = pointStruct.RowStep;
     pointMsg.Data = pointStruct.Data;
     pointMsg.Fields = pointFields;
-    points = double(readXYZ(pointMsg));
-    points = [points'; ones(1,size(points,1))];
+    %payload points with xyz coordinates
+    xyz = double(readXYZ(pointMsg));
+    points = [xyz'; ones(1,size(xyz,1))];
+    
+    %xyzir points
+    fieldnames = readAllFieldNames(pointMsg);
+    if any(strcmp(fieldnames,'intensity')) 
+    	intensity = readField(pointMsg,'intensity');
+    else
+    	error("No intensity from Rosbag pointcloud2 messages");
+    end
+    
+    if any(strcmp(fieldnames,'ring'))
+    	ring = readField(pointMsg,'ring');
+    else
+    	error("No intensity from Rosbag pointcloud2 messages");
+    end
+    XYZIR = [xyz'; intensity';ring'];
 end
