@@ -37,7 +37,6 @@ function [count_no_refinement, count_refinement] = inAndOutBeforeAndAfter_v02(ba
         num_scans = length(bag_data(current_index).scans);
         
         data_total_points = bag_data(current_index).total_points;
-%         data_total_points = 13666;
         
         count_array_no_refinement = zeros(2, num_scans); % 1 is on and in; 2 is outside
         count_array_refinement = zeros(2, num_scans); % 1 is on and in; 2 is outside
