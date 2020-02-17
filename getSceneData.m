@@ -1,9 +1,9 @@
 % path = '/home/chenxif/Documents/me590/Calibration/automatic_calibration/';
 % clc, clear
 % path = 'moving_bags/';
-% data = t_getSceneData(path,'*.bag', 3)
+% data = t_getSceneData(path,'*.bag', 4)
 % % data = t_getSceneData(path,'*.bag')
-% disp("done")
+disp("done")
 
 function BagData = getSceneData(path, ext, scene, pair_num)
 
@@ -27,7 +27,7 @@ function BagData = getSceneData(path, ext, scene, pair_num)
         BagData(scene).meta = files_from_a_folder(scene);
         BagData(scene).bagfile = convertCharsToStrings(files_from_a_folder(scene).name);
         BagData(scene).array = [];
-
+        total_points = 0;
         if exist('pair_num', 'var')
             start_scan = pair_num;
             num_scan = pair_num;
@@ -42,7 +42,7 @@ function BagData = getSceneData(path, ext, scene, pair_num)
         scans(num_scan).image = [];
         scans(num_scan).lidar_target = [];
         scans(num_scan).camera_target = [];
-
+        
         parfor scan = start_scan : num_scan
 %             scan
             scans(scan).num_tag = length(RawData{scan}.Detections);
@@ -52,7 +52,9 @@ function BagData = getSceneData(path, ext, scene, pair_num)
             scans(scan).image = getImagefromStruct(RawData{scan}.Detections(1).Image); 
 
             for i =1:scans(scan).num_tag
-                scans(scan).lidar_target(i).payload_points = getPointsfromStruct(RawData{scan}.Detections(i).LidartagDetection.Points); % [x;y;z;1]
+                [scans(scan).lidar_target(i).payload_points,...
+                 scans(scan).lidar_target(i).XYZIR_points ] = getPointsfromStruct(RawData{scan}.Detections(i).LidartagDetection.Points); % [x;y;z;1]
+                total_points = total_points + size(scans(scan).lidar_target(i).payload_points,2);
                 scans(scan).lidar_target(i).tag_size = RawData{scan}.Detections(i).LidartagDetection.Size;
 
                 camera_corners = [RawData{scan}.Detections(i).ApriltagDetection.OuterCorners.X
@@ -65,6 +67,7 @@ function BagData = getSceneData(path, ext, scene, pair_num)
         end
         
         BagData(scene).scans = scans;
+        BagData(scene).total_points = total_points;
         clear scans;
     end
 end
