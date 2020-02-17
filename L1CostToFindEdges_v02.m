@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function [U, center, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D] = L1CostToFindEdges_v02(payLoad, d)
+function [U, center, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D] = L1CostToFindEdges_v02(base_line, payload, d)
 
 % pnts is the pioint cloud structure that Bruce builds up
 
@@ -60,7 +60,7 @@ opt.H_TL.UseCentroid = 1;
 
 
 %% Find Rings
-FR=min(payLoad(5,:));
+FR=min(payload(5,:));
 LR=max(payload(5,:));
 RingNumbers=[];
 for i=FR:LR
@@ -92,7 +92,7 @@ if base_line.show_results
     set(get(current_img_handle, 'parent'),'visible','on');% show the current axes
 end
 %% Clean Data 
-meanData=mean(payload(1:3,:),2);
+meanData=mean(payload(1:3,:), 2);
 error=abs(payload(1:3,:)-meanData);
 distance=sum(error,1);
 K=find(distance < d*1.025);
@@ -125,9 +125,8 @@ if base_line.show_results
     set(get(current_img_handle, 'parent'),'visible','on');% show the current axes
 end
 %% Build a projection to a plane that will be used to find Edge Data
-K=find( and(( PayLoadClean(6,:) > IndScans(1) ),( PayLoadClean(6,:) < IndScans(end))  ));
 
-XYZ=PayLoadClean(1:3, K);
+XYZ=PayLoadClean(1:3, :);
 meanXYZ=mean(XYZ,2);
 [Uc, Sc, Vc]=svd(XYZ-meanXYZ);
 [Uc, Vc] = FixSignsRotation(Uc,Vc);
@@ -139,8 +138,6 @@ if abs(Uc(2,1)) > abs(Uc(3,1))
 else
     Ind2D=[2,1];
 end
-% Ind2D
-NScans=max(PayLoadClean(6,:))- min(PayLoadClean(6,:));
 
 % Uc; is used for the projection;
 
