@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function [U,center,LE,RE,LEavg,REavg,LEupper,LElower,REupper,RElower,RingNumbers,NScans,PayLoadClean, PayLoadClean2D] = LeftRightEdges_v03(payload, d)
+function [U,center,LE,RE,LEavg,REavg,LEupper,LElower,REupper,RElower,RingNumbers,NScans,PayLoadClean, PayLoadClean2D] = LeftRightEdges_v03(base_line, payload, d)
 
 % pnts is the pioint cloud structure that Bruce builds up
 
