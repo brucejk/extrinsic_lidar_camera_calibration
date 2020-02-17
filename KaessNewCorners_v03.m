@@ -36,11 +36,11 @@ function bag_data = KaessNewCorners_v03(opts, bag_data, tag_num)
     d = bag_data.lidar_target(tag_num).tag_size * sqrt(2);% Large Target size
     
     if opts.base_line.edge_method == 1
-        [U,center,~,~,~,~,LEupper,LElower,REupper,RElower,~,~,~] = LeftRightEdges_v03(bag_data.lidar_target.XYZIR_points, d);
+        [U,center,~,~,~,~,LEupper,LElower,REupper,RElower,~,~,~] = LeftRightEdges_v03(opts.base_line, bag_data.lidar_target.XYZIR_points, d);
     elseif opts.base_line.edge_method == 2
-        [U, center, LEupper, LElower, REupper, RElower, ~, ~] = clickedToFindEdges_v02(bag_data.lidar_target.XYZIR_points, d);
+        [U, center, LEupper, LElower, REupper, RElower, ~, ~] = clickedToFindEdges_v02(opts.base_line, bag_data.lidar_target.XYZIR_points, d);
     elseif opts.base_line.edge_method == 3
-        [U, center, LEupper, LElower, REupper, RElower, ~, ~] = L1CostToFindEdges_v02(bag_data.lidar_target.XYZIR_points, d);
+        [U, center, LEupper, LElower, REupper, RElower, ~, ~] = L1CostToFindEdges_v02(opts.base_line, bag_data.lidar_target.XYZIR_points, d);
     end
     
     [nL1,nL2,nL3]=size(LEupper);
