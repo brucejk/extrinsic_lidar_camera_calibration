@@ -98,7 +98,8 @@ function refined_camera_corners = refineCameraCorners(camera_corners, img, displ
         cross_big_2d = [cross_big_2d, point];
     end
     cross_big_2d = sortrows(cross_big_2d', 2, 'ascend')';
-    cross_big_2d = [cross_big_2d; ones(1, 4)];
+    cross_big_2d = [cross_big_2d; 
+                    ones(1, 4)];
     refined_camera_corners = cross_big_2d;
 
     if checkDisplay(display)
