@@ -1,4 +1,4 @@
-function  [delta, plane, valid_targets] = estimateIntrinsicFromMechanicalModel(num_beams, num_targets, num_scans, data_split_with_ring, data_split_with_ring_raw, object_list)
+function  [delta, plane, valid_targets] = estimateIntrinsicFromMechanicalModel(num_beams, num_targets, num_scans, data_split_with_ring, data_split_with_ring_cartesian, object_list)
     delta(num_beams).D = struct();
     delta(num_beams).theta = struct();
     delta(num_beams).phi = struct();
@@ -22,7 +22,7 @@ function  [delta, plane, valid_targets] = estimateIntrinsicFromMechanicalModel(n
             if ~exist('object_list', 'var')
                 X = [];
                 for j = 1: num_beams
-                    X = [X, data_split_with_ring{t}(j).points];
+                    X = [X, data_split_with_ring_cartesian{t}(j).points];
                 end
                 [plane{t}, ~] = estimateNormal(opt.corners, X(1:3, :), 0.8051);
             else
