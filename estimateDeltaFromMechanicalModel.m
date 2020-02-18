@@ -56,6 +56,11 @@ function [delta, opt, valid_targets]= estimateDeltaFromMechanicalModel(opt, data
             delta(ring).phi = sol.phi_corr;
             delta(ring).opt_total_cost = fval;
             opt.computation_time(ring).time = toc;
+        else
+            delta(ring).D = 0;
+            delta(ring).theta = 0;
+            delta(ring).phi = 0;
+            delta(ring).opt_total_cost = 0;
         end
     end
 end

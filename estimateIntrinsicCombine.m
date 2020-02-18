@@ -81,9 +81,9 @@ disp("Done loading data!")
 %% Optimize intrinsic parameters
 clc
 % if ones want to re-run this process
-opts.iterative = 0;
-opts.method = 2; % Lie; Spherical
-opts.num_iters = 5;
+opts.iterative = 1;
+opts.method = 1; % Lie; Spherical
+opts.num_iters = 1;
 
 if (opt_formulation(opts.method) == "Lie")
     data_split_with_ring_cartesian = cell(1,num_targets);
@@ -157,7 +157,7 @@ if opts.show_results
 end
 
 
-% show numerical results
+%% show numerical results
 disp("Showing numerical results...")
 disp("Showing current estimate")
 results = struct('ring', {distance(end).ring(:).ring}, ...

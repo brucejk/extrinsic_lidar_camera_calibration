@@ -30,6 +30,6 @@ function valid_targets = checkRingsCrossDataset(data, num_targets, ring, minimun
 %     if valid_target_num < min(3, num_targets) % less than this, skip the ring
     if sum(valid_targets.valid) < minimun_target_for_this_ring
         valid_targets.skip = true;
-        warning("Ring #%i has been skipped due to not enough valid targets %i:", ring, sum(valid_targets.valid));
+        warning("Ring #%i has been skipped due to not enough valid targets %i!", ring, sum(valid_targets.valid));
     end
 end
