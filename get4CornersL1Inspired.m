@@ -43,20 +43,52 @@ function bag_data = get4CornersL1Inspired(opt, opts, bag_data, tag_num)
     % cost
     opt_tmp = optimizeCost(opt.H_TL, X_clean, target_len, ...
                            bag_data.lidar_target(tag_num).L1_inspired.clean_up.std/2);
-    target_lidar = [0 -target_len/2 -target_len/2 1;
+    target_lidar = [0 -target_len/2 -target_len/2 1; % x y z 1
                     0 -target_len/2  target_len/2 1;
                     0  target_len/2  target_len/2 1;
                     0  target_len/2 -target_len/2 1]';
+                
+    % reject if not enough coverage
+    X_projected = opt_tmp.H_opt * X_clean;
+    [~, area_frame] = makeConvexHull(target_lidar(2:3,:));
+    [index, area_2D] = convhull(X_projected(2:3,:)');
+    ratio = area_2D/area_frame;
 
-    corners = opt_tmp.H_opt \ target_lidar;
-    corners = sortrows(corners', 3, 'descend')';
-    [centroid, normals] = computeCentroidAndNormals(corners);
+    if ratio < 0.8
+        bag_data.lidar_target(tag_num).L1_inspired.corners = [];
+        bag_data.lidar_target(tag_num).L1_inspired.four_corners_line = [];
+        bag_data.lidar_target(tag_num).L1_inspired.pc_points_original = [];
+        bag_data.lidar_target(tag_num).L1_inspired.pc_points = [];
+        bag_data.lidar_target(tag_num).L1_inspired.centroid = [];
+        bag_data.lidar_target(tag_num).L1_inspired.normal_vector = [];
+        bag_data.lidar_target(tag_num).L1_inspired.H_LT = [];
+        
+        bag_data.camera_target(tag_num).L1_inspired.corners = [];
+    else
+        corners3D = opt_tmp.H_opt \ target_lidar;
+        corners3D = sortrows(corners3D', 3, 'descend')';
+        [centroid, normals] = computeCentroidAndNormals(corners3D);
+        bag_data.lidar_target(tag_num).L1_inspired.corners = corners3D;
+        bag_data.lidar_target(tag_num).L1_inspired.four_corners_line = point3DToLineForDrawing(corners3D);
+        bag_data.lidar_target(tag_num).L1_inspired.pc_points_original = X;
+        bag_data.lidar_target(tag_num).L1_inspired.pc_points = X_clean;
+        bag_data.lidar_target(tag_num).L1_inspired.centroid = centroid;
+        bag_data.lidar_target(tag_num).L1_inspired.normal_vector = normals;
+        bag_data.lidar_target(tag_num).L1_inspired.H_LT = inv(opt_tmp.H_opt);
+        
+        bag_data.camera_target(tag_num).L1_inspired.corners =  bag_data.camera_target(tag_num).corners;
+    end
+    
 
-    bag_data.lidar_target(tag_num).L1_inspired.corners = corners;
-    bag_data.lidar_target(tag_num).L1_inspired.four_corners_line = point3DToLineForDrawing(corners);
-    bag_data.lidar_target(tag_num).L1_inspired.pc_points_original = X;
-    bag_data.lidar_target(tag_num).L1_inspired.pc_points = X_clean;
-    bag_data.lidar_target(tag_num).L1_inspired.centroid = centroid;
-    bag_data.lidar_target(tag_num).L1_inspired.normal_vector = normals;
-    bag_data.lidar_target(tag_num).L1_inspired.H_LT = inv(opt_tmp.H_opt);
+%     figure(999)
+%     cla
+%     X_projected = opt_tmp.H_opt * X_clean;
+%     scatter3(X_projected(1,:), X_projected(2,:), X_projected(3,:))
+%     hold on, axis equal,
+%     
+% 
+%     plot3(X_projected(1,index), X_projected(2,index), X_projected(3,index))
+% %     scatter3()
+%     four_corners_line = point3DToLineForDrawing(target_lidar);
+%     plot3(four_corners_line(1,:), four_corners_line(2,:), four_corners_line(3,:))
 end
