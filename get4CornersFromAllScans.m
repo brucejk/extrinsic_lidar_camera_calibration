@@ -13,6 +13,7 @@ function bag_data = get4CornersFromAllScans(opt, opts, bag_data)
             warning("skipped scan_num: %i in training set due to no tag detected.", scan)
             continue;
         end
+        % passing scan number only for warning if any scan is skipped
         scans_t(scan).all = get4CornersFromAScan(opt, opts, bag_data.scans(scan));
         parforProgress;
 %             fprintf('\b|\n');
@@ -49,22 +50,19 @@ function bag_data = get4CornersFromAllScans(opt, opts, bag_data)
             bag_data.array.L1_inspired.tag_size = [bag_data.array.L1_inspired.tag_size, bag_data.scans(scan).lidar_target(tag).tag_size];
             bag_data.array.L1_inspired.num_tag = [bag_data.array.L1_inspired.num_tag, bag_data.scans(scan).num_tag];
             
-            if flag_use_rn 
-                bag_data.array.ransac_normal.training_x = [bag_data.array.L1_inspired.training_x, scans_t(scan).all.lidar_target(tag).ransac_normal.corners];
-                bag_data.array.ransac_normal.edges = [bag_data.array.L1_inspired.edges, scans_t(scan).all.lidar_target(tag).ransac_normal.edges];
-                bag_data.array.ransac_normal.training_y = [bag_data.array.L1_inspired.training_y, scans_t(scan).all.camera_target(tag).corners];
-                bag_data.array.ransac_normal.tag_size = [bag_data.array.L1_inspired.tag_size, bag_data.scans(scan).lidar_target(tag).tag_size];
-                bag_data.array.ransac_normal.num_tag = [bag_data.array.L1_inspired.num_tag, bag_data.scans(scan).num_tag];
+            if flag_use_rn
+                if isempty(scans_t(scan).all.lidar_target(tag).ransac_normal.corners)
+                    bag_data.scans(scan).ransac_normal.num_tag = bag_data.scans(scan).ransac_normal.num_tag - 1;
+                    warning("Scan#%i, tag#%i has been skipped using edge method #%i of baseline.", scan, tag, opts.base_line.edge_method)
+                    continue
+                end
+                bag_data.array.ransac_normal.training_x = [bag_data.array.ransac_normal.training_x, scans_t(scan).all.lidar_target(tag).ransac_normal.corners];
+                bag_data.array.ransac_normal.edges = [bag_data.array.ransac_normal.edges, scans_t(scan).all.lidar_target(tag).ransac_normal.edges];
+                bag_data.array.ransac_normal.training_y = [bag_data.array.ransac_normal.training_y, scans_t(scan).all.camera_target(tag).baseline_corners];
+                bag_data.array.ransac_normal.tag_size = [bag_data.array.ransac_normal.tag_size, bag_data.scans(scan).lidar_target(tag).tag_size];
+                bag_data.array.ransac_normal.num_tag = [bag_data.array.ransac_normal.num_tag, bag_data.scans(scan).num_tag];
             end
         end
-        
-        
-%         if length([scans_t(scan).all.lidar_target.L1_inspired.corners]) ~= length([scans_t(scan).all.camera_target.corners])
-%             warning("LiDAR vertices and camera corners do not match up at scan #%i!", scan)
-%             warning("--- (LiDAR, Camrea): (%i, %i)", ...
-%                     length([scans_t(scan).all.lidar_target.L1_inspired.corners]), ...
-%                     length([scans_t(scan).all.camera_target.corners]))
-%         end
-%         bag_data.trainining_x = 
     end
+    fprintf("Training set:\n --- L1-inspired: %i\n --- ransac_normal: %i\n", size([bag_data.array.L1_inspired.training_x], 2), size([bag_data.array.ransac_normal.training_x], 2))
 end
