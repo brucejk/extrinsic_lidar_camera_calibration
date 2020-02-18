@@ -42,10 +42,12 @@ function BagData = getSceneData(path, ext, scene, pair_num)
         scans(num_scan).image = [];
         scans(num_scan).lidar_target = [];
         scans(num_scan).camera_target = [];
+        scans(num_scan).ransac_normal.num_tag = [];
         
         parfor scan = start_scan : num_scan
 %             scan
             scans(scan).num_tag = length(RawData{scan}.Detections);
+            scans(scan).ransac_normal.num_tag = scans(scan).num_tag;
             if scans(scan).num_tag == 0
                 continue
             end
@@ -62,6 +64,7 @@ function BagData = getSceneData(path, ext, scene, pair_num)
                                   RawData{scan}.Detections(i).ApriltagDetection.OuterCorners.Y];
                 camera_corners = sortrows(camera_corners', 2)';
                 scans(scan).camera_target(i).corners = refineCameraCorners(camera_corners, scans(scan).image.image, "not display", 1);
+                scans(scan).camera_target(i).baseline_corners = scans(scan).camera_target(i).corners; % baseline might not be able to find corners at some scan
             end
         end
         
