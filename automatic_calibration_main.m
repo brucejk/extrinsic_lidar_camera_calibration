@@ -127,7 +127,7 @@ show_pnp_numerical_result = 0; % show numerical results
 show_lidar_target = 0;
 % show.lidar_target_optimization = 1;
 show_camera_target = 0;
-show_training_results = 0; % 1
+show_training_results = 1; % 1
 show_validation_results = 0; %1 
 show_testing_results = 0; %1
 show_baseline_results = 0;
@@ -312,7 +312,6 @@ end
 
 disp("All data loaded!")
 %%
-
 if skip == 0
     disp("********************************************")
     disp(" Optimizing LiDAR Target Corners")
@@ -394,7 +393,7 @@ if skip == 0
                          'Y_base_line_validation', 'X_base_line_edge_points_validation');
 end
 
-Disp("Vertices optimized!")
+disp("Vertices optimized!")
 %%
 if ~(skip == 2)
     X_square_no_refinement = X_train;
@@ -437,7 +436,7 @@ if ~(skip == 2)
             calibration(1).All.NSNR = NSNR_All;
 
             
-            for i = 0: opts.num_refinement-1
+            for scene = 0: opts.num_refinement-1
                 disp('---------------------')
                 disp(' Optimizing H_LC ...')
                 disp('---------------------')
@@ -469,7 +468,7 @@ if ~(skip == 2)
                 calibration(1).RMSE_NSR = NSR_opt_total_cost;
                 calibration(1).All.NSR = NSR_All;
                 
-                if i == opts.num_refinement-1
+                if scene == opts.num_refinement-1
                     break;
                 else
                     disp('------------------')
@@ -508,7 +507,7 @@ if ~(skip == 2)
             calibration(1).RMSE_NSNR = NSNR_opt_total_cost;
             calibration(1).All.NSNR = NSNR_All;
             
-            for i = 1: opts.num_refinement
+            for scene = 1: opts.num_refinement
                 disp('---------------------')
                 disp(' Optimizing H_LC ...')
                 disp('---------------------')
@@ -533,7 +532,7 @@ if ~(skip == 2)
                 calibration(1).RMSE_NSR = NSR_opt_total_cost;
                 calibration(1).All.NSR = NSR_All;
 
-                if i == opts.num_refinement
+                if scene == opts.num_refinement
                     break;
                 else
                     disp('------------------')
@@ -691,13 +690,13 @@ if validation_flag
         [NSNR_count, NSR_count] = deal(-1);
     end
 
-    for i = 1:opts.num_validation
-        calibration(1).error_struc.validation(i).id = bag_validation_indices(i);   
-        calibration(1).error_struc.validation(i).name = extractBetween(BagData(bag_validation_indices(i)).bagfile,"",".bag");
-        calibration(1).error_struc.validation(i).NSNR_RMSE = [NSNR_validation_cost(i).RMSE];
-        calibration(1).error_struc.validation(i).NSR_RMSE = [NSR_validation_cost(i).RMSE];
-        calibration(1).error_struc.validation(i).SNR_RMSE = [SNR_validation_cost(i).RMSE];
-        calibration(1).error_struc.validation(i).SR_RMSE = [SR_validation_cost(i).RMSE];
+    for scene = 1:opts.num_validation
+        calibration(1).error_struc.validation(scene).id = bag_validation_indices(scene);   
+        calibration(1).error_struc.validation(scene).name = extractBetween(BagData(bag_validation_indices(scene)).bagfile,"",".bag");
+        calibration(1).error_struc.validation(scene).NSNR_RMSE = [NSNR_validation_cost(scene).RMSE];
+        calibration(1).error_struc.validation(scene).NSR_RMSE = [NSR_validation_cost(scene).RMSE];
+        calibration(1).error_struc.validation(scene).SNR_RMSE = [SNR_validation_cost(scene).RMSE];
+        calibration(1).error_struc.validation(scene).SR_RMSE = [SR_validation_cost(scene).RMSE];
     end
 end
 
@@ -712,25 +711,25 @@ calibration(1).count.validation.SR = SR_count;
 calibration(1).count.validation.NSR = NSR_count;
 calibration(1).count.validation.NSNR = NSNR_count;
 
-for i = 1:opts.num_training
+for scene = 1:opts.num_training
         disp('------')
-        current_index = bag_training_indices(i);
+        current_index = bag_training_indices(scene);
         fprintf("---dataset: %s\n", bag_with_tag_list(current_index))
-        calibration(1).error_struc.training(i).id = bag_training_indices(i);   
-        calibration(1).error_struc.training(i).name = extractBetween(BagData(bag_training_indices(i)).bagfile,"",".bag");
+        calibration(1).error_struc.training(scene).id = bag_training_indices(scene);   
+        calibration(1).error_struc.training(scene).name = extractBetween(BagData(bag_training_indices(scene)).bagfile,"",".bag");
         disp("-- RMS Error Per Corner (pixel)")
         disp(' NSNR training RMS Error Per Corner (pixel)')
-        disp(NSNR_training_cost(i).RMSE)
-        calibration(1).error_struc.training(i).NSNR_RMSE = [NSNR_training_cost(i).RMSE];
+        disp(NSNR_training_cost(scene).RMSE)
+        calibration(1).error_struc.training(scene).NSNR_RMSE = [NSNR_training_cost(scene).RMSE];
         disp(' NSR training RMS Error Per Corner (pixel)')
-        disp(NSR_training_cost(i).RMSE)
-        calibration(1).error_struc.training(i).NSR_RMSE = [NSR_training_cost(i).RMSE];
+        disp(NSR_training_cost(scene).RMSE)
+        calibration(1).error_struc.training(scene).NSR_RMSE = [NSR_training_cost(scene).RMSE];
         disp(' SNR training RMS Error Per Corner (pixel)')
-        disp(SNR_training_cost(i).RMSE)
-        calibration(1).error_struc.training(i).SNR_RMSE = [SNR_training_cost(i).RMSE];
+        disp(SNR_training_cost(scene).RMSE)
+        calibration(1).error_struc.training(scene).SNR_RMSE = [SNR_training_cost(scene).RMSE];
         disp(' SR training RMS Error Per Corner (pixel)')
-        disp(SR_training_cost(i).RMSE)
-        calibration(1).error_struc.training(i).SR_RMSE = [SR_training_cost(i).RMSE];
+        disp(SR_training_cost(scene).RMSE)
+        calibration(1).error_struc.training(scene).SR_RMSE = [SR_training_cost(scene).RMSE];
 end
 %
 disp("***************************************************************************************")
@@ -778,46 +777,53 @@ if validation_flag
 end
 
    
-%%
-%%% draw results
-% project training target points 
-for i = 1:opts.num_training % which dataset
-    current_index = bag_training_indices(i);
+%% Draw results (by projecting points back to an image)
+% SNR with L1-inspired (training)
+for scene = 1:opts.num_training % which dataset
+    current_index = bag_training_indices(scene);
+    num_scan = length(BagData(current_index).scans(:));
+    for scan_num = 1:num_scan
+        loadBagImg(training_img_fig_handles(scene), [], BagData(current_index).scans(scan_num).image, "not display", "clean");
+        
+        for tag_num = 1:BagData(current_index).scans(scan_num).num_tag % which target
+            current_corners_SR = [BagData(current_index).scans(scan_num).lidar_target(tag_num).L1_inspired.corners];
+            current_X_SR = [BagData(current_index).scans(scan_num).lidar_target(tag_num).L1_inspired.pc_points];
+    %         if show_baseline_results
+    %             projectBackToImage(training_img_fig_handles(i), NSNR_P, current_corners_SR, 5, 'kd', "training_SR", "not display", "Not-Clean");
+    %         end
 
-    for j = 1:BagData(current_index).num_tag % which target
-        current_corners_SR = [BagData(current_index).lidar_target(j).scan(:).corners];
-        current_X_SR = [BagData(current_index).lidar_target(j).scan(:).pc_points];
-        if show_baseline_results
-            projectBackToImage(training_img_fig_handles(i), NSNR_P, current_corners_SR, 5, 'kd', "training_SR", "not display", "Not-Clean");
+            projectBackToImage(training_img_fig_handles(scene), SNR_P, current_corners_SR, 50, 'g*', "training_SR", "not display", "Not-Clean");
+            projectBackToImage(training_img_fig_handles(scene), SNR_P, current_X_SR, 3, 'r.', "training_SR", "not display", "Not-Clean"); 
+            showLinedAprilTag(training_img_fig_handles(scene), BagData(current_index).scans(scan_num).camera_target(tag_num), show_training_results);
         end
-        projectBackToImage(training_img_fig_handles(i), SR_P, current_corners_SR, 5, 'g*', "training_SR", "not display", "Not-Clean");
-        projectBackToImage(training_img_fig_handles(i), SNR_P, current_corners_SR, 5, 'm*', "training_SR", "not display", "Not-Clean");
-        projectBackToImage(training_img_fig_handles(i), SR_P, current_X_SR, 3, 'r.', "training_SR", "not display", "Not-Clean"); 
-        showLinedAprilTag(training_img_fig_handles(i), BagData(current_index).camera_target(j), show_training_results);
+        title_txt = "Training Scene #" + num2str(scene) + ", Scan #" + num2str(scan_num) + "/" + num2str(num_scan);
+        drawnow
+        title(training_img_fig_handles(scene), title_txt)
+        pause
     end
  end
 drawnow
 
 % project validation results
 if validation_flag
-    for i = 1:opts.num_validation % which dataset
-        current_index = bag_validation_indices(i);
-        for j = 1:BagData(current_index).num_tag % which target
-            current_corners = [BagData(current_index).lidar_target(j).scan(:).corners];
-            current_target_pc = [BagData(current_index).lidar_target(j).scan(:).pc_points];
+    for scene = 1:opts.num_validation % which dataset
+        current_index = bag_validation_indices(scene);
+        for tag_num = 1:BagData(current_index).num_tag % which target
+            current_corners = [BagData(current_index).lidar_target(tag_num).scan(:).corners];
+            current_target_pc = [BagData(current_index).lidar_target(tag_num).scan(:).pc_points];
             current_corners = checkHomogeneousCorners(current_corners);
             current_target_pc = checkHomogeneousCorners(current_target_pc);
             if show_baseline_results
-                projectBackToImage(validation_fig_handles(i), NSNR_P, current_corners, 5, 'cd', ...
+                projectBackToImage(validation_fig_handles(scene), NSNR_P, current_corners, 5, 'cd', ...
                                   "validation_SR", "not display", "Not-Clean");
             end
-            projectBackToImage(validation_fig_handles(i), SR_P, current_corners, 5, 'g*', ...
+            projectBackToImage(validation_fig_handles(scene), SR_P, current_corners, 5, 'g*', ...
                               "validation_SR", "not display", "Not-Clean");
-            projectBackToImage(validation_fig_handles(i), SNR_P, current_corners, 5, 'm*', ...
+            projectBackToImage(validation_fig_handles(scene), SNR_P, current_corners, 5, 'm*', ...
                               "validation_SR", "not display", "Not-Clean");
-            projectBackToImage(validation_fig_handles(i), SR_P, current_target_pc, 5, 'r.', ...
+            projectBackToImage(validation_fig_handles(scene), SR_P, current_target_pc, 5, 'r.', ...
                               "validation_SR", "not display", "Not-Clean");
-            showLinedAprilTag(validation_fig_handles(i), BagData(current_index).camera_target(j), show_validation_results);              
+            showLinedAprilTag(validation_fig_handles(scene), BagData(current_index).camera_target(tag_num), show_validation_results);              
         end
     end
 end
@@ -825,10 +831,12 @@ end
 % project testing results
 % load testing images and testing pc mat
 testing_set_pc = loadTestingMatFiles(path.mat_file_path, test_pc_mat_list);
-for i = 1: size(bag_testing_list, 2)
-    loadBagImg(testing_fig_handles(i), path.bag_file_path, bag_testing_list(i), "not display", "Not clean"); 
-    projectBackToImage(testing_fig_handles(i), SR_P, testing_set_pc(i).mat_pc, 3, 'g.', "testing", show_testing_results, "Not-Clean");
+for scene = 1: size(bag_testing_list, 2)
+    loadBagImg(testing_fig_handles(scene), path.bag_file_path, bag_testing_list(scene), "not display", "Not clean"); 
+    projectBackToImage(testing_fig_handles(scene), SR_P, testing_set_pc(scene).mat_pc, 3, 'g.', "testing", show_testing_results, "Not-Clean");
 end
+
+
 drawnow
 disp("********************************************") 
 disp("---- Projected using:")
