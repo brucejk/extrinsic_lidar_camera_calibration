@@ -36,6 +36,8 @@ function opt = optimizeCost(opt, X, target_size, box_width)
 
     if opt.UseCentroid
         centroid = mean(X, 2);
+        [U, ~, ~] = svd(X - centroid);
+        opt.H_init(1:3, 1:3) = U(1:3, 1:3)';
         opt.H_init(1:3, 4) = -centroid(1:3);
     else
         opt.H_init(1:3, 4) = opt.T_init;
