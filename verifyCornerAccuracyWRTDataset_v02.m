@@ -37,15 +37,15 @@ function cost = verifyCornerAccuracyWRTDataset_v02(indices, bag_data, P, method,
         square_summed_error = 0;
         for scan_num = 1:num_scans % which scan in this dataset
             if strcmpi(method, 'L1_inspired')
-                num_tag = bag_data(current_index).scans(scan_num).num_tag;
+                num_tag = bag_data(current_index).scans(scan_num).num_tag.L1_inspired;
             elseif strcmpi(method, 'ransac_normal')
-                num_tag = bag_data(current_index).scans(scan_num).ransac_normal.num_tag;
+                num_tag = bag_data(current_index).scans(scan_num).num_tag.ransac_normal;
 %                 if num_tag == 0
 %                     continue
 %                 end
             end
-            scan_num
-            num_tag
+%             scan_num
+%             num_tag
             for tag_num = 1:num_tag % which tag in this dataset
                 if strcmpi(method, 'L1_inspired') && strcmpi(refinement, 'no_refinement')
                     current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).L1_inspired.corners];
@@ -61,7 +61,7 @@ function cost = verifyCornerAccuracyWRTDataset_v02(indices, bag_data, P, method,
                     current_corners_Y = [bag_data(current_index).scans(scan_num).camera_target(tag_num).baseline_corners];
                 end
                 
-                if isempty(current_corners_Y) == 0
+                if isempty(current_corners_Y)
                     continue
                 end
                 num_corners = num_corners + length(current_corners_Y);
