@@ -37,7 +37,9 @@ function loadBagImg(img_handle, bag_file_path, bag_file, display, clean)
     end
     
     if clean && isvalid(img_handle)
-        img_handle.cla;
+%         img_handle.cla;
+        cla(img_handle,'reset');
+        set(img_handle, 'Visible', 'off');
     end
     
     % load image
