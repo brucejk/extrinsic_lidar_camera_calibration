@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function [U, center, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D] = L1CostToFindEdges_v02(base_line, payload, d)
+function [U, center, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D, successful] = L1CostToFindEdges_v02(base_line, payload, d)
 
 % pnts is the pioint cloud structure that Bruce builds up
 
@@ -160,9 +160,15 @@ if base_line.show_results
 end
 
 [~, ~, ~, edges] = cleanLiDARTargetWithOneDataSetWithIndices(PayLoadClean, d/sqrt(2), opt.H_TL);
+successful = 1;
 for i = 1:size(edges, 2)
-    EdgePoints2D = Uc'*(edges(i).points(1:3, :) - mean_data);
-    edge2D(i).points = EdgePoints2D(1:2,:);
+    if ~isempty(edges(i).points)
+        EdgePoints2D = Uc'*(edges(i).points(1:3, :) - mean_data);
+        edge2D(i).points = EdgePoints2D(1:2,:);
+    else
+        successful = 0;
+        break
+    end
 %     EdgePoints2D = EdgePoints2D(Ind2D, :)
 % %     edge2D(i).points = EdgePoints2D(Ind2D, :);
 %     if ~flag_changed
@@ -172,12 +178,22 @@ for i = 1:size(edges, 2)
 %     end
 end
 
-LEupper = edge2D(4).points;
-LElower = edge2D(1).points;
-REupper = edge2D(3).points;
-RElower = edge2D(2).points;
-U=Uc;
-center=meanClean;
+if successful
+    LEupper = edge2D(4).points;
+    LElower = edge2D(1).points;
+    REupper = edge2D(3).points;
+    RElower = edge2D(2).points;
+    U=Uc;
+    center=meanClean;
+else
+    LEupper = [];
+    LElower = [];
+    REupper = [];
+    RElower = [];
+    U=Uc;
+    center=meanClean;
+end
+
 if base_line.show_results
     current_img_handle = base_line.img_hangles(3);
     plot(current_img_handle, PayLoadClean2D(1,:), PayLoadClean2D(2,:), '.k')
