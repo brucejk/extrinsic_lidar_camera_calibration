@@ -36,4 +36,19 @@ function edge = findEdgePointsInIdealFrame_v02(H_TL, X_ref, tag_length)
             edge(edge2_i).points = [edge(edge2_i).points, edge_point_3D_2];
         end
     end
+%     fig_hangle = figure(99999);
+%     cla(fig_hangle)
+%     X_move_back = inv(H_TL) * [X_ref(1:3,:); ones(1, size(X_ref(1, :), 2))];
+%     scatter3(X_move_back(1,:), X_move_back(2,:), X_move_back(3,:), 'k.')
+%     %     scatter3(X_ref(1,:), X_ref(2,:), X_ref(3,:), 'k.')
+%     hold on
+%     scatter3(edge(1).points(1,:), edge(1).points(2,:), edge(1).points(3,:), 'ro', 'filled')
+%     scatter3(edge(2).points(1,:), edge(2).points(2,:), edge(2).points(3,:), 'go', 'filled')
+%     scatter3(edge(3).points(1,:), edge(3).points(2,:), edge(3).points(3,:), 'bo', 'filled')
+%     scatter3(edge(4).points(1,:), edge(4).points(2,:), edge(4).points(3,:), 'mo', 'filled')
+%     title('edge parsing results')
+%     xlabel("x")
+%     ylabel("y")
+%     zlabel("z")
+%     axis equal
 end
