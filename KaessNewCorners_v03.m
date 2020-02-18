@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function bag_data = KaessNewCorners_v03(opts, bag_data, tag_num, scan)
+function bag_data = KaessNewCorners_v03(opts, bag_data, tag_num)
 
     ransac_threshold = 0.02;
 
