@@ -62,6 +62,11 @@ function [delta, opt, valid_targets] = estimateDeltaLie(opt, data, plane, delta,
 
             delta(ring).opt_total_cost = fval;
             opt.computation_time = toc;
+        else
+            delta(ring).H = eye(4);
+            delta(ring).Scaling = eye(4);
+            delta(ring).Affine = eye(4);
+            delta(ring).opt_total_cost = 0;
         end
     end
 end

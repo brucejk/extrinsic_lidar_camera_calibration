@@ -18,8 +18,9 @@ end
 
 % Single variable called point_cloud
 
-opts.path = "/home/brucebot/workspace/griztag/src/matlab/matlab/slider/intrinsic_latest/data/";
-opts.path = "./data/";
+% opts.path = "/home/brucebot/workspace/griztag/src/matlab/matlab/slider/intrinsic_latest/data/";
+% opts.path = "./data/";
+opts.path = "..\intrinsic_lidar_calibration\data\";
 opts.load_all = 1;
 
 opts.show_results = 1;
@@ -80,9 +81,9 @@ disp("Done loading data!")
 %% Optimize intrinsic parameters
 clc
 % if ones want to re-run this process
-opts.iterative = 0;
+opts.iterative = 1;
 opts.method = 1; % Lie; Spherical
-opts.num_iters = 10;
+opts.num_iters = 1;
 
 if (opt_formulation(opts.method) == "Lie")
     data_split_with_ring_cartesian = cell(1,num_targets);
@@ -98,6 +99,8 @@ if (opt_formulation(opts.method) == "Lie")
     end
     distance = []; % if re-run, it will show error of "Subscripted assignment between dissimilar structures"
     distance(opts.num_iters).ring(opts.num_beams) = struct();
+    distance(opts.num_iters).mean = 0;
+%     distance(opts.num_iters).std = 0;
     for k = 1: opts.num_iters
         fprintf("--- Working on %i/%i\n", k, opts.num_iters)
         [delta, plane, valid_rings_and_targets] = estimateIntrinsicLie(opts.num_beams, num_targets, opts.num_scans, data_split_with_ring_cartesian);
@@ -106,7 +109,7 @@ if (opt_formulation(opts.method) == "Lie")
         end
         % update the corrected points
         data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring_cartesian, delta, valid_rings_and_targets, opt_formulation(opts.method));
-        distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
+        distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets);
     end
 
 elseif (opt_formulation(opts.method) == "Spherical")
@@ -128,7 +131,7 @@ elseif (opt_formulation(opts.method) == "Spherical")
     end
     distance = []; % if re-run, it will show error of "Subscripted assignment between dissimilar structures"
     distance(opts.num_iters).ring(opts.num_beams) = struct(); 
-    
+    distance(opts.num_iters).mean = 0;
      % iteratively optimize the intrinsic parameters
     for k = 1: opts.num_iters
         fprintf("--- Working on %i/%i\n", k, opts.num_iters)
@@ -154,16 +157,18 @@ if opts.show_results
 end
 
 
-% show numerical results
+%% show numerical results
 disp("Showing numerical results...")
 disp("Showing current estimate")
 results = struct('ring', {distance(end).ring(:).ring}, ...
                  'num_points', {distance(end).ring(:).num_points}, ...
                  'mean_original', {distance_original.ring(:).mean}, ...
-                 'std_original', {distance_original.ring(:).std}, ...
+                 'mean_calibrated', {distance(end).ring(:).mean}, ...
                  'mean_diff', num2cell([distance_original.ring(:).mean] - [distance(end).ring(:).mean]), ...
-                 'std_diff', num2cell([distance_original.ring(:).std] - [distance(end).ring(:).std]), ...
                  'mean_diff_in_mm', num2cell(([distance_original.ring(:).mean] - [distance(end).ring(:).mean]) * 1e3), ...
+                 'std_original', {distance_original.ring(:).std}, ...
+                 'std_calibrated', {distance(end).ring(:).std}, ...
+                 'std_diff', num2cell([distance_original.ring(:).std] - [distance(end).ring(:).std]), ...
                  'std_diff_in_mm', num2cell(([distance_original.ring(:).std] - [distance(end).ring(:).std])* 1e3));
 struct2table(distance(end).ring(:))
 disp("Showing comparison")

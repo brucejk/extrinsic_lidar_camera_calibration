@@ -24,7 +24,7 @@ function [delta, plane, valid_targets] = estimateIntrinsicLie(num_beams, num_tar
                 for j = 1: num_beams
                     X = [X, data_split_with_ring{t}(j).points];
                 end
-                [plane{t}, ~] = estimateNormal(opt.corners, X(1:3, :), 0.8051);
+                [plane{t}, ~] = estimateNormal(opt.corners, X(1:3, :), 1.5);
             else
                 plane{t}.centroid =  [object_list(t).centroid; 1];
                 plane{t}.normals =  object_list(t).normal;
