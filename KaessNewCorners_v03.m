@@ -29,20 +29,34 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function bag_data = KaessNewCorners_v03(opts, bag_data, tag_num)
+function bag_data = KaessNewCorners_v03(opts, bag_data, tag_num, scan)
 
     ransac_threshold = 0.02;
 
     d = bag_data.lidar_target(tag_num).tag_size * sqrt(2);% Large Target size
     
     if opts.base_line.edge_method == 1
-        [U,center,~,~,~,~,LEupper,LElower,REupper,RElower,~,~,~] = LeftRightEdges_v03(opts.base_line, bag_data.lidar_target.XYZIR_points, d);
+        [U,center,~,~,~,~,LEupper,LElower,REupper,RElower,~,~,~] = LeftRightEdges_v03(opts.base_line, bag_data.lidar_target(tag_num).XYZIR_points, d);
     elseif opts.base_line.edge_method == 2
-        [U, center, LEupper, LElower, REupper, RElower, ~, ~] = clickedToFindEdges_v02(opts.base_line, bag_data.lidar_target.XYZIR_points, d);
+        [U, center, LEupper, LElower, REupper, RElower, ~, ~] = clickedToFindEdges_v02(opts.base_line, bag_data.lidar_target(tag_num).XYZIR_points, d);
     elseif opts.base_line.edge_method == 3
-        [U, center, LEupper, LElower, REupper, RElower, ~, ~] = L1CostToFindEdges_v02(opts.base_line, bag_data.lidar_target.XYZIR_points, d);
+        [U, center, LEupper, LElower, REupper, RElower, ~, ~] = L1CostToFindEdges_v02(opts.base_line, bag_data.lidar_target(tag_num).XYZIR_points, d);
     end
     
+    % Fail getting edges
+    min_edge_points = 2;
+    if size(LEupper, 2) < min_edge_points || size(LElower, 2) < min_edge_points || ...
+       size(REupper, 2) < min_edge_points || size(RElower, 2) < min_edge_points
+        bag_data.camera_target(tag_num).baseline_corners = [];
+        bag_data.lidar_target(tag_num).ransac_normal.corners = [];
+        bag_data.lidar_target(tag_num).ransac_normal.corners = [];
+        bag_data.lidar_target(tag_num).ransac_normal.centroid = [];
+        bag_data.lidar_target(tag_num).ransac_normal.normal_vector = [];
+        bag_data.lidar_target(tag_num).ransac_normal.edges = [];
+%         warning("Scan#%i has been skipped using edge method #%i of baseline.", scan, opts.base_line.edge_method)
+        
+        return
+    end
     [nL1,nL2,nL3]=size(LEupper);
     LEupperall=reshape(LEupper,nL1,nL2*nL3);
     I=find( (LEupperall(1,:)~= 10) & (LEupperall(2,:)~= 10)); 
