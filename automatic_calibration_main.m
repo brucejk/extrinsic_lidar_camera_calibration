@@ -44,7 +44,7 @@ opt.H_LC.rpy_init = [90 0 90];
 
 % train data id from getBagData.m
 trained_ids = [3]; % 
-skip_indices = [2]; %% skip non-standard 
+skip_indices = [2 4]; %% skip non-standard 
 
 % validate the calibration result if one has validation dataset(s)
 % (Yes:1; No: 0)
@@ -310,7 +310,9 @@ if validation_flag
     end
 end
 
+disp("All data loaded!")
 %%
+
 if skip == 0
     disp("********************************************")
     disp(" Optimizing LiDAR Target Corners")
@@ -392,6 +394,7 @@ if skip == 0
                          'Y_base_line_validation', 'X_base_line_edge_points_validation');
 end
 
+Disp("Vertices optimized!")
 %%
 if ~(skip == 2)
     X_square_no_refinement = X_train;
@@ -574,6 +577,7 @@ else
     load(path.load_dir + "save_validation.mat")
 end
 
+disp("Done calibrating!")
 %%
 disp("****************** NSNR-training ******************")
 disp('NSNR_H_LC: ')
@@ -652,11 +656,13 @@ if ~isempty(X_not_square_refinement) || ~isempty(X_base_line)
     %%% InandOut
     [t_NSNR_count, t_NSR_count] = inAndOutBeforeAndAfter_v02(bag_training_indices, BagData, NSNR_P, NSR_P);
     %%% RMSE
-    NSR_training_cost = verifyCornerAccuracyWRTDataset_v02(bag_training_indices, BagData, NSR_P, 'ransac_normal', 'refinement');
+    zeroCells = num2cell(zeros(opts.num_training, 1));
+    NSR_training_cost = struct('RMSE', zeroCells);
+%     NSR_training_cost = verifyCornerAccuracyWRTDataset_v02(bag_training_indices, BagData, NSR_P, 'ransac_normal', 'refinement');
     NSNR_training_cost = verifyCornerAccuracyWRTDataset_v02(bag_training_indices, BagData, NSNR_P, 'ransac_normal', 'no_refinement');
 else
     [t_NSNR_count, t_NSR_count] = deal(-1);
-    zeroCells = num2cell(zeros(3,1));
+    zeroCells = num2cell(zeros(opts.num_training,1));
     NSR_training_cost = struct('RMSE', zeroCells);
     NSNR_training_cost = struct('RMSE', zeroCells); 
 end
@@ -673,11 +679,13 @@ if validation_flag
 
     if ~isempty(X_not_square_refinement) || ~isempty(X_base_line)    
         [NSNR_count, NSR_count] = inAndOutBeforeAndAfter_v02(bag_validation_indices, BagData, NSNR_P, NSR_P);
-        NSR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, NSR_P, 'ransac_normal', 'refinement');
+        zeroCells = num2cell(zeros(opts.num_validation, 1));
+        NSR_validation_cost = struct('RMSE', zeroCells);
+%         NSR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, NSR_P, 'ransac_normal', 'refinement');
         NSNR_validation_cost = verifyCornerAccuracyWRTDataset_v02(bag_validation_indices, BagData, NSNR_P, 'ransac_normal', 'no_refinement');
     else
 %         mat2cell(zeros(3,1), ones(1,3), [1])
-        zeroCells = num2cell(zeros(3,1));
+        zeroCells = num2cell(zeros(opts.num_validation, 1));
         NSR_validation_cost = struct('RMSE', zeroCells);
         NSNR_validation_cost = struct('RMSE', zeroCells);
         [NSNR_count, NSR_count] = deal(-1);
