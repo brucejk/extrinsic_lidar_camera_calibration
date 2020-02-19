@@ -39,17 +39,14 @@
 % t_projectionMap(X, P);
 
 function projected_points = projectionMap(X, P)
+    X = makeWideMatrix(X);
     [m, n] = size(X);
-    if (n ~= 4 && m ~= 4)
+    if (m ~= 3 && m ~= 4)
         if (n ~= 3 && m ~= 3)
             error("wrong usage: the input should be 3xn, nx3, 4xn, nx4")
         end
     end
-    
-    if n == 4 || n == 3
-        X = X';
-    end
     X = checkHomogeneousCorners(X);
     projected_points = P * X;
-    projected_points = projected_points ./ projected_points(3,:);
+    projected_points = projected_points ./ projected_points(3, :);
 end
