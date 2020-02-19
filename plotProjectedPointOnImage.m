@@ -29,7 +29,7 @@ for scene = 1:num_senes % which dataset
                 showLinedAprilTag(fig_handles(scene), bag_data(current_index).scans(scan_num).camera_target(tag_num), show_training_results);
             end
         end
-        title_txt = "Scene: " + bag_data(current_index).bagfile + " at scan #" + num2str(scan_num) + "/" + num2str(num_scan);
+        title_txt = fig_title + " [Scene: " + bag_data(current_index).bagfile + " at scan #" + num2str(scan_num) + "/" + num2str(num_scan) + "]";
         drawnow
         title(fig_handles(scene), title_txt)
         if pause_each_scan
