@@ -9,10 +9,10 @@ function [delta, opt, valid_targets] = estimateDeltaLie(opt, data, plane, delta,
 
     %         ring
     %         dbstop in estimateDelta.m at 13 if ring>=32
-            theta_x = optimvar('theta_x', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
-            theta_y = optimvar('theta_y', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
-            theta_z = optimvar('theta_z', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
-            T = optimvar('T', 1, 3,'LowerBound', -0.1,'UpperBound',0.1); % 1x3
+            theta_x = optimvar('theta_x', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
+            theta_y = optimvar('theta_y', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
+            theta_z = optimvar('theta_z', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
+            T = optimvar('T', 1, 3,'LowerBound', -0.5,'UpperBound',0.5); % 1x3
             S = optimvar('S', 1, 1);
 
 %             theta_x = 0;

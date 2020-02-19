@@ -17,7 +17,7 @@ function [delta, opt, valid_targets]= estimateDeltaFromMechanicalModel(opt, data
     %         theta_y = optimvar('theta_y', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
     %         theta_z = optimvar('theta_z', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
     %         T = optimvar('T', 1, 3, 'LowerBound',[-0.05 -0.05 -0.05],'UpperBound',[0.05 0.05 0.05]); % 1x3
-            D_corr = optimvar('D_corr', 1, 1,'LowerBound',-0.05,'UpperBound',0.05); % 1x1
+            D_corr = optimvar('D_corr', 1, 1,'LowerBound',-0.5,'UpperBound',0.5); % 1x1
             theta_corr = optimvar('theta_corr', 1, 1,'LowerBound',deg2rad(-2),'UpperBound',deg2rad(2)); % 1x1
             phi_corr = optimvar('phi_corr', 1, 1,'LowerBound',deg2rad(-2),'UpperBound',deg2rad(2)); % 1x1
 
