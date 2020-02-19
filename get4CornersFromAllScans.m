@@ -43,30 +43,37 @@ function bag_data = get4CornersFromAllScans(opt, opts, bag_data)
         end
         bag_data.scans(scan) = scans_t(scan).all;
 %         figure(100)
-%         title("scan#" + num2str(scan))
 %         cla
+        
         for tag = 1:bag_data.scans(scan).num_tag.original
             if isempty(scans_t(scan).all.lidar_target(tag).L1_inspired.corners)
                 warning("Scan#%i, tag#%i/%i has been skipped using L1_inspired method.", scan, tag, bag_data.scans(scan).num_tag.original)
                 bag_data.scans(scan).num_tag.L1_inspired = bag_data.scans(scan).num_tag.L1_inspired - 1;
+                continue
             else     
                 bag_data.array.L1_inspired.training_x = [bag_data.array.L1_inspired.training_x, scans_t(scan).all.lidar_target(tag).L1_inspired.corners];
                 bag_data.array.L1_inspired.target_H_LT = [bag_data.array.L1_inspired.target_H_LT, scans_t(scan).all.lidar_target(tag).L1_inspired.H_LT];
-                bag_data.array.L1_inspired.training_y = [bag_data.array.L1_inspired.training_y, scans_t(scan).all.camera_target(tag).corners];
+                bag_data.array.L1_inspired.training_y = [bag_data.array.L1_inspired.training_y, scans_t(scan).all.camera_target(tag).L1_inspired.corners];
                 bag_data.array.L1_inspired.tag_size = [bag_data.array.L1_inspired.tag_size, bag_data.scans(scan).lidar_target(tag).tag_size];
                 bag_data.array.L1_inspired.num_tag = [bag_data.array.L1_inspired.num_tag, bag_data.scans(scan).num_tag];
+%                 scatter3(scans_t(scan).all.lidar_target(tag).L1_inspired.corners(1,:),scans_t(scan).all.lidar_target(tag).L1_inspired.corners(2,:), scans_t(scan).all.lidar_target(tag).L1_inspired.corners(3,:) )
+%                 hold on
+%                 scatter3(bag_data.scans(scan).lidar_target(tag).L1_inspired.pc_points(1, :), ...
+%                          bag_data.scans(scan).lidar_target(tag).L1_inspired.pc_points(2, :), ...
+%                          bag_data.scans(scan).lidar_target(tag).L1_inspired.pc_points(3, :))
             end
-            
-%             scatter3(scans_t(scan).all.lidar_target(tag).L1_inspired.corners(1,:),scans_t(scan).all.lidar_target(tag).L1_inspired.corners(2,:), scans_t(scan).all.lidar_target(tag).L1_inspired.corners(3,:) )
-%             hold on
-%             scatter3(bag_data.scans(scan).lidar_target(tag).L1_inspired.pc_points(1, :), ...
-%                      bag_data.scans(scan).lidar_target(tag).L1_inspired.pc_points(2, :), ...
-%                      bag_data.scans(scan).lidar_target(tag).L1_inspired.pc_points(3, :))
-            
+        end
+%         title("scan#" + num2str(scan))
+%         axis equal
+%         hold off
+%         pause(0.5)
+        
+        for tag = 1:bag_data.scans(scan).num_tag.original   
             if flag_use_rn
                 if isempty(scans_t(scan).all.lidar_target(tag).ransac_normal.corners)
                     bag_data.scans(scan).num_tag.ransac_normal = bag_data.scans(scan).num_tag.ransac_normal - 1;
                     warning("Scan#%i, tag#%i has been skipped using baseline method.", scan, tag)
+                    continue
                 else
                     bag_data.array.ransac_normal.training_x = [bag_data.array.ransac_normal.training_x, scans_t(scan).all.lidar_target(tag).ransac_normal.corners];
                     bag_data.array.ransac_normal.edges = [bag_data.array.ransac_normal.edges, scans_t(scan).all.lidar_target(tag).ransac_normal.edges];
@@ -76,9 +83,7 @@ function bag_data = get4CornersFromAllScans(opt, opts, bag_data)
                 end
             end
         end
-%         axis equal
-%         hold off
-%         pause
+
     end
     fprintf("Data set:\n --- L1-inspired: %i\n --- ransac_normal: %i\n", size([bag_data.array.L1_inspired.training_x], 2), size([bag_data.array.ransac_normal.training_x], 2))
 end
