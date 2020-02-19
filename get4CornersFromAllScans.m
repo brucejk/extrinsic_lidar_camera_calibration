@@ -66,7 +66,7 @@ function bag_data = get4CornersFromAllScans(opt, opts, bag_data)
             if flag_use_rn
                 if isempty(scans_t(scan).all.lidar_target(tag).ransac_normal.corners)
                     bag_data.scans(scan).num_tag.ransac_normal = bag_data.scans(scan).num_tag.ransac_normal - 1;
-                    warning("Scan#%i, tag#%i has been skipped using baseline method.", scan, tag, opts.base_line.edge_method)
+                    warning("Scan#%i, tag#%i has been skipped using baseline method.", scan, tag)
                 else
                     bag_data.array.ransac_normal.training_x = [bag_data.array.ransac_normal.training_x, scans_t(scan).all.lidar_target(tag).ransac_normal.corners];
                     bag_data.array.ransac_normal.edges = [bag_data.array.ransac_normal.edges, scans_t(scan).all.lidar_target(tag).ransac_normal.edges];
