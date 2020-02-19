@@ -28,20 +28,40 @@
  * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
  * WEBSITE: https://www.brucerobot.com/
 %}
+% clc, clear
+% test2D_nonhomo = rand(2,5);
+% test2D_homo = [test2D_nonhomo; ones(1,5)];
+% test3D_nonhomo = rand(3, 5);
+% test3D_homo = [test3D_nonhomo; ones(1,5)];
+% test_random = rand(4, 5);
+% t_checkHomogeneousCorners(test2D_nonhomo)
+% t_checkHomogeneousCorners(test2D_homo)
+% t_checkHomogeneousCorners(test3D_nonhomo)
+% t_checkHomogeneousCorners(test3D_homo)
+% t_checkHomogeneousCorners(test_random)
+
 
 function corners = checkHomogeneousCorners(corners)
     % Assuming corners is either 2xn, 3xn or 4xn
     % check 2D or 3D
+    corners = makeWideMatrix(corners);
     [n, ~] = size(corners);
-    if n < 2
-        disp("wrong usage")
-    elseif n == 2
+    if n < 2 || n > 4
+        error("wrong usage: input rows are smaller than 2 or bigger than 4 (currently is %i)", n)
+    elseif n == 2 % 2D non-homo
         corners = [corners; 
                    ones(1, size(corners, 2))];
-    elseif mean(corners(3,:), 2) == 1 % 3D but not in homogeneous
-        if size(corners, 1) ~= 4
-        corners = [corners; 
-                   ones(1, size(corners, 2))];
+    elseif n == 3
+        if ~isempty(corners(3, corners(3, :)==1)) % 2D homogeneous
+            
+            return;
+        else % 3D none-homo
+            corners = [corners; 
+                       ones(1, size(corners, 2))];
+        end
+    elseif n==4
+        if isempty(corners(4, corners(4, :)==1)) % 3D but not in homogeneous
+            error("wrong usage: mean of the last rows is not one but %f", mean(corners(4,:), 2))
         end
     end
 end
