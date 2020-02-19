@@ -7,6 +7,9 @@ function data = splitPointsBasedOnRing(points, num_beams)
         data(num_beams).point_with_I = [];
         return
     end
+    % Note: Here we assume the lidar ring is 0 indexing, so we shift it to
+    % fit the matlab routine. However, I fyou use the simulator, the lidar
+    % ring will be 1 indexing. Be very careful with this.
     for n = 0:num_beams-1
         if ~any(points(5,:)==n)
 %             disp("n")

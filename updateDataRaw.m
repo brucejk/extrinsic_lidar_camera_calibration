@@ -1,4 +1,4 @@
-function data = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta, valid_rings_targets, method)
+function data = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta, method)
 %     data = data_split_with_ring;
     data = cell(size(data_split_with_ring));
     for i =1:num_targets
