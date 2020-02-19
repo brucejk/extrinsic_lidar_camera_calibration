@@ -43,8 +43,8 @@ distortion_param = [0.099769, -0.240277, 0.002463, 0.000497, 0.000000];
 opt.H_LC.rpy_init = [90 0 90];
 
 % train data id from getBagData.m
-trained_ids = [3]; % 
-skip_indices = [2 4]; %% skip non-standard 
+trained_ids = [3 5]; % 
+skip_indices = [2]; %% skip non-standard 
 
 % validate the calibration result if one has validation dataset(s)
 % (Yes:1; No: 0)
@@ -413,7 +413,7 @@ if ~(skip == 2)
 %                                                                     intrinsic_matrix, display);
             [SNR_H_LC, SNR_P, SNR_opt_total_cost, SNR_final, SNR_All] = optimize4Points(opt.H_LC.rpy_init,...
                                                                     X_square_no_refinement, Y_train, ...
-                                                                   intrinsic_matrix, show_pnp_numerical_result);                                                    
+                                                                    intrinsic_matrix, show_pnp_numerical_result);                                                    
             calibration(1).H_SNR = SNR_H_LC;
             calibration(1).P_SNR = SNR_P;
             calibration(1).RMSE.SNR = SNR_opt_total_cost;
@@ -782,12 +782,12 @@ end
 pause_each_scan = 0;
 start_scan = 1;
 plotProjectedPointOnImage(SNR_P, BagData, bag_training_indices, training_img_fig_handles, ...
-                          "L1_inspired", "training_SR", show_training_results, ...
+                          "L1_inspired", "training_{SR}", show_training_results, ...
                           pause_each_scan, start_scan)
 if validation_flag
     plotProjectedPointOnImage(SNR_P, BagData, bag_validation_indices, validation_fig_handles, ...
-                              "L1_inspired", "validation_SR", 1, ...
-                              0, start_scan)
+                              "L1_inspired", "validation_{SR}", 1, ...
+                              pause_each_scan, start_scan)
 end
 
 
