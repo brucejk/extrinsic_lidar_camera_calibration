@@ -29,7 +29,10 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function [count_no_refinement, count_refinement] = inAndOutBeforeAndAfter_v02(bag_indices, bag_data, P1, P2)
+function [count_no_refinement, count_refinement] = inAndOutBeforeAndAfter_v02(bag_indices, bag_data, P1, P2, method)
+    if ~exist('method', 'var')
+        method = "L1_inspired";
+    end
 
 	for bag = 1:length(bag_indices) % which dataset is this
         current_index = bag_indices(bag);
@@ -45,25 +48,31 @@ function [count_no_refinement, count_refinement] = inAndOutBeforeAndAfter_v02(ba
             NR_counter = 0; % no refinement counter for inside and on the polygon
             WR_counter = 0; % with refinement counter for inside and on the polygon
             total_points = 0;
-            for tag_num = 1:bag_data(current_index).scans(scan_num).num_tag.original % which tag in this dataset
-                current_camera_corners = [bag_data(current_index).scans(scan_num).camera_target(tag_num).corners];
-                current_camera_corners = makeConvexHull(current_camera_corners);
-                current_camera_corners = checkHomogeneousCorners(current_camera_corners);
-                
-                current_lidar_target_pc = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).payload_points];
-                current_lidar_target_pc = checkHomogeneousCorners(current_lidar_target_pc);
-                total_points = total_points + size(current_lidar_target_pc, 2);
-                
-                projection_before_refinement = projectionMap(current_lidar_target_pc, P1);
-                [in_before, on_before] = inpolygon(projection_before_refinement(1,:)', projection_before_refinement(2,:)', ...
-                                                   current_camera_corners(1,:)' ,current_camera_corners(2,:)');
+            num_tag = size(bag_data(current_index).scans(scan_num).lidar_target, 2);
+            for tag_num = 1:num_tag % which tag in this dataset
+                if isempty(bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).corners)
+                    continue
+                else
+                    current_camera_corners = [bag_data(current_index).scans(scan_num).camera_target(tag_num).(method).corners];
+                    current_camera_corners = makeConvexHull(current_camera_corners);
+                    current_camera_corners = checkHomogeneousCorners(current_camera_corners);
 
-                projection_after_refinement = projectionMap(current_lidar_target_pc, P2);
-                [in_after, on_after] = inpolygon(projection_after_refinement(1,:)', projection_after_refinement(2,:)', ...
-                                                 current_camera_corners(1,:)' ,current_camera_corners(2,:)');
-                NR_counter = NR_counter + numel(projection_before_refinement(in_before)) + numel(projection_before_refinement(on_before));
-                WR_counter = WR_counter + numel(projection_after_refinement(in_after)) + numel(projection_after_refinement(on_after));
-            end 
+                    current_lidar_target_pc = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).payload_points];
+                    current_lidar_target_pc = checkHomogeneousCorners(current_lidar_target_pc);
+                    total_points = total_points + size(current_lidar_target_pc, 2);
+
+                    projection_before_refinement = projectionMap(current_lidar_target_pc, P1);
+                    [in_before, on_before] = inpolygon(projection_before_refinement(1,:)', projection_before_refinement(2,:)', ...
+                                                       current_camera_corners(1,:)' ,current_camera_corners(2,:)');
+
+                    projection_after_refinement = projectionMap(current_lidar_target_pc, P2);
+                    [in_after, on_after] = inpolygon(projection_after_refinement(1,:)', projection_after_refinement(2,:)', ...
+                                                     current_camera_corners(1,:)' ,current_camera_corners(2,:)');
+                    NR_counter = NR_counter + numel(projection_before_refinement(in_before)) + numel(projection_before_refinement(on_before));
+                    WR_counter = WR_counter + numel(projection_after_refinement(in_after)) + numel(projection_after_refinement(on_after));
+
+                end 
+            end
             % in and on the polygon
             count_array_no_refinement(1, scan_num) = NR_counter;
             count_array_refinement(1, scan_num) = WR_counter;
