@@ -83,7 +83,7 @@ clc
 % if ones want to re-run this process
 opts.iterative = 1;
 opts.method = 1; % Lie; Spherical
-opts.num_iters = 1;
+opts.num_iters = 20;
 
 if (opt_formulation(opts.method) == "Lie")
     data_split_with_ring_cartesian = cell(1,num_targets);
@@ -108,7 +108,7 @@ if (opt_formulation(opts.method) == "Lie")
             distance_original = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
         end
         % update the corrected points
-        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring_cartesian, delta, valid_rings_and_targets, opt_formulation(opts.method));
+        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring_cartesian, delta, opt_formulation(opts.method));
         distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets);
     end
 
@@ -142,7 +142,7 @@ elseif (opt_formulation(opts.method) == "Spherical")
         
         % update the corrected points
         data_split_with_ring = updateDatacFromMechanicalModel(opts.num_beams, num_targets, data_split_with_ring, delta, valid_rings_and_targets);
-        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring, delta, valid_rings_and_targets, opt_formulation(opts.method));
+        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring, delta, opt_formulation(opts.method));
         distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
     end
 end
