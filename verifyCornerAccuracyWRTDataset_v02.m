@@ -36,37 +36,23 @@ function cost = verifyCornerAccuracyWRTDataset_v02(indices, bag_data, P, method,
         num_corners = 0;
         square_summed_error = 0;
         for scan_num = 1:num_scans % which scan in this dataset
-            if strcmpi(method, 'L1_inspired')
-                num_tag = bag_data(current_index).scans(scan_num).num_tag.L1_inspired;
-            elseif strcmpi(method, 'ransac_normal')
-                num_tag = bag_data(current_index).scans(scan_num).num_tag.ransac_normal;
-%                 if num_tag == 0
-%                     continue
-%                 end
-            end
-%             scan_num
-%             num_tag
+            num_tag = size(bag_data(current_index).scans(scan_num).lidar_target, 2);
             for tag_num = 1:num_tag % which tag in this dataset
-                if strcmpi(method, 'L1_inspired') && strcmpi(refinement, 'no_refinement')
-                    current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).L1_inspired.corners];
-                    current_corners_Y = [bag_data(current_index).scans(scan_num).camera_target(tag_num).corners];
-                elseif strcmpi(method, 'L1_inspired') && strcmpi(refinement, 'refinement')
-                    current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).L1_inspired.refined_corners];
-                    current_corners_Y = [bag_data(current_index).scans(scan_num).camera_target(tag_num).corners];
-                elseif strcmpi(method, 'ransac_normal') && strcmpi(refinement, 'no_refinement')
-                    current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).ransac_normal.corners];
-                    current_corners_Y = [bag_data(current_index).scans(scan_num).camera_target(tag_num).baseline_corners];
-                elseif strcmpi(method, 'ransac_normal') && strcmpi(refinement, 'refinement')
-                    current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).ransac_normal.refined_corners];
-                    current_corners_Y = [bag_data(current_index).scans(scan_num).camera_target(tag_num).baseline_corners];
-                end
-                
-                if isempty(current_corners_Y)
+                % refinement and no-refinement should be the same
+                if isempty(bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).corners) 
                     continue
+                else
+                    if strcmpi(refinement, 'no_refinement')
+                        current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).corners];
+                    else
+                        current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).refined_corners];
+                    end
+                    current_corners_Y = [bag_data(current_index).scans(scan_num).camera_target(tag_num).(method).corners];
+
+                    num_corners = num_corners + length(current_corners_Y);
+                    scan_cost = verifyCornerAccuracy(current_corners_X(:, 1:4), current_corners_Y(:, 1:4), P);
+                    square_summed_error = square_summed_error + scan_cost;
                 end
-                num_corners = num_corners + length(current_corners_Y);
-                scan_cost = verifyCornerAccuracy(current_corners_X(:, 1:4), current_corners_Y(:, 1:4), P);
-                square_summed_error = square_summed_error + scan_cost;
             end
         end
         cost(i).name = bag_data(current_index).bagfile;
