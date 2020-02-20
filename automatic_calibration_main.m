@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-clc, clear
+clc, clear, close all
 %%%%%%%%%%%%%%%%%%%%%
 %%% camera parameters
 %%%%%%%%%%%%%%%%%%%%%
@@ -43,8 +43,8 @@ distortion_param = [0.099769, -0.240277, 0.002463, 0.000497, 0.000000];
 opt.H_LC.rpy_init = [90 0 90];
 
 % train data id from getBagData.m
-trained_ids = [3 5]; % 
-skip_indices = [2]; %% skip non-standard 
+trained_ids = [3 4 5]; % 
+skip_indices = []; %% skip non-standard 
 
 % validate the calibration result if one has validation dataset(s)
 % (Yes:1; No: 0)
@@ -195,6 +195,8 @@ opts.num_validation = length(bag_with_tag_list) - length(skip_indices) - opts.nu
 training_img_fig_handles = createFigHandle(opts.num_training, "training_img");
 training_pc_fig_handles = createFigHandle(opts.num_training, "training_pc");
 validation_fig_handles = createFigHandle(opts.num_validation, "validation_img");
+CoF_validation_fig_handles = createFigHandle(opts.num_validation + 1, "confidence_of_range (validation)"); % the +1 is for summary
+CoF_training_fig_handles = createFigHandle(opts.num_training + 1, "confidence_of_range (training)"); % the +1 is for summary
 validation_pc_fig_handles = createFigHandle(opts.num_validation, "validation_pc");
 testing_fig_handles = createFigHandle(size(bag_testing_list, 2), "testing");
 opts.base_line.img_hangles = createFigHandle(6, "base_line_vis"); %% don't change
@@ -779,7 +781,7 @@ end
    
 %% Draw results (by projecting points back to an image)
 % SNR with L1-inspired (training)
-pause_each_scan = 0;
+pause_each_scan = 1;
 start_scan = 1;
 plotProjectedPointOnImage(SNR_P, BagData, bag_training_indices, training_img_fig_handles, ...
                           "L1_inspired", "training_{SR}", show_training_results, ...
@@ -808,6 +810,14 @@ if skip == 0
 elseif skip == 1
     save(path.load_dir + 'calibration.mat', 'calibration');
 end
+
+%% plot CoR
+confidence_of_range = computeConfidenceOfRange(SR_P, BagData, bag_validation_indices, "L1_inspired", "no_refinement");
+confidence_of_range_training = computeConfidenceOfRange(SR_P, BagData, bag_training_indices, "L1_inspired", "no_refinement");
+plotConfidenceOfRange(CoF_validation_fig_handles, confidence_of_range, "CoR of validation sets")
+plotConfidenceOfRange(CoF_training_fig_handles, confidence_of_range_training, "CoR of training set")
+% training_targets_statistics = summarizeTargets(BagData, bag_training_indices);
+% validation_targets_statistics = summarizeTargets(BagData, bag_validation_indices);
 
 %% project testing results
 % load testing images and testing pc mat
