@@ -21,6 +21,10 @@ function data = updateDataRaw(num_beams, num_targets, data_split_with_ring, delt
 %                     fprintf("target_num: %i, ring_num: %i\n", i, ring)
                     data{i}(ring).points =  delta(ring).Affine * data_split_with_ring{i}(ring).points;   
                 elseif (method == "BaseLine2")
+                    %Note: if a ring should be skipped, there won't be
+                    %any corresponding delta parameter, thus we should
+                    %directly transfer the point from spherical to
+                    %cartesian coordinates
                     if (skipApplying(valid_rings_targets, ring, data_split_with_ring, i))
                         data{i}(ring).points(1,:) = data_split_with_ring{i}(ring).points(1,:).*sin(data_split_with_ring{i}(ring).points(2,:)).*cos(data_split_with_ring{i}(ring).points(3,:));
                         data{i}(ring).points(2,:) = data_split_with_ring{i}(ring).points(1,:).*sin(data_split_with_ring{i}(ring).points(2,:)).*sin(data_split_with_ring{i}(ring).points(3,:));

@@ -22,7 +22,7 @@ end
 % opts.path = "./data/";
 opts.path = "..\intrinsic_lidar_calibration\data\";
 opts.load_all = 1;
-
+opts.datatype = "Experiment";
 opts.show_results = 1;
 opt_formulation = ["Lie","BaseLine1","BaseLine2"]; % Lie or Spherical
 opts.method = 2; % "Lie","BaseLine1","BaseLine2"
@@ -90,7 +90,7 @@ if (opt_formulation(opts.method) == "Lie")
 
     disp("Parsing data...")
     for t = 1:num_targets
-        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams);
+        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams, opts.datatype);
     end 
     
     disp("Optimizing using Lie Group method...")
@@ -121,8 +121,8 @@ elseif (opt_formulation(opts.method) == "BaseLine1")
     disp("Parsing data...")
     for t = 1:num_targets
         spherical_data{t} = Cartesian2Spherical(data(t).payload_points);
-        data_split_with_ring{t} = splitPointsBasedOnRing(spherical_data{t}, opts.num_beams);
-        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams);
+        data_split_with_ring{t} = splitPointsBasedOnRing(spherical_data{t}, opts.num_beams, opts.datatype);
+        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams, opts.datatype);
     end
     
     disp("Optimizing using a BaseLine1 model...")
@@ -154,8 +154,8 @@ elseif (opt_formulation(opts.method) == "BaseLine2")
     disp("Parsing data...")
     for t = 1:num_targets
         spherical_data{t} = Cartesian2Spherical(data(t).payload_points);
-        data_split_with_ring{t} = splitPointsBasedOnRing(spherical_data{t}, opts.num_beams);
-        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams);
+        data_split_with_ring{t} = splitPointsBasedOnRing(spherical_data{t}, opts.num_beams, opts.datatype);
+        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams, opts.datatype);
     end
     
     disp("Optimizing using a BaseLine2 model...")
