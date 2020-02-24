@@ -24,8 +24,8 @@ opts.path = "..\intrinsic_lidar_calibration\data\";
 opts.load_all = 1;
 opts.datatype = "Experiment";
 opts.show_results = 1;
-opt_formulation = ["Lie","BaseLine1","BaseLine2"]; % Lie or Spherical
-opts.method = 2; % "Lie","BaseLine1","BaseLine2"
+opt_formulation = ["Lie","BaseLine1","BaseLine2","BaseLine3"]; % Lie or Spherical
+opts.method = 3; % "Lie","BaseLine1","BaseLine2","BaseLine3"
 opts.iterative = 1;
 
 opts.num_beams = 32;
@@ -82,7 +82,7 @@ disp("Done loading data!")
 clc
 % if ones want to re-run this process
 opts.iterative = 0;
-opts.method = 3; %  ["Lie","BaseLine1","BaseLine2"]
+opts.method = 2; %  ["Lie","BaseLine1","BaseLine2", "BaeLine3"]
 opts.num_iters = 20;
 
 if (opt_formulation(opts.method) == "Lie")
@@ -108,7 +108,7 @@ if (opt_formulation(opts.method) == "Lie")
             distance_original = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
         end
         % update the corrected points
-        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring_cartesian, delta, opt_formulation(opts.method));
+        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring_cartesian, delta, data_split_with_ring, opt_formulation(opts.method));
         distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets);
     end
 
@@ -142,7 +142,7 @@ elseif (opt_formulation(opts.method) == "BaseLine1")
         
         % update the corrected points
         data_split_with_ring = updateDatacFromMechanicalModel(opts.num_beams, num_targets, data_split_with_ring, delta, valid_rings_and_targets);
-        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring, delta, opt_formulation(opts.method));
+        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring, delta, valid_rings_and_targets, opt_formulation(opts.method));
         distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
     end
     
@@ -169,6 +169,39 @@ elseif (opt_formulation(opts.method) == "BaseLine2")
     for k = 1: opts.num_iters
         fprintf("--- Working on %i/%i\n", k, opts.num_iters)
         [delta, plane, valid_rings_and_targets] = estimateIntrinsicFromBL2(opts.num_beams, num_targets, opts.num_scans, data_split_with_ring, data_split_with_ring_cartesian);
+        if k == 1
+            distance_original = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
+        end
+        
+        % update the corrected points
+        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring, delta, valid_rings_and_targets, opt_formulation(opts.method));
+        data_split_with_ring = DataFromCartesian2Spherical(opts.num_beams, num_targets, data_split_with_ring_cartesian);
+        distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
+    end
+    
+elseif (opt_formulation(opts.method) == "BaseLine3")
+    spherical_data = cell(1,num_targets);
+    data_split_with_ring = cell(1, num_targets);
+    data_split_with_ring_cartesian = cell(1, num_targets);
+
+    disp("Parsing data...")
+    for t = 1:num_targets
+        spherical_data{t} = Cartesian2Spherical(data(t).payload_points);
+        data_split_with_ring{t} = splitPointsBasedOnRing(spherical_data{t}, opts.num_beams, opts.datatype);
+        data_split_with_ring_cartesian{t} = splitPointsBasedOnRing(data(t).payload_points, opts.num_beams, opts.datatype);
+    end
+    
+    disp("Optimizing using a BaseLine3 model...")
+    if ~opts.iterative
+       opts.num_iters = 1;
+    end
+    distance = []; % if re-run, it will show error of "Subscripted assignment between dissimilar structures"
+    distance(opts.num_iters).ring(opts.num_beams) = struct(); 
+    distance(opts.num_iters).mean = 0;
+     % iteratively optimize the intrinsic parameters
+    for k = 1: opts.num_iters
+        fprintf("--- Working on %i/%i\n", k, opts.num_iters)
+        [delta, plane, valid_rings_and_targets] = estimateIntrinsicFromBL3(opts.num_beams, num_targets, opts.num_scans, data_split_with_ring, data_split_with_ring_cartesian);
         if k == 1
             distance_original = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
         end
