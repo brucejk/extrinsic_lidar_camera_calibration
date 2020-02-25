@@ -9,7 +9,7 @@ function [delta, opt, valid_targets]= estimateDeltaFromBL3(opt, data, plane, del
             D_s = optimvar('D_s', 1, 1,'LowerBound',0,'UpperBound',2);
             D = optimvar('D', 1, 1,'LowerBound',-0.5,'UpperBound',0.5);
             A_c = optimvar('A_c', 1, 1,'LowerBound',deg2rad(-2),'UpperBound',deg2rad(2));
-            V_c = optimvar('V_c', 1, 1,'LowerBound',deg2rad(-30),'UpperBound',deg2rad(30));
+            V_c = optimvar('V_c', 1, 1,'LowerBound',deg2rad(0),'UpperBound',deg2rad(180));
             H_oc = optimvar('H_oc', 1, 1,'LowerBound',-0.05,'UpperBound',0.05);
             V_oc = optimvar('V_oc', 1, 1,'LowerBound',-0.05,'UpperBound',0.05);
 
