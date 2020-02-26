@@ -20,12 +20,12 @@ end
 
 % opts.path = "/home/brucebot/workspace/griztag/src/matlab/matlab/slider/intrinsic_latest/data/";
 % opts.path = "./data/";
-opts.path = "..\intrinsic_lidar_calibration\data\";
+opts.path = "..\intrinsic_lidar_calibration\intrinsic_calibration_mat\";
 opts.load_all = 1;
 opts.datatype = "Experiment";
 opts.show_results = 1;
-opt_formulation = ["Lie","BaseLine1","BaseLine2","BaseLine3"]; % Lie or Spherical
-opts.method = 3; % "Lie","BaseLine1","BaseLine2","BaseLine3"
+opt_formulation = ["Lie","BaseLine1","BaseLine3"]; % Lie or Spherical
+opts.method = 1; % "Lie","BaseLine1","BaseLine2","BaseLine3"
 opts.iterative = 1;
 
 opts.num_beams = 32;
@@ -82,8 +82,9 @@ disp("Done loading data!")
 clc
 % if ones want to re-run this process
 opts.iterative = 0;
-opts.method = 2; %  ["Lie","BaseLine1","BaseLine2", "BaeLine3"]
+opts.method = 3; %  ["Lie","BaseLine1","BaseLine2", "BaeLine3"]
 opts.num_iters = 20;
+opts.save_path = ".\results\training_data\BL3\";
 
 if (opt_formulation(opts.method) == "Lie")
     data_split_with_ring_cartesian = cell(1,num_targets);
@@ -108,7 +109,7 @@ if (opt_formulation(opts.method) == "Lie")
             distance_original = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets); 
         end
         % update the corrected points
-        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring_cartesian, delta, data_split_with_ring, opt_formulation(opts.method));
+        data_split_with_ring_cartesian = updateDataRaw(opts.num_beams, num_targets, data_split_with_ring_cartesian, delta, valid_rings_and_targets, opt_formulation(opts.method));
         distance(k) = point2PlaneDistance(data_split_with_ring_cartesian, plane, opts.num_beams, num_targets);
     end
 
@@ -214,6 +215,12 @@ elseif (opt_formulation(opts.method) == "BaseLine3")
 end
 disp('Done optimization')
 
+if ~exist(opts.save_path, 'dir')
+    mkdir(opts.save_path)
+end
+
+filename = opts.save_path + "realExpDelta.mat";
+save(filename, 'delta');
 %% Show graphical results
 if opts.show_results
     disp("Now plotting....")

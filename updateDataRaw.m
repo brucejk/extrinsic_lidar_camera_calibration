@@ -1,4 +1,4 @@
-function data = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta,valid_rings_targets, method)
+function data = updateDataRaw(num_beams, num_targets, data_split_with_ring, delta, valid_rings_targets, method)
 %     data = data_split_with_ring;
     data = cell(size(data_split_with_ring));
     for i =1:num_targets
@@ -9,11 +9,11 @@ function data = updateDataRaw(num_beams, num_targets, data_split_with_ring, delt
                   data{i}(ring).points= [];
                   continue;
             else
-                if (method == "BaseLine1")
-                    data{i}(ring).points = Spherical2Cartesian(data_split_with_ring{i}(ring).points, "Basic");
-                elseif (method == "Lie")
+                if (method == "Lie")
 %                     fprintf("target_num: %i, ring_num: %i\n", i, ring)
-                    data{i}(ring).points =  delta(ring).Affine * data_split_with_ring{i}(ring).points;   
+                    data{i}(ring).points =  delta(ring).Affine * data_split_with_ring{i}(ring).points;  
+                elseif (method == "BaseLine1")
+                    data{i}(ring).points = Spherical2Cartesian(data_split_with_ring{i}(ring).points, "Basic");
                 elseif (method == "BaseLine2")
                     %Note: if a ring should be skipped, there won't be
                     %any corresponding delta parameter, thus we should
