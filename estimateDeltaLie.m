@@ -1,19 +1,29 @@
-function [delta, opt, valid_targets] = estimateDeltaLie(opt, data, plane, delta, num_beams, num_targets)
+function [delta, opt, valid_targets] = estimateDeltaLie(opt, data, plane, delta, num_beams, num_targets, check_rings)    
+    if ~exist('check_rings', 'var')
+        check_rings = 1;
+    end
     tic;
     valid_targets(num_beams).skip = [];
     valid_targets(num_beams).valid = [];
     valid_targets(num_beams).num_points = [];
     for ring = 1:num_beams
-        valid_targets(ring) = checkRingsCrossDataset(data, num_targets, ring);
+        if check_rings
+            valid_targets(ring) = checkRingsCrossDataset(data, num_targets, ring);
+        else
+            valid_targets(ring).skip = 0;
+            for target = 1:size(data, 2)
+                valid_targets(ring).valid(1, target) = 1;
+            end
+        end
         if ~valid_targets(ring).skip
 
-    %         ring
-    %         dbstop in estimateDelta.m at 13 if ring>=32
+%             ring
+%             dbstop in estimateDeltaLie.m at 18 if ring==2
             theta_x = optimvar('theta_x', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
             theta_y = optimvar('theta_y', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
             theta_z = optimvar('theta_z', 1, 1,'LowerBound',-2,'UpperBound',2); % 1x1
             T = optimvar('T', 1, 3,'LowerBound', -0.5,'UpperBound',0.5); % 1x3
-            S = optimvar('S', 1, 1);
+            S = optimvar('S', 1, 1,'LowerBound', 1,'UpperBound',1);
 
 %             theta_x = 0;
 %             theta_y = 0;
@@ -21,6 +31,7 @@ function [delta, opt, valid_targets] = estimateDeltaLie(opt, data, plane, delta,
 %             S = 1;
 %             T = [0 0 0];
 %             cost = optimizeMultiIntrinsicCostLie(data, valid_targets(ring), plane, ring, theta_x, theta_y, theta_z, T, S);
+%             continue
 
             prob = optimproblem;
             f = fcn2optimexpr(@optimizeMultiIntrinsicCostLie, data, valid_targets(ring), ...
