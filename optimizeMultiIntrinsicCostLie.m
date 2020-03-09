@@ -2,6 +2,9 @@ function cost = optimizeMultiIntrinsicCostLie (X, valid_targets, plane, ring, th
     cost = 0;
     for i = 1: length(X)
         if valid_targets.valid(1, i)
+            if isempty(X{i}(ring).points)
+                continue
+            end
             cost = cost + optimizeIntrinsicCostLie(X{i}(ring), plane{i}, theta_x, theta_y, theta_z, T, S);
         end
     end
