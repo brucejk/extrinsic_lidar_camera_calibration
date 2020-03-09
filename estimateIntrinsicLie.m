@@ -1,6 +1,9 @@
-function [delta, plane, valid_targets] = estimateIntrinsicLie(num_beams, num_targets, num_scans, data_split_with_ring, object_list)
+function [delta, plane, valid_targets] = estimateIntrinsicLie(num_beams, num_targets, num_scans, data_split_with_ring, object_list, check_rings)
     delta(num_beams).H = struct();
     delta(num_beams).Affine = struct();
+    if ~exist('check_rings', 'var')
+        check_rings = 1;
+    end
     
     for i = 1: num_scans
         % Calculate 'ground truth' points by projecting the angle onto the
@@ -26,9 +29,16 @@ function [delta, plane, valid_targets] = estimateIntrinsicLie(num_beams, num_tar
                 end
                 [plane{t}, ~] = estimateNormal(opt.corners, X(1:3, :), 1.5);
             else
-                plane{t}.centroid =  [object_list(t).centroid; 1];
-                plane{t}.normals =  object_list(t).normal;
-                plane{t}.unit_normals = object_list(t).normal/(norm(object_list(t).normal));
+                if ~isfield(object_list(t), 'centroid') || ~isfield(object_list(t), 'normal')
+                    [normal, centroid] = computePlane(object_list(t));
+                    plane{t}.centroid = [centroid; 1];
+                    plane{t}.normals =  normal;
+                    plane{t}.unit_normals = normal/(norm(normal));
+                else
+                    plane{t}.centroid =  [object_list(t).centroid; 1];
+                    plane{t}.normals =  object_list(t).normal;
+                    plane{t}.unit_normals = object_list(t).normal/(norm(object_list(t).normal));
+                end
             end
         end
 
@@ -37,6 +47,6 @@ function [delta, plane, valid_targets] = estimateIntrinsicLie(num_beams, num_tar
         opt.delta.T_init = [0, 0, 0];
         opt.delta.scale_init = 1;
         opt.delta.H_init = eye(4);
-        [delta, ~, valid_targets] = estimateDeltaLie(opt.delta, data_split_with_ring, plane, delta(num_beams), num_beams, num_targets);
+        [delta, ~, valid_targets] = estimateDeltaLie(opt.delta, data_split_with_ring, plane, delta(num_beams), num_beams, num_targets, check_rings);
     end
 end
