@@ -59,33 +59,34 @@ validation_flag = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% parameters of user setting
-%%% optimizeAllCorners (0/1): optimize all lidar targets vertices for
+%%% optimizeAllCorners (0/1): <default: 1>
+%                             optimize all lidar targets vertices for
 %                             different datasets
-%   NOTE: this usually only needs to be done ONCE.
-%%% skip (0/1/2):
-%        0: optimize lidar target's corners 
+%                   [NOTE]: this usually only needs to be done ONCE.
+%
+%%% refineAllCorners (0/1): <default: 0>
+%                           reifne all lidar targets vertices for
+%                           different datasets
+%                   [NOTE]: this usually only needs to be done ONCE.
+%
+%%% use_top_consistent_vertices (0/1): <default: 0>
+%                                     find the top-5 consistent scans and
+%                                     use the vertices for calibration
+%                   
+%
+%%% randperm_to_fine_vertices (0/1): <default: 0>
+%                                   reifne all lidar targets vertices for
+%                                   different datasets
+%                   [NOTE]: this usually only needs to be done ONCE.
+% 
+%%% skip (0/1/2): <default: 1>
+%        0: optimize lidar target's corners
 %           and then calibrate 
-%        1: skip optimize lidar target's corners
+%        1: skip optimize lidar target's corners (if you have done so)
 %        2: just shown calibration results
-%%% debug (0/1): print more stuff at the end to help debugging
-
-%%% base_line_method (1/2): 
-%                   1: ransac edges seperately and the intersect edges to
-%                      estimate corners
-%                   2: apply geometry contrain to estimate the corners
-% base_line.edge_method (1/2/3):
-%                   1: JWG's method
-%                   2: Manual pick edge points 
-%                      -- top-left, bottom-left, top-right, bottom-left
-%                   3: L1-cost to assign edge points
-% base_line.more_tags (0/1): if use all tags in a scene for the baseline
-%%% calibration_method: 
-%                     "4 points"
-%                     "IoU"
-%%% path.load_dir: directory of saved files
-%%% load_all_vertices: pre-calculated vertices (pick the top-5 consistent)
-%%% bag_file_path: bag files of images 
-%%% mat_file_path: mat files of extracted lidar target's point clouds
+%
+%%% debug (0/1):  <default: 0>
+%               print more stuff at the end to help debugging
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 opts.optimizeAllCorners = 0;
 opts.refineAllCorners = 0;
@@ -93,12 +94,52 @@ opts.use_top_consistent_vertices = 0;
 opts.randperm_to_fine_vertices = 0;
 skip = 0; 
 debug = 0;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Baseline %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% optimized_method (1/2): <default: 1>
+%                   1: ransac edges seperately and the intersect edges to
+%                      estimate corners 
+%                   2: apply geometry contrain to estimate the corners 
+%
+%%% edge_method (1/2/3): <default: 3>
+%                   1: JWG's method
+%                   2: Manual pick edge points 
+%                      -- top-left, bottom-left, top-right, bottom-left
+%                   3: L1-cost to assign edge points 
+%
+%%% more_tags (0/1): <default: 1> 
+%                    if use more tags in a scene for the baseline 
+%
+%%% show_results (0/1): <default: 0>
+%                       show baseline results
+%
+%%% L1_cleanup (0/1) : <default: 0>
+%                       Cleanup the data using L1-inspired cost
+%
+%%% num_scan (int) : <default: 5>
+%                    how many scans accumulated to optimize one LiDARTag pose
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 base_line.optimized_method = 1;
 base_line.edge_method = 3;
 base_line.more_tags = 1;
 base_line.show_results = 0;
 base_line.L1_cleanup = 0;
-base_line.num_scan = 5; % how many scans accumulated to optimize one LiDARTag pose (3)
+base_line.num_scan = 5;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% calibration_method:  <default: "4 points">
+%                     "4 points"
+%                     "IoU"
+%
+%%% path.load_dir: directory of saved files
+%%% load_all_vertices: pre-calculated vertices (pick the top-5 consistent)
+%%% bag_file_path: bag files of images 
+%%% mat_file_path: mat files of extracted lidar target's point clouds
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 opts.calibration_method = "4 points";
 % opts.calibration_method = "IoU";
 
@@ -116,7 +157,7 @@ path.event_name = '';
 % path.mat_file_path = "LiDARTag_data/";
 
 % save into results into folder         
-path.save_name = "ICRA2020";
+path.save_name = "RSS2020";
 diary Debug % save terminal outputs
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
