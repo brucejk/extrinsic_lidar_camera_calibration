@@ -32,10 +32,11 @@ The 3D-LiDAR map shown in the videos used this package to calibrate the LiDAR to
 [Autonomous Navigation and 3D Semantic Mapping on Bipedal Robot Cassie Blue (Shorter Version)](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
 
 [Autonomous Navigation and 3D Semantic Mapping on Bipedal Robot Cassie Blue (Longer Version)](https://youtu.be/N8THn5YGxPw)
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/Halloween.png" width="640">
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps.png" width="640">
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps2.png" width="640">
 
+
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/Halloween.png" width="640">](https://www.youtube.com/watch?v=4OUr2DspYoo)
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps.png" width="640">](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps2.png" width="640">](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
 
 ## Quick View
 Using the obtained transformation, LiDAR points are mapped onto a semantically segmented image. Each point is associated with the label of a pixel. The road is marked as white; static objects such buildings as orange; the grass as yellow-green, and dark green indicates trees.
@@ -50,12 +51,20 @@ The below shows that a calibration result with little disturbance from the well-
 <img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/disturbance.png" width="640"> 
 <img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/undisturbance.png" width="640">
 
-## Presentation and Video (coming strong in a week)
-https://www.brucerobot.com/
+## Presentation and Video
+https://www.brucerobot.com/calibration
 
 ## Calibration Targets
-Any **square** targets would be fine. The dimensions are assumed known.
-note: You can place any number of targets with different size in different datasets.
+Any **square** targets would be fine. The dimensions are assumed known. We use fiducial tags that can be detected both from LiDARs and cameras. Physically, they are the same tags. However, if the tag is detected from LiDARs, we call it [LiDARTag](https://arxiv.org/abs/1908.10349) and on the other hand, if is is detected from cameras, it is called AprilTag. Please check out this [link](https://drive.google.com/open?id=1Twx7y6yxr-s2qAoCa4XliCxNuINAlXNn) to download the target images. If you use these targets as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
+  year={2019}
+}
+```
+note: You can place any number of targets with different size in different datasets. 
 
 ## Installation 
 * Which toolboxes are used in this package: 
@@ -89,9 +98,18 @@ If you would like to see how the LiDAR vertices are optimized, please place the 
 - Give initial guess to the LiDAR to camera transformation
 - Edit the _trained_ids_ and _skip_indices_ (ids are from _getBagData.m_).
 - If you have more validation dataset (containing targets), set the _validation_flag_ to 1 and then use put the related information to _getBagData.m_.
-- Place several _square_ boards with known dimensions. When placing boards, make sure the left corner is taller than the right corner.
+- Place several _square_ boards with known dimensions. When placing boards, make sure the left corner is taller than the right corner. We use fiducial tags that can be detected both from LiDARs and cameras. Physically, they are the same tags. However, if the tag is detected from LiDARs, we call it [LiDARTag](https://arxiv.org/abs/1908.10349) and on the other hand, if is is detected from cameras, it is called AprilTag. Please check out this [link](https://drive.google.com/open?id=1Twx7y6yxr-s2qAoCa4XliCxNuINAlXNn) to download the target images. If you use these targets as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
+  year={2019}
+}
+```
 - Use you favorite methods to extract corners of camera targets and then write them in _getBagData.m_. When writing the corners, Please follow **top-left-right-bottom** order. 
 - Given point patches of LiDAR targets, saved them into .mat files and also put them _getBagData.m_. Please make sure you have correctly match your _lidar_target_ with _camera_target_. 
+- If you have trouble extracting patches of LiDAR targets, or converting bagfiles to mat-files, I have also provided another python script to conver a bagfile to a mat-file and extract patches. Please check out bag2mat.py.
 - RUN _justCalibrate.m_! That's it!
 
 note: You can place any number of targets with different size in different datasets.
@@ -137,13 +155,21 @@ For the method GL_1-R, five sets of estimated LiDAR vertices for each target hav
 
 ## Citations
 The detail is described in: 
-
 Jiunn-Kai Huang and J. Grizzle, "Improvements to Target-Based 3D LiDAR to Camera Calibration" ([PDF](https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/LiDAR2CameraCalibration.pdf))([arXiv](https://arxiv.org/abs/1910.03126))
 ```
 @article{huang2019improvements,
   title={Improvements to Target-Based 3D LiDAR to Camera Calibration},
   author={Huang, Jiunn-Kai and Grizzle, Jessy W},
   journal={arXiv preprint arXiv:1910.03126},
+  year={2019}
+}
+```
+If you use [LiDARTag](https://arxiv.org/abs/1908.10349) as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
   year={2019}
 }
 ```
