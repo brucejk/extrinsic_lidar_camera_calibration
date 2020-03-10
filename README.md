@@ -27,6 +27,8 @@ as SLAM. While determining such a transformation is not considered glamorous in 
 
 ## Performance
 This is a short summary from the paper; see [PDF](https://arxiv.org/abs/1910.03126) for more detail.
+This table compares mean and standard deviation for baseline and our approach as a function of
+the number of targets used in training. Units are pixel per corner.
 |      |# Tag|    2   |    4   |    6   |   8   |
 |:----:|:---:| :-----:| :-----:| :-----:|:-----:|
 | Baseline (previous state-of-the-art)  | mean| 10.3773| 4.9645 | 4.3789 | 3.9940|
