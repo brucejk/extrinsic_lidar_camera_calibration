@@ -22,7 +22,18 @@ Please follow more detail instruction as [below](https://github.com/UMich-BipedL
 
 
 ## Abstract
-The homogeneous transformation between a LiDAR and monocular camera is required for sensor fusion tasks, such as SLAM. While determining such a transformation is not considered glamorous in any sense of the word, it is nonetheless crucial for many modern autonomous systems. Indeed, an error of a few degrees in rotation or a few percent in translation can lead to 20 cm translation errors at a distance of 5 m when overlaying a LiDAR image on a camera image. The biggest impediments to determining the transformation accurately are the relative sparsity of LiDAR point clouds and systematic errors in their distance measurements. This paper proposes (1) the use of targets of known dimension and geometry to ameliorate target pose estimation in face of the quantization and systematic errors inherent in a LiDAR image of a target, and (2) a fitting method for the LiDAR to monocular camera transformation that fundamentally assumes the camera image data is the most accurate information in one's possession. 
+The rigid-body transformation between a LiDAR and monocular camera is required for sensor fusion tasks, such
+as SLAM. While determining such a transformation is not considered glamorous in any sense of the word, it is nonetheless crucial for many modern autonomous systems. Indeed, an error of a few degrees in rotation or a few percent in translation can lead to 20 cm reprojection errors at a distance of 5 m when overlaying a LiDAR image on a camera image. The biggest impediments to determining the transformation accurately are the relative sparsity of LiDAR point clouds and systematic errors in their distance measurements. This paper proposes (1) the use of targets of known dimension and geometry to ameliorate target pose estimation in face of the quantization and systematic errors inherent in a LiDAR image of a target, (2) a fitting method for the LiDAR to monocular camera transformation that avoids the tedious task of target edge extraction from the point could, and (3) a “cross-validation study” based on projection of the 3D LiDAR target vertices to the corresponding corners in the camera image. The end result is a 50% reduction in projection error and a 70% reduction in its variance.
+
+## Performance
+This is a short summary from the paper; see [PDF](https://arxiv.org/abs/1910.03126) for more detail.
+|      |# Tag|    2   |    4   |    6   |   8   |
+|:----:|:---:| :-----:| :-----:| :-----:|:-----:|
+| Baseline (previous state-of-the-art)  | mean| 10.3773| 4.9645 | 4.3789 | 3.9940|
+| Proposed method | mean| **3.8523** | **1.8939** | **1.6817** | **1.7547**|
+| Baseline (previous state-of-the-art)  | std | 7.0887 | 1.9532 | 1.7771 | 2.0467|
+| Proposed method  | std | **2.4155** | **0.5609** | **0.5516** | **0.5419**|
+
 
 ## Application Videos 
 The 3D-LiDAR map shown in the videos used this package to calibrate the LiDAR to camera (to get the transformatoin between the LiDAR and camera). Briefly speaking, we project point coulds from the LiDAR back to the semantic labeled images using the obtained transformation and then associate labels with the point to build the 3D LiDAR semantic map.
