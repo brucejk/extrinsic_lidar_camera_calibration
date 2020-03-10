@@ -692,67 +692,11 @@ else
     load(path.load_dir + "SR.mat");
     load(path.load_dir + "save_validation.mat")
 end
-
-disp("****************** NSNR-training ******************")
-disp('NSNR_H_LC: ')
-disp(' R:')
-disp(NSNR_H_LC(1:3, 1:3))
-disp(' RPY (XYZ):')
-disp(rad2deg(rotm2eul(NSNR_H_LC(1:3, 1:3), "XYZ")))
-disp(' T:')
-disp(-inv(NSNR_H_LC(1:3, 1:3))*NSNR_H_LC(1:3, 4))
-disp("========= Error =========")
-disp(' Training Total Error (pixel)')
-disp(sqrt(NSNR_opt_total_cost))
-disp(' Training Error Per Corner (pixel)')
-disp(sqrt(NSNR_opt_total_cost/size(Y_base_line, 2)))
 calibration(1).error_struc.training_results.id = [bag_training_indices(:)]';
 calibration(1).error_struc.training_results.name = [BagData(bag_training_indices(:)).bagfile];
 calibration(1).error_struc.training_results.NSNR_RMSE = [sqrt(NSNR_opt_total_cost/size(Y_base_line, 2))];
-
-disp("****************** NSR-training ******************")
-disp('NSR_H_LC: ')
-disp(' R:')
-disp(NSR_H_LC(1:3, 1:3))
-disp(' RPY (XYZ):')
-disp(rad2deg(rotm2eul(NSR_H_LC(1:3, 1:3), "XYZ")))
-disp(' T:')
-disp(-inv(NSR_H_LC(1:3, 1:3))*NSR_H_LC(1:3, 4))
-disp("========= Error =========")
-disp(' Training Total Error (pixel)')
-disp(sqrt(NSR_opt_total_cost))
-disp(' Training Error Per Corner (pixel)')
-disp(sqrt(NSR_opt_total_cost/size(Y_base_line, 2))) 
 calibration(1).error_struc.training_results.NSR_RMSE = [sqrt(NSR_opt_total_cost/size(Y_base_line, 2))];
-
-disp("****************** SNR-training ******************")
-disp('SNR_H_LC: ')
-disp(' R:')
-disp(SNR_H_LC(1:3, 1:3))
-disp(' RPY (XYZ):')
-disp(rad2deg(rotm2eul(SNR_H_LC(1:3, 1:3), "XYZ")))
-disp(' T:')
-disp(-inv(SNR_H_LC(1:3, 1:3))*SNR_H_LC(1:3, 4))
-disp("========= Error =========")
-disp(' Training Total Error (pixel)')
-disp(sqrt(SNR_opt_total_cost))
-disp(' Training Error Per Corner (pixel)')
-disp(sqrt(SNR_opt_total_cost/size(Y_train, 2)))
 calibration(1).error_struc.training_results.SNR_RMSE = [sqrt(SNR_opt_total_cost/size(Y_train, 2))];
-
-disp("****************** SR-training ******************")
-disp('H_LC: ')
-disp(' R:')
-disp(SR_H_LC(1:3, 1:3))
-disp(' RPY (XYZ):')
-disp(rad2deg(rotm2eul(SR_H_LC(1:3, 1:3), "XYZ")))
-disp(' T:')
-disp(-inv(SR_H_LC(1:3, 1:3))*SR_H_LC(1:3, 4))
-disp("========= Error =========")
-disp(' Training Total Error (pixel)')
-disp(sqrt(SR_opt_total_cost))
-disp(' Training Error Per Corner (pixel)')
-disp(sqrt(SR_opt_total_cost/size(Y_train, 2)))
 calibration(1).error_struc.training_results.SR_RMSE = [sqrt(SR_opt_total_cost/size(Y_train, 2))];
 
 
@@ -781,23 +725,12 @@ NSR_training_cost = verifyCornerAccuracyWRTDataset(bag_training_indices, opts, B
 NSNR_training_cost = verifyCornerAccuracyWRTDataset(bag_training_indices, opts, BagData, NSNR_P);
 
 for i = 1:opts.num_training
-        disp('------')
         current_index = bag_training_indices(i);
-        fprintf("---dataset: %s\n", bag_with_tag_list(current_index))
         calibration(1).error_struc.training(i).id = bag_training_indices(i);   
         calibration(1).error_struc.training(i).name = extractBetween(BagData(bag_training_indices(i)).bagfile,"",".bag");
-        disp("-- RMS Error Per Corner (pixel)")
-        disp(' NSNR training RMS Error Per Corner (pixel)')
-        disp(NSNR_training_cost(i).RMSE)
         calibration(1).error_struc.training(i).NSNR_RMSE = [NSNR_training_cost(i).RMSE];
-        disp(' NSR training RMS Error Per Corner (pixel)')
-        disp(NSR_training_cost(i).RMSE)
         calibration(1).error_struc.training(i).NSR_RMSE = [NSR_training_cost(i).RMSE];
-        disp(' SNR training RMS Error Per Corner (pixel)')
-        disp(SNR_training_cost(i).RMSE)
         calibration(1).error_struc.training(i).SNR_RMSE = [SNR_training_cost(i).RMSE];
-        disp(' SR training RMS Error Per Corner (pixel)')
-        disp(SR_training_cost(i).RMSE)
         calibration(1).error_struc.training(i).SR_RMSE = [SR_training_cost(i).RMSE];
 end
 
@@ -898,11 +831,7 @@ disp("**************************************************************************
 disp(" training results")
 % disp("------------------")
 disp(struct2table(calibration(1).error_struc.training_results))
-[calibration(1).error_struc.training_results.NSNR_RMSE; calibration(1).error_struc.training_results.NSR_RMSE; calibration(1).error_struc.training_results.SNR_RMSE; calibration(1).error_struc.training_results.SR_RMSE]
-% disp("------------------")
-% disp(" training error")
-% disp("------------------")
-% disp(struct2table(calibration(1).error_struc.training))
+
 %%
 if validation_flag
 %     disp("------------------")
@@ -911,52 +840,20 @@ if validation_flag
     disp(struct2table(calibration(1).error_struc.validation))
 %     disp("NSNR_RMSE--validata on its own method")
 %     [calibration(1).error_struc.validation.baseline.NSNR_RMSE]
-    disp("NSNR_RMSE (validaing on its own)")
+    disp("Baseline_RMSE")
     [calibration(1).error_struc.validation.NSNR_RMSE_validate_its_own]
-    disp("NSR_RMSE")
-    [calibration(1).error_struc.validation.NSR_RMSE]
-    disp("SNR_RMSE")
+    disp("L1-inspired_RMSE")
     [calibration(1).error_struc.validation.SNR_RMSE]
-    disp("SR_RMSE")
-    [calibration(1).error_struc.validation.SR_RMSE]
-    disp("SR_RMSE (validaing on its own)")
-    [calibration(1).error_struc.validation.SR_RMSE_validate_its_own]
-    
-    disp("------ALL info-------")
-    [calibration(1).error_struc.validation.NSNR_RMSE_validate_its_own;
-     calibration(1).error_struc.validation.NSNR_RMSE;
-     calibration(1).error_struc.validation.NSR_RMSE;
-     calibration(1).error_struc.validation.SNR_RMSE;
-     calibration(1).error_struc.validation.SR_RMSE;
-     calibration(1).error_struc.validation.SR_RMSE_validate_its_own]
+
     disp("------paper info-------")
-    disp("-- training")
+    disp("-- training (BL ; L1)")
     training_res = [calibration(1).error_struc.training_results.NSNR_RMSE;
                     calibration(1).error_struc.training_results.SNR_RMSE]
 
-    disp("-- validating")
+    disp("-- validating (BL ; L1)")
     validating_res = [calibration(1).error_struc.validation.NSNR_RMSE_validate_its_own;
                       calibration(1).error_struc.validation.SNR_RMSE]
-    disp('summary')
+    disp('summary (BL ; L1)')
     validating_mean = mean(validating_res')'
     validating_std = std(validating_res')'
 end
-
-% function mytable = transposeTable(in_table)
-% myArray = table2cell(in_table(:,2:end) );
-% myArray = cell2table(myArray'); 
-% var_names = cellstr( table2cell(in_table(:,1)) );
-% var_names = matlab.lang.makeValidName(var_names) ;
-% var_names = var_names';
-% myArray.Properties.VariableNames = var_names ;
-% % S = {'my.Name','my_Name','my_Name'};
-% % validValues = matlab.lang.makeValidName(S)
-% % validUniqueValues = matlab.lang.makeUniqueStrings(validValues,{},...
-% %     namelengthmax)
-%   
-% row_names = in_table.Properties.VariableNames(2:end); 
-% row_names = cell2table(row_names');
-% mytable = [row_names , myArray ] ;
-% mytable.Properties.VariableNames(1,1) = in_table.Properties.VariableNames(1,1);
-% clear myArray var_names row_names ii str expression replace newStr 
-% end
