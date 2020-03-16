@@ -1,5 +1,5 @@
 %{
- * Copyright (C) 2013-2020, The Regents of The University of Michigan.
+ * Copyright (C) 2020-2030, The Regents of The University of Michigan.
  * All rights reserved.
  * This software was developed in the Biped Lab (https://www.biped.solutions/) 
  * under the direction of Jessy Grizzle, grizzle@umich.edu. This software may 
@@ -25,9 +25,10 @@
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the Regents of The University of Michigan.
  * 
- * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu) and Jessy Grizzle
+ * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
  * WEBSITE: https://www.brucerobot.com/
 %}
+
 
 function [Uc, meanClean, LEupper, LElower, REupper, RElower, PayLoadClean, PayLoadClean2D] = clickedToFindEdges(base_line, pnts, d, ExpNmbr)
 

@@ -1,5 +1,5 @@
 %{
- * Copyright (C) 2013-2020, The Regents of The University of Michigan.
+ * Copyright (C) 2020-2030, The Regents of The University of Michigan.
  * All rights reserved.
  * This software was developed in the Biped Lab (https://www.biped.solutions/) 
  * under the direction of Jessy Grizzle, grizzle@umich.edu. This software may 
@@ -28,7 +28,6 @@
  * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
  * WEBSITE: https://www.brucerobot.com/
 %}
-
 function [cross_big_3d, edges, bag]= KaessNewCorners_v02(base_line, bag, path, scan_number, which_tag, pc_iter)
     pc = load(string(path) + string(bag.lidar_target(which_tag).pc_file)); 
     pnts = pc.point_cloud; % [scan, point, [X, Y, X, I, R]]
