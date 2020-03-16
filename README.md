@@ -22,7 +22,20 @@ Please follow more detail instruction as [below](https://github.com/UMich-BipedL
 
 
 ## Abstract
-The homogeneous transformation between a LiDAR and monocular camera is required for sensor fusion tasks, such as SLAM. While determining such a transformation is not considered glamorous in any sense of the word, it is nonetheless crucial for many modern autonomous systems. Indeed, an error of a few degrees in rotation or a few percent in translation can lead to 20 cm translation errors at a distance of 5 m when overlaying a LiDAR image on a camera image. The biggest impediments to determining the transformation accurately are the relative sparsity of LiDAR point clouds and systematic errors in their distance measurements. This paper proposes (1) the use of targets of known dimension and geometry to ameliorate target pose estimation in face of the quantization and systematic errors inherent in a LiDAR image of a target, and (2) a fitting method for the LiDAR to monocular camera transformation that fundamentally assumes the camera image data is the most accurate information in one's possession. 
+The rigid-body transformation between a LiDAR and monocular camera is required for sensor fusion tasks, such
+as SLAM. While determining such a transformation is not considered glamorous in any sense of the word, it is nonetheless crucial for many modern autonomous systems. Indeed, an error of a few degrees in rotation or a few percent in translation can lead to 20 cm reprojection errors at a distance of 5 m when overlaying a LiDAR image on a camera image. The biggest impediments to determining the transformation accurately are the relative sparsity of LiDAR point clouds and systematic errors in their distance measurements. This paper proposes (1) the use of targets of known dimension and geometry to ameliorate target pose estimation in face of the quantization and systematic errors inherent in a LiDAR image of a target, (2) a fitting method for the LiDAR to monocular camera transformation that avoids the tedious task of target edge extraction from the point could, and (3) a “cross-validation study” based on projection of the 3D LiDAR target vertices to the corresponding corners in the camera image. The end result is a **50%** reduction in projection error and a **70%** reduction in its variance.
+
+## Performance
+This is a short summary from the paper; see [PDF](https://arxiv.org/abs/1910.03126) for more detail.
+This table compares mean and standard deviation for baseline and our approach as a function of
+the number of targets used in training. Units are pixel per corner.
+|      |# Tag|    2   |    4   |    6   |   8   |
+|:----:|:---:| :-----:| :-----:| :-----:|:-----:|
+| Baseline (previous state-of-the-art)  | mean| 10.3773| 4.9645 | 4.3789 | 3.9940|
+| Proposed method | mean| **3.8523** | **1.8939** | **1.6817** | **1.7547**|
+| Baseline (previous state-of-the-art)  | std | 7.0887 | 1.9532 | 1.7771 | 2.0467|
+| Proposed method  | std | **2.4155** | **0.5609** | **0.5516** | **0.5419**|
+
 
 ## Application Videos 
 The 3D-LiDAR map shown in the videos used this package to calibrate the LiDAR to camera (to get the transformatoin between the LiDAR and camera). Briefly speaking, we project point coulds from the LiDAR back to the semantic labeled images using the obtained transformation and then associate labels with the point to build the 3D LiDAR semantic map.
@@ -32,10 +45,11 @@ The 3D-LiDAR map shown in the videos used this package to calibrate the LiDAR to
 [Autonomous Navigation and 3D Semantic Mapping on Bipedal Robot Cassie Blue (Shorter Version)](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
 
 [Autonomous Navigation and 3D Semantic Mapping on Bipedal Robot Cassie Blue (Longer Version)](https://youtu.be/N8THn5YGxPw)
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/Halloween.png" width="640">
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps.png" width="640">
-<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps2.png" width="640">
 
+
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/Halloween.png" width="640">](https://www.youtube.com/watch?v=4OUr2DspYoo)
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps.png" width="640">](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
+[<img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/3D-LiDAR-Semantic-maps2.png" width="640">](https://www.youtube.com/watch?v=uFyT8zCg1Kk)
 
 ## Quick View
 Using the obtained transformation, LiDAR points are mapped onto a semantically segmented image. Each point is associated with the label of a pixel. The road is marked as white; static objects such buildings as orange; the grass as yellow-green, and dark green indicates trees.
@@ -50,12 +64,20 @@ The below shows that a calibration result with little disturbance from the well-
 <img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/disturbance.png" width="640"> 
 <img src="https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/figure/undisturbance.png" width="640">
 
-## Presentation and Video (coming strong in a week)
-https://www.brucerobot.com/
+## Presentation and Video
+https://www.brucerobot.com/calibration
 
 ## Calibration Targets
-Any **square** targets would be fine. The dimensions are assumed known.
-note: You can place any number of targets with different size in different datasets.
+Any **square** targets would be fine. The dimensions are assumed known. We use fiducial tags that can be detected both from LiDARs and cameras. Physically, they are the same tags. However, if the tag is detected from LiDARs, we call it [LiDARTag](https://arxiv.org/abs/1908.10349) and on the other hand, if is is detected from cameras, it is called AprilTag. Please check out this [link](https://drive.google.com/open?id=1Twx7y6yxr-s2qAoCa4XliCxNuINAlXNn) to download the target images. If you use these targets as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
+  year={2019}
+}
+```
+note: You can place any number of targets with different size in different datasets. 
 
 ## Installation 
 * Which toolboxes are used in this package: 
@@ -89,9 +111,18 @@ If you would like to see how the LiDAR vertices are optimized, please place the 
 - Give initial guess to the LiDAR to camera transformation
 - Edit the _trained_ids_ and _skip_indices_ (ids are from _getBagData.m_).
 - If you have more validation dataset (containing targets), set the _validation_flag_ to 1 and then use put the related information to _getBagData.m_.
-- Place several _square_ boards with known dimensions. When placing boards, make sure the left corner is taller than the right corner.
+- Place several _square_ boards with known dimensions. When placing boards, make sure the left corner is taller than the right corner. We use fiducial tags that can be detected both from LiDARs and cameras. Physically, they are the same tags. However, if the tag is detected from LiDARs, we call it [LiDARTag](https://arxiv.org/abs/1908.10349) and on the other hand, if is is detected from cameras, it is called AprilTag. Please check out this [link](https://drive.google.com/open?id=1Twx7y6yxr-s2qAoCa4XliCxNuINAlXNn) to download the target images. If you use these targets as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
+  year={2019}
+}
+```
 - Use you favorite methods to extract corners of camera targets and then write them in _getBagData.m_. When writing the corners, Please follow **top-left-right-bottom** order. 
 - Given point patches of LiDAR targets, saved them into .mat files and also put them _getBagData.m_. Please make sure you have correctly match your _lidar_target_ with _camera_target_. 
+- If you have trouble extracting patches of LiDAR targets, or converting bagfiles to mat-files, I have also provided another python script to conver a bagfile to a mat-file and extract patches. Please check out bag2mat.py.
 - RUN _justCalibrate.m_! That's it!
 
 note: You can place any number of targets with different size in different datasets.
@@ -137,13 +168,21 @@ For the method GL_1-R, five sets of estimated LiDAR vertices for each target hav
 
 ## Citations
 The detail is described in: 
-
 Jiunn-Kai Huang and J. Grizzle, "Improvements to Target-Based 3D LiDAR to Camera Calibration" ([PDF](https://github.com/UMich-BipedLab/extrinsic_lidar_camera_calibration/blob/master/LiDAR2CameraCalibration.pdf))([arXiv](https://arxiv.org/abs/1910.03126))
 ```
 @article{huang2019improvements,
   title={Improvements to Target-Based 3D LiDAR to Camera Calibration},
   author={Huang, Jiunn-Kai and Grizzle, Jessy W},
   journal={arXiv preprint arXiv:1910.03126},
+  year={2019}
+}
+```
+If you use [LiDARTag](https://arxiv.org/abs/1908.10349) as you LiDAR targets, please cite 
+```
+@article{huang2019lidartag,
+  title={LiDARTag: A Real-Time Fiducial Tag using Point Clouds},
+  author={Huang, Jiunn-Kai and Ghaffari, Maani and Hartley, Ross and Gan, Lu and Eustice, Ryan M and Grizzle, Jessy W},
+  journal={arXiv preprint arXiv:1908.10349},
   year={2019}
 }
 ```
