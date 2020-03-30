@@ -1,3 +1,35 @@
+%{
+ * Copyright (C) 2013-2025, The Regents of The University of Michigan.
+ * All rights reserved.
+ * This software was developed in the Biped Lab (https://www.biped.solutions/) 
+ * under the direction of Jessy Grizzle, grizzle@umich.edu. This software may 
+ * be available under alternative licensing terms; contact the address above.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * The views and conclusions contained in the software and documentation are those
+ * of the authors and should not be interpreted as representing official policies,
+ * either expressed or implied, of the Regents of The University of Michigan.
+ * 
+ * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
+ * WEBSITE: https://www.brucerobot.com/
+ %}
+
+
 function guesses=david_script
 % Receiver positions & times
 p1=[-1  0  0];
@@ -16,17 +48,23 @@ percent = 0.01;
 x_i=x_i(:);
 y_i=y_i(:);
 z_i=ones(size(x_i),'single');
-fprintf('Generating plausible guesses\n')
+fprintf('Generating plausible guesses
+')
 for i=0:200    
     [x{i+1},y{i+1},z{i+1}]=get_plausible_guesses(x_i(:),y_i(:),single(i)*z_i(:));
-    fprintf('Iteration %3u/201\n',i+1)
+    fprintf('Iteration %3u/201
+',i+1)
 end
 x=cell2mat(x);
 y=cell2mat(y);
 z=cell2mat(z);
 guesses=[x y z];
 guessNumber=size(guesses,1); 
-fprintf('\n\nNumber of plausible guesses = %u\n\n',guessNumber)
+fprintf('
+
+Number of plausible guesses = %u
+
+',guessNumber)
 % Get parameters of best-fit-thought the guesses and visulize
 % -------------------------------------------------------------------------
 [Hg,Hl]=best_fit_3D_line(guesses);
@@ -145,8 +183,12 @@ view([20 20])
 drawnow
 % Display line parameters
 % -------------------------------------------------------------------------
-fprintf('Best fit line : L(t) = Xo + t*r, where\n')
-fprintf('Xo  = [ '); fprintf('%.4f ',X_ave);   fprintf(']\n') 
-fprintf('r   = [ '); fprintf('%.4f ',R(:,1)'); fprintf(']\n') 
-fprintf('R^2 = %.4f\n',R2)
+fprintf('Best fit line : L(t) = Xo + t*r, where
+')
+fprintf('Xo  = [ '); fprintf('%.4f ',X_ave);   fprintf(']
+') 
+fprintf('r   = [ '); fprintf('%.4f ',R(:,1)'); fprintf(']
+') 
+fprintf('R^2 = %.4f
+',R2)
 end
