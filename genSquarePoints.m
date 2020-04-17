@@ -1,5 +1,5 @@
 %{
- * Copyright (C) 2013-2020, The Regents of The University of Michigan.
+ * Copyright (C) 2020-2030, The Regents of The University of Michigan.
  * All rights reserved.
  * This software was developed in the Biped Lab (https://www.biped.solutions/) 
  * under the direction of Jessy Grizzle, grizzle@umich.edu. This software may 
@@ -28,6 +28,7 @@
  * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
  * WEBSITE: https://www.brucerobot.com/
 %}
+
 
 function [x,y,z] = genSquarePoints(app)
     method = app.DistributionDropDown.Value;
