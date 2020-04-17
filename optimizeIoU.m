@@ -1,27 +1,39 @@
 function [H_LC, P, min_cost, final_result, results] = optimizeIoU(opt, X, Y, intrinsic, display)
     % prepare for random initilization (not use for now)    
     for i = 1:1
+%         theta_x = opt.init_rpy(1);
+%         theta_y = opt.init_rpy(2);
+%         theta_z = opt.init_rpy(3);
+%         T = [0.08, 0.02, 0.25];
+%         T = opt.init_T;
+%         costIoU(theta_x, theta_y, theta_z, T, X, Y, intrinsic)
+        
         theta_x = optimvar('theta_x', 1, 1,'LowerBound',-180,'UpperBound',180); % 1x1
         theta_y = optimvar('theta_y', 1, 1,'LowerBound',-180,'UpperBound',180); % 1x1
         theta_z = optimvar('theta_z', 1, 1,'LowerBound',-180,'UpperBound',180); % 1x1
         T = optimvar('T', 1, 3,'LowerBound',-0.5,'UpperBound',0.5);
-%         theta_x = 0;
-%         theta_y = 10;
-%         theta_z = 20;
-%         T = [ 1 2 3];  % 1x3
-%         costIoU(theta_x, theta_y, theta_z, T, X, Y, intrinsic);
 
-        
         prob = optimproblem;
         f = fcn2optimexpr(@costIoU, theta_x, theta_y, theta_z, T, X, Y, intrinsic);
         prob.Objective = f;
 
         noise = (rand([1,6]) - 0.5) * 2; % -1 to 1
         if i==1
-            x0.theta_x = opt(1);
-            x0.theta_y = opt(2) ;
-            x0.theta_z = opt(3);
-            x0.T = [0 0 0];
+            if isstruct(opt)
+                x0.theta_x = opt.init_rpy(1);
+                x0.theta_y = opt.init_rpy(2) ;
+                x0.theta_z = opt.init_rpy(3);
+                x0.T = opt.init_T;
+            else
+                x0.theta_x = opt(1);
+                x0.theta_y = opt(2);
+                x0.theta_z = opt(3);
+                if length(opt) > 3
+                    x0.T = opt(4:6);
+                else
+                    x0.T = [0 0 0];
+                end
+            end
         elseif i==2
             x0.theta_x = 82.0122;
             x0.theta_y = -0.0192 ;
