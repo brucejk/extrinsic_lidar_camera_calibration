@@ -30,6 +30,13 @@
 %}
 
 clc, clear
+intrinsic_lib = '/home/brucebot/workspace/griztag/src/matlab/matlab/slider/3D_lidar_intrinsic_calibration';
+extrinsic_lib = '/home/brucebot/workspace/griztag/src/matlab/matlab/slider/repo/extrinsic_utils';
+utils = '/home/brucebot/workspace/matlab_utils';
+addpath(genpath(intrinsic_lib))
+addpath(genpath(extrinsic_lib))
+addpath(genpath(utils))
+
 %%%%%%%%%%%%%%%%%%%%%
 %%% camera parameters
 %%%%%%%%%%%%%%%%%%%%%
