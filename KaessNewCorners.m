@@ -1,5 +1,5 @@
 %{
- * Copyright (C) 2013-2020, The Regents of The University of Michigan.
+ * Copyright (C) 2020-2030, The Regents of The University of Michigan.
  * All rights reserved.
  * This software was developed in the Biped Lab (https://www.biped.solutions/) 
  * under the direction of Jessy Grizzle, grizzle@umich.edu. This software may 
@@ -24,9 +24,8 @@
  * The views and conclusions contained in the software and documentation are those
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the Regents of The University of Michigan.
- 
-
- *  * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
+ * 
+ * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
  * WEBSITE: https://www.brucerobot.com/
 %}
 
