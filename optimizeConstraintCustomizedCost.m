@@ -38,11 +38,27 @@ function opt = optimizeConstraintCustomizedCost(opt, X, target_size, box_width)
     f = fcn2optimexpr(@computeConstraintCustomizedCost, X, ...
                        theta_x, theta_y, theta_z, T, target_size, box_width);
     prob.Objective = f;
-    x0.theta_x = 0;
-    x0.theta_y = 0;
-    x0.theta_z = 0;
-    x0.T = opt.T_init;
 
+	if isstruct(opt)
+		x0.theta_x = opt.init_rpy(1);
+		x0.theta_y = opt.init_rpy(2) ;
+		x0.theta_z = opt.init_rpy(3);
+		x0.T = opt.init_T;
+	else
+		x0.theta_x = opt(1);
+		x0.theta_y = opt(2);
+		x0.theta_z = opt(3);
+		if length(opt) > 3
+			x0.T = opt(4:6);
+		else
+			x0.T = [0 0 0];
+		end
+	end
+
+    % x0.theta_x = opt.rpy_init(1);
+    % x0.theta_y = opt.rpy_init(2);
+    % x0.theta_z = opt.rpy_init(3);
+    % x0.T = opt.H_init(1:3, 4);
 %             options = optimoptions('fmincon', 'MaxIter',5e2,'Display','iter', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
     options = optimoptions('fmincon', 'MaxIter',5e2, 'Display','off', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
     max_trail = 5;
