@@ -43,7 +43,7 @@ distortion_param = [0.099769, -0.240277, 0.002463, 0.000497, 0.000000];
 opt.H_LC.rpy_init = [90 0 90];
 
 % train data id from getBagData.m
-trained_ids = [5,8,9,11]; % 
+trained_ids = [ 5 9]; % 
 skip_indices = [1, 2, 3, 7, 12]; %% skip non-standard 
 
 % validate the calibration result if one has validation dataset(s)
@@ -889,13 +889,35 @@ if validation_flag
      calibration(1).error_struc.validation.SR_RMSE;
      calibration(1).error_struc.validation.SR_RMSE_validate_its_own]
     disp("------paper info-------")
+%     disp("-- training")
+%     training_res = [calibration(1).error_struc.training_results.NSNR_RMSE;
+%                     calibration(1).error_struc.training_results.SNR_RMSE]
+% 
+%     disp("-- validating")
+%     validating_res = [calibration(1).error_struc.validation.NSNR_RMSE_validate_its_own;
+%                       calibration(1).error_struc.validation.SNR_RMSE]
+%     disp('summary')
+%     validating_mean = mean(validating_res')'
+%     validating_std = std(validating_res')'
+    
+    
     disp("-- training")
     training_res = [calibration(1).error_struc.training_results.NSNR_RMSE;
-                    calibration(1).error_struc.training_results.SNR_RMSE]
+                    calibration(1).error_struc.training_results.SNR_RMSE;
+                    calibration(1).error_struc.training_results.SR_RMSE]
 
     disp("-- validating")
     validating_res = [calibration(1).error_struc.validation.NSNR_RMSE_validate_its_own;
-                      calibration(1).error_struc.validation.SNR_RMSE]
+                      calibration(1).error_struc.validation.NSR_RMSE;
+                      calibration(1).error_struc.validation.SNR_RMSE;
+                      calibration(1).error_struc.validation.SR_RMSE_validate_its_own]
+              
+    disp("-- inNout points")
+    validating_inNout = [[calibration(1).count.validation.NSNR.fraction];
+                         [calibration(1).count.validation.NSR.fraction];
+                         [calibration(1).count.validation.SNR.fraction];
+                         [calibration(1).count.validation.SR.fraction]]
+                     
     disp('summary')
     validating_mean = mean(validating_res')'
     validating_std = std(validating_res')'
