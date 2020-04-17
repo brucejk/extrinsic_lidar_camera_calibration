@@ -35,6 +35,11 @@ function opt = optimizeCost(opt, X, target_size, box_width)
     opt.H_init(1:3, 1:3) = R_init;
 
     if opt.UseCentroid
+        %         [~, centroid, U] = computePlaneReturnR(X(1:3,:));
+%         opt.H_init(1:3, 4) = centroid(1:3);
+%         opt.H_init(1:3, 1:3) = U';
+%         opt.H_init = inv(opt.H_init);
+%         opt.H_init;
         centroid = mean(X, 2);
         opt.H_init(1:3, 4) = -centroid(1:3);
     else
