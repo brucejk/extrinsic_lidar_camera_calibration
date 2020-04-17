@@ -141,7 +141,7 @@ base_line.num_scan = 5;
 %%% mat_file_path: mat files of extracted lidar target's point clouds
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 opts.calibration_method = "4 points";
-% opts.calibration_method = "IoU";
+opts.calibration_method = "IoU";
 
 path.load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
 path.load_dir = "NewPaper/15-Nov-2019 19:00:42/";
@@ -692,7 +692,7 @@ else
     load(path.load_dir + "SR.mat");
     load(path.load_dir + "save_validation.mat")
 end
-
+%%
 disp("****************** NSNR-training ******************")
 disp('NSNR_H_LC: ')
 disp(' R:')
