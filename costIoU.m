@@ -33,6 +33,7 @@ function cost = costIoU(theta_x, theta_y, theta_z, T, X, Y, intrinsic)
     H = eye(4);
     H(1:3,1:3) = rotx(theta_x) * roty(theta_y) * rotz(theta_z);
     H(1:3,4) = T';
+%     H(1:3,4) = -H(1:3,1:3) * T';
     P = intrinsic * [eye(3) zeros(3,1)] * H;
     L_X_transformed = P * X; % transformed points in LiDAR frame
     C_X_transformed = L_X_transformed ./ L_X_transformed(3,:);
