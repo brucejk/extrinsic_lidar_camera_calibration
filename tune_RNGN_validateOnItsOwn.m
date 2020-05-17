@@ -48,6 +48,7 @@ distortion_param = [0.099769, -0.240277, 0.002463, 0.000497, 0.000000];
 
 % Initial guess of LiDAR to camera transformation
 opt.H_LC.rpy_init = [90 0 90];
+opt.H_LC.T_init = [0.1 0 0.2];
 
 % train data id from getBagData.m
 trained_ids = [ 5 9]; % 
@@ -108,6 +109,8 @@ base_line.L1_cleanup = 0;
 base_line.num_scan = 5; % how many scans accumulated to optimize one LiDARTag pose (3)
 opts.calibration_method = "4 points";
 % opts.calibration_method = "IoU";
+opt.method = "LieGroup"; % EulerAngle
+% opt.method = "EulerAngle";
 
 path.load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
 path.load_dir = "NewPaper/15-Nov-2019 19:00:42/";
@@ -124,6 +127,7 @@ path.event_name = '';
 
 % save into results into folder         
 path.save_name = "ICRA2020";
+path.save_name = "AfterRSS";
 diary Debug % save terminal outputs
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -321,12 +325,15 @@ if skip == 0
     disp("********************************************")
     disp(" Optimizing LiDAR Target Corners")
     disp("********************************************")
+    PC_train = []; % Clean-up PC
     X_train = []; % training corners of lidar targets in 3D
     Y_train = []; % training corners of image targets in 2D
     train_num_tag_array = []; % number of tag in each training data (need to be used later)
     train_tag_size_array = []; % size of tag in each training data (need to be used later)
     validation_num_tag_array = []; % number of tag in each training data (need to be used later)
     validation_tag_size_array = []; % size of tag in each training data (need to be used later)
+    
+    PC_validation = []; % 
     X_validation = []; % validation corners of lidar targets in 3D
     Y_validation = []; % validation corners of image targets in 2D
     H_LT_big = [];
@@ -353,6 +360,7 @@ if skip == 0
         end
         % training set
         if any(ismember(bag_training_indices, current_index))
+            PC_training_tmp = [];
             X_training_tmp = [];
             Y_training_tmp = [];
             H_LT_tmp = [];
@@ -372,13 +380,18 @@ if skip == 0
                 showLinedAprilTag(training_img_fig_handles(training_counter), ...
                                   BagData(current_index).camera_target(j), show_camera_target);
                 drawnow
+                PC_training_tmp = [PC_training_tmp, BagData(current_index).lidar_target(j).scan(:).pc_points];
                 X_training_tmp = [X_training_tmp, BagData(current_index).lidar_target(j).scan(:).corners];
                 Y_training_tmp = [Y_training_tmp, repmat(BagData(current_index).camera_target(j).corners, 1, opts.num_lidar_target_pose)];
                 H_LT_tmp = [H_LT_tmp, H_LT];
                 train_num_tag_array = [train_num_tag_array, repmat(BagData(current_index).num_tag, 1, opts.num_lidar_target_pose)];
                 train_tag_size_array = [train_tag_size_array, repmat(BagData(current_index).lidar_target(j).tag_size, 1, opts.num_lidar_target_pose)];
             end
-
+            
+            % 4 x k, k is the number of points
+            PC_train = [PC_train, PC_training_tmp]; 
+            
+            
             % 4 x M*i, M is correspondance per scan, i is scan
             X_train = [X_train, X_training_tmp]; 
 
@@ -429,6 +442,7 @@ if skip == 0
             
         else
             %%% validation set
+            PC_validation_tmp = [];
             X_validation_tmp = [];
             Y_validation_tmp = [];
 
@@ -443,13 +457,14 @@ if skip == 0
                 showLinedAprilTag(validation_fig_handles(validation_counter), ...
                                   BagData(current_index).camera_target(j), show_camera_target);
                 drawnow
+                PC_validation_tmp = [PC_validation_tmp, BagData(current_index).lidar_target(j).scan(:).pc_points];
                 X_validation_tmp = [X_validation_tmp, BagData(current_index).lidar_target(j).scan(:).corners];
                 Y_validation_tmp = [Y_validation_tmp, BagData(current_index).camera_target(j).corners];
                 validation_num_tag_array = [validation_num_tag_array, BagData(current_index).num_tag];
                 validation_tag_size_array = [validation_tag_size_array, BagData(current_index).lidar_target(j).tag_size];
             end
             
-            
+            PC_validation = [PC_validation, PC_validation_tmp];
 
             % 4 x M*i, M is correspondance per scan, i is scan
             X_validation = [X_validation, X_validation_tmp]; 
@@ -492,7 +507,7 @@ if skip == 0
     end
     drawnow
     save(path.save_dir + 'X_base_line.mat', 'X_base_line');
-    save(path.save_dir + 'X_train.mat', 'X_train', 'H_LT_big', 'X_base_line_edge_points');
+    save(path.save_dir + 'X_train.mat', 'X_train', 'H_LT_big', 'X_base_line_edge_points', 'PC_train', 'PC_validation');
     save(path.save_dir + 'array.mat', 'train_num_tag_array', 'train_tag_size_array', 'validation_num_tag_array', 'validation_tag_size_array');
     save(path.save_dir + 'Y.mat', 'Y_train', 'Y_base_line');
     save(path.save_dir + 'BagData.mat', 'BagData');
@@ -516,9 +531,9 @@ if ~(skip == 2)
 %             [SNR_H_LC, SNR_P, SNR_opt_total_cost] = optimize4Points(opt.H_LC.rpy_init,...
 %                                                                     X_square_no_refinement, Y_train, ...
 %                                                                     intrinsic_matrix, display);
-            [SNR_H_LC, SNR_P, SNR_opt_total_cost, SNR_final, SNR_All] = optimize4Points(opt.H_LC.rpy_init,...
-                                                                    X_square_no_refinement, Y_train, ...
-                                                                   intrinsic_matrix, show_pnp_numerical_result);                                                    
+            [SNR_H_LC, SNR_P, SNR_opt_total_cost, SNR_final, SNR_All] = optimize4Points(opt, ...
+                                                                       X_square_no_refinement, Y_train, ...
+                                                                       intrinsic_matrix, show_pnp_numerical_result);                                                    
             calibration(1).H_SNR = SNR_H_LC;
             calibration(1).P_SNR = SNR_P;
             calibration(1).RMSE.SNR = SNR_opt_total_cost;
@@ -528,7 +543,7 @@ if ~(skip == 2)
             disp('---------------------')
             disp('NSNR ...')
             disp('---------------------')
-            [NSNR_H_LC, NSNR_P, NSNR_opt_total_cost, NSNR_final, NSNR_All] = optimize4Points(opt.H_LC.rpy_init, ...
+            [NSNR_H_LC, NSNR_P, NSNR_opt_total_cost, NSNR_final, NSNR_All] = optimize4Points(opt, ...
                                                                        X_base_line, Y_base_line, ... 
                                                                        intrinsic_matrix, show_pnp_numerical_result); 
             calibration(1).H_NSNR = NSNR_H_LC;
@@ -546,7 +561,7 @@ if ~(skip == 2)
                 disp('--- SR_H_LC ...')
                 disp('---------------------')
                 % square with refinement
-                [SR_H_LC, SR_P, SR_opt_total_cost, SR_final, SR_All] = optimize4Points(opt.H_LC.rpy_init, ...
+                [SR_H_LC, SR_P, SR_opt_total_cost, SR_final, SR_All] = optimize4Points(opt, ...
                                                                                        X_train, Y_train, ... 
                                                                                        intrinsic_matrix, show_pnp_numerical_result); 
                 calibration(1).H_SR = SR_H_LC;
@@ -555,7 +570,7 @@ if ~(skip == 2)
                 calibration(1).All.SR = SR_All;
 
                 % NOT square with refinement
-                [NSR_H_LC, NSR_P, NSR_opt_total_cost, NSR_final, NSR_All] = optimize4Points(opt.H_LC.rpy_init, ...
+                [NSR_H_LC, NSR_P, NSR_opt_total_cost, NSR_final, NSR_All] = optimize4Points(opt, ...
                                                                                             X_not_square_refinement, Y_base_line, ...
                                                                                             intrinsic_matrix, show_pnp_numerical_result); 
                 calibration(1).H_NSR = NSR_H_LC;
@@ -570,7 +585,7 @@ if ~(skip == 2)
                     disp(' Refining SR_H_LC ...')
                     disp('------------------')
                     X_train = regulizedFineTuneLiDARTagPose(train_tag_size_array, ...
-                                                            X_train, Y_train, H_LT_big, SR_P, ...
+                                                            X_train, PC_train, Y_train, H_LT_big, SR_P, ...
                                                             opts.correspondance_per_pose, show_pnp_numerical_result);
                     X_not_square_refinement = regulizedFineTuneKaessCorners(X_not_square_refinement, Y_base_line,...
                                                                             X_base_line_edge_points, NSR_P, ...
@@ -625,7 +640,7 @@ if ~(skip == 2)
                     disp('------------------')
 
                     X_train = regulizedFineTuneLiDARTagPose(train_tag_size_array, ...
-                                                            X_train, Y_train, H_LT_big, SR_P, ...
+                                                            X_train, PC_train, Y_train, H_LT_big, SR_P, ...
                                                             opts.correspondance_per_pose, show_pnp_numerical_result);
                     X_not_square_refinement = regulizedFineTuneKaessCorners(X_not_square_refinement, ...
                                                             Y_base_line, X_base_line_edge_points, NSR_P, ...
@@ -869,7 +884,7 @@ disp(struct2table(calibration(1).error_struc.training_results))
 % disp(" training error")
 % disp("------------------")
 % disp(struct2table(calibration(1).error_struc.training))
-%%
+
 if validation_flag
 %     disp("------------------")
     disp(" validation error")

@@ -29,7 +29,7 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function [X, bag_data] = regulizedFineTuneLiDARTagPose(tag_size_array, X, Y, H_LT, P, correspondance_per_pose, display, bag_data)
+function [X, bag_data] = regulizedFineTuneLiDARTagPose(tag_size_array, X, PC_train, Y, H_LT, P, correspondance_per_pose, display, bag_data)
     theta_x = optimvar('theta_x', 1, 1,'LowerBound',-5,'UpperBound',5); % 1x1
     theta_y = optimvar('theta_y', 1, 1,'LowerBound',-5,'UpperBound',5); % 1x1
     theta_z = optimvar('theta_z', 1, 1,'LowerBound',-5,'UpperBound',5); % 1x1
@@ -42,6 +42,7 @@ function [X, bag_data] = regulizedFineTuneLiDARTagPose(tag_size_array, X, Y, H_L
         pose_num = correspondance_per_pose * (i-1) + 1;  
         f = fcn2optimexpr(@regulizedCostOfFineTuneLiDARTagPose, theta_x, theta_y, theta_z, T, ...
                          X(:,pose_num:pose_num+correspondance_per_pose-1), ...
+                         PC_train(:,pose_num:pose_num+correspondance_per_pose-1), ...
                          Y(:,pose_num:pose_num+correspondance_per_pose-1), ...
                          H_LT(:, pose_num:pose_num+correspondance_per_pose-1), P, target_size);
         prob.Objective = f;

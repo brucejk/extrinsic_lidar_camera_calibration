@@ -23,6 +23,11 @@ SR_consistency = (top(2,:) - non_top(2,:)) ./ non_top(2,:) * 100;
 SNR_consistency'
 SR_consistency'
 %% two tags
+% -- NSNR       3.0822    4.1488    2.3596
+% -- NSR        2.6164    3.6125    2.1367
+% -- NSR        0.9447    2.4280    1.4865
+% -- SR(1e3)    0.9437    2.4278    1.4848
+% -- SR(1e2)    1.0848    2.5122    1.6528
 clc, clear
 two_tags_S1_4 = [
     8.0858    4.0057    5.0779    3.7342    4.6282    7.9625
