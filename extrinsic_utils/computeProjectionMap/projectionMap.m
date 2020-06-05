@@ -6,7 +6,7 @@
 % P = ones(3,4);
 % t_projectionMap(X, P);
 
-function projected_points = projectionMap(X, P)
+function projected_points_s = projectionMap(X, P)
 %     X = makeWideMatrix(X);
 %     [m, n] = size(X);
 %     if (m ~= 3 && m ~= 4)
@@ -16,5 +16,5 @@ function projected_points = projectionMap(X, P)
 %     end
     [~, X] = checkHomogeneousCoord(X);
     projected_points = P * X;
-    projected_points = projected_points ./ projected_points(3, :);
+    projected_points_s = projected_points ./ projected_points(3, :);
 end
