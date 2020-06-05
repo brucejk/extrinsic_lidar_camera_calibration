@@ -1,0 +1,84 @@
+%{
+ * Copyright (C) 2013-2020, The Regents of The University of Michigan.
+ * All rights reserved.
+ * This software was developed in the Biped Lab (https://www.biped.solutions/) 
+ * under the direction of Jessy Grizzle, grizzle@umich.edu. This software may 
+ * be available under alternative licensing terms; contact the address above.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * The views and conclusions contained in the software and documentation are those
+ * of the authors and should not be interpreted as representing official policies,
+ * either expressed or implied, of the Regents of The University of Michigan.
+ * 
+ * AUTHOR: Bruce JK Huang (bjhuang[at]umich.edu)
+ * WEBSITE: https://www.brucerobot.com/
+%}
+
+function opt = optimizeConstraintCustomizedLieGroupCost(opt, X, target_size, box_width)
+    R_v = optimvar('R_v', 1, 3); % 1x3
+    T_v = optimvar('T_v', 1, 3);
+
+%     computeConstraintCustomizedLieGroupCost(X, zeros(1,3), zeros(1,3), 1, 0.2)
+    prob = optimproblem;
+    f = fcn2optimexpr(@computeConstraintCustomizedLieGroupCost, X, ...
+                       R_v, T_v, target_size, box_width);
+    prob.Objective = f;
+
+	if isstruct(opt)
+        R = rotx(opt.rpy_init(1)) * roty(opt.rpy_init(2)) * rotz(opt.rpy_init(3));
+        init_Rv = Log_SO3(R);
+        x0.R_v = init_Rv;
+        x0.T_v = opt.T_init;
+	else
+        R = rotx(opt(1)) * roty(opt(2)) * rotz(opt(3));
+        init_Rv = Log_SO3(R);
+        x0.R_v = init_Rv;
+        if length(opt) > 3
+            x0.T_v = opt(4:6);
+        else
+            x0.T_v = [0 0 0];
+        end
+
+	end
+
+    % x0.theta_x = opt.rpy_init(1);
+    % x0.theta_y = opt.rpy_init(2);
+    % x0.theta_z = opt.rpy_init(3);
+    % x0.T = opt.H_init(1:3, 4);
+%             options = optimoptions('fmincon', 'MaxIter',5e2,'Display','iter', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
+    options = optimoptions('fminunc', 'MaxIter',5e2, 'Display','off', 'TolX', 1e-6, 'TolFun', 1e-6);
+    max_trail = 5;
+    num_tried = 1;
+    status = 0;
+    while status <=0 
+        [sol, fval, status, ~] = solve(prob, x0, 'Options', options);
+        if status <=0 
+            warning("optimization failed")
+        end
+        num_tried = num_tried + 1;
+        if (num_tried + 1 > max_trail)
+            warning("tried too many time, optimization still failed, current status:")
+            disp(status)
+            break;
+        end
+    end
+    opt.H_opt = eye(4);
+    opt.H_opt(1:3, 1:3) = Exp_SO3(sol.R_v);
+    opt.H_opt(1:3, 4) = sol.T_v';
+    opt.opt_total_cost = fval;
+end
