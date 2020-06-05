@@ -30,10 +30,10 @@
 %}
 
 clc, clear
-intrinsic_lib = '/home/brucebot/workspace/griztag/src/matlab/matlab/slider/3D_lidar_intrinsic_calibration';
-extrinsic_lib = '/home/brucebot/workspace/griztag/src/matlab/matlab/slider/repo/extrinsic_utils';
+% intrinsic_lib = '/home/brucebot/workspace/griztag/src/matlab/matlab/slider/3D_lidar_intrinsic_calibration';
+extrinsic_lib = './extrinsic_utils';
 utils = '/home/brucebot/workspace/matlab_utils';
-addpath(genpath(intrinsic_lib))
+% addpath(genpath(intrinsic_lib))
 addpath(genpath(extrinsic_lib))
 addpath(genpath(utils))
 
@@ -112,11 +112,11 @@ opts.calibration_method = "4 points";
 opt.method = "LieGroup"; % EulerAngle
 % opt.method = "EulerAngle";
 
-path.load_dir = "Paper-C71/06-Oct-2019 13:53:31/";
-path.load_dir = "NewPaper/15-Nov-2019 19:00:42/";
-path.load_all_vertices = "NewPaper/16-Nov-2019 14:53:58/";
-path.bag_file_path = "/home/brucebot/workspace/griztag/src/matlab/matlab/slider/repo/bagfiles/";
-path.mat_file_path = "../../LiDARTag_data/";
+
+path.load_dir = "./load_dir/";
+path.load_all_vertices = "./all_vertices/";
+path.bag_file_path = "./bagfiles/";
+path.mat_file_path = "./LiDARTag_data/";
 path.event_name = '';
 % path.event_name = 'weight1eM5';
 
