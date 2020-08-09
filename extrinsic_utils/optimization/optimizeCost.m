@@ -31,91 +31,128 @@
 
 function opt = optimizeCost(opt, X, target_size, box_width)
 
-    R_init = rotx(opt.rpy_init(1)) * roty(opt.rpy_init(2)) * rotz(opt.rpy_init(3));
-    opt.H_init(1:3, 1:3) = R_init;
 
     if opt.UseCentroid
-        %         [~, centroid, U] = computePlaneReturnR(X(1:3,:));
-%         opt.H_init(1:3, 4) = centroid(1:3);
-%         opt.H_init(1:3, 1:3) = U';
-%         opt.H_init = inv(opt.H_init);
-%         opt.H_init;
-        centroid = mean(X, 2);
-        opt.H_init(1:3, 4) = -centroid(1:3);
-    else
-        opt.H_init(1:3, 4) = opt.T_init;
+        [~, centroid, U] = computePlaneReturnR(X(1:3,:));
+
+        % rotm_init = U(:, [1 2 3])';
+        % rotm_init = U(:, [1 3 2])';
+        % rotm_init = U(:, [2 1 3])';
+        % rotm_init = U(:, [2 3 1])';
+        
+        % project onto yz plane
+        if abs(det(U) -1) > 1e-5
+            rotm_init = U(:, [3 2 1])';
+        else
+            rotm_init = U(:, [3 1 2])';
+        end
+        opt.rpy_init = rad2deg(rotm2eul(rotm_init, "XYZ"));
+        opt.T_init = -rotm_init*centroid(1:3);
+        opt.H_init = constructHByRPYXYZMovingPoints(opt.rpy_init, opt.T_init);       
     end
+    opt.H_init = constructHByRPYXYZMovingPoints(opt.rpy_init, opt.T_init);
 
     switch opt.method
         case 'Customize'
             opt.metric = "PointToAxis";
             opt.unit = "L1-inspired";
-            tic;
+            t_start = cputime;
             optimizeCustomizedCost(opt);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'Constraint Customize'
             opt.metric = "PointToAxis";
             opt.unit = "L1-inspired";
-            tic;
+            t_start = cputime;
             opt = optimizeConstraintCustomizedCost(opt, X, target_size, box_width);
-            opt.computation_time = toc;
-        case 'Constraint Customize Lie Group'
+            opt.computation_time = cputime - t_start;
+        case {'Constraint Customize Lie Group', 'Constraint Customize Lie Group-Optimal Shape'}
             opt.metric = "PointToAxis";
             opt.unit = "L1-inspired";
-            tic;
+            t_start = cputime;
             opt = optimizeConstraintCustomizedLieGroupCost(opt, X, target_size, box_width);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
+        case {'Constraint Customize Lie Group-2-step-Optimal Shape'}
+            opt.metric = "PointToAxis";
+            opt.unit = "L1-inspired";
+            t_start = cputime;
+            opt = optimizeConstraintCustomizedLieGroup2StepsCost(opt, X, target_size, box_width);
+            opt.computation_time = cputime - t_start;
+            
+        case {'Constraint Customize Lie Group-Searching-Optimal Shape'}
+            opt.metric = "PointToAxis";
+            opt.unit = "L1-inspired";
+            t_start = cputime;
+            opt = optimizeConstraintCustomizedLieGroupSearchingCost(opt, X, target_size, box_width);
+            opt.computation_time = cputime - t_start;
+        case {'Constraint Customize Lie Group-Global-Optimal Shape'}
+            opt.metric = "PointToAxis";
+            opt.unit = "L1-inspired";
+            t_start = cputime;
+            opt = optimizeConstraintCustomizedLieGroupGlobalCost(opt, X, target_size, box_width);
+            opt.computation_time = cputime - t_start;
+        case {'Constraint Customize Lie Group-ManOpt-Optimal Shape'}
+            opt.metric = "PointToAxis";
+            opt.unit = "L1-inspired";
+            t_start = cputime;
+            opt = optimizeConstraintCustomizedLieGroupManOptCost(opt, X, target_size, box_width);
+            opt.computation_time = cputime - t_start;
+        case {'Constraint Customize Convex Relaxation'}
+            opt.metric = "PointToAxis";
+            opt.unit = "L1-inspired";
+            t_start = cputime;
+            opt = optimizeConstraintCustomizedConvexRelaxationCost(opt, X, target_size, box_width);
+            opt.computation_time = cputime - t_start;
         case 'The Wall'
             opt.metric = "PointToAxis";
             opt.unit = "L1-inspired";
-            tic;
+            t_start = cputime;
             opt = optimizeBoundaries(opt, opts, X);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'Coherent Point Drift'
             opt.metric = "--";
             opt.unit = "RMSE";
-            tic;
+            t_start = cputime;
             optimizeCPD(opt);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'Iterative Closest Point (point)'
             opt.metric = "PointToPoint";
             opt.unit = "RMSE";
-            tic;
+            t_start = cputime;
             optimizeICPPoint(opt);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'Iterative Closest Point (plane)'
             opt.metric = "PointToPlane";
             opt.unit = "RMSE";
-            tic;
+            t_start = cputime;
             optimizeICPPlane(opt);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'Normal-distributions Transform'
             opt.metric = "--";
             opt.unit = "RMSE";
-            tic;
+            t_start = cputime;
             optimizeNDT(opt);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'GICP-SE3'
-            tic;
+            t_start = cputime;
             optimizeGICP_SE3(opt)
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'GICP-SE3 (plane)'
-            tic;
+            t_start = cputime;
             optimizeGICPPlane_SE3(opt)
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'GICP-SE3-costimized'
-            tic;
+            t_start = cputime;
             optimizeCustomizedGICP_SE3(opt);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case 'Two Hollow Strips'
-            tic;
+            t_start = cputime;
             optimizeHollowStrips(opt);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         case '3D IoU'
         case 'Project'
-            tic;
+            t_start = cputime;
             OptimizeUsingRobustNormalVector(opt);
-            opt.computation_time = toc;
+            opt.computation_time = cputime - t_start;
         otherwise
             disp('no such optimization method')
             return
