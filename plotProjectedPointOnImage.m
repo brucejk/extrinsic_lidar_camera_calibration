@@ -11,21 +11,21 @@ for scene = 1:num_senes % which dataset
     start_scan = min(start_scan, num_scan);
     
     for scan_num = start_scan:num_scan
-        loadBagImg(fig_handles(scene), [], bag_data(current_index).scans(scan_num).image, "not display", "clean");
-        
+
+        imshow(bag_data(current_index).scans(scan_num).image, 'Parent', fig_handles(scene));
         num_tag = size(bag_data(current_index).scans(scan_num).lidar_target, 2);
         for tag_num = 1:num_tag % which tag in this dataset
             if isempty(bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).corners)
                 continue
             else
-                current_corners_SR = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).corners];
-                current_X_SR = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).pc_points];
+                current_corners = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).corners];
+                current_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).payload_points_h];
         %         if show_baseline_results
         %             projectBackToImage(training_img_fig_handles(i), NSNR_P, current_corners_SR, 5, 'kd', "training_SR", "not display", "Not-Clean");
         %         end
 
-                projectBackToImage(fig_handles(scene), P, current_corners_SR, 50, 'g*', fig_title, "not display", "Not-Clean");
-                projectBackToImage(fig_handles(scene), P, current_X_SR, 3, 'r.', fig_title, "not display", "Not-Clean"); 
+                projectBackToImage(fig_handles(scene), P, current_corners, 50, 'g*', fig_title, "not display", "Not-Clean");
+                projectBackToImage(fig_handles(scene), P, current_X, 3, 'r.', fig_title, "not display", "Not-Clean"); 
                 showLinedAprilTag(fig_handles(scene), bag_data(current_index).scans(scan_num).camera_target(tag_num), show_training_results);
             end
         end
