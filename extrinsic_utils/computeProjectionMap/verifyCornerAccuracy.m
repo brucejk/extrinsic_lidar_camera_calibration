@@ -29,9 +29,9 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function cost = verifyCornerAccuracy(X_verification, Y_verification, P)
-    C_X_transformed = P * X_verification;
-    C_X_transformed = C_X_transformed ./ C_X_transformed(3,:);
-%     C_X_transformed = projectPointsToImagePlane(X_verification, P);
-    cost = (norm(C_X_transformed(1:2,:) - Y_verification(1:2,:), 'fro'))^2;
+function [square_summed_error,  projected_lidar] = verifyCornerAccuracy(X_verification, Y_verification, P)
+    projected_lidar = projectionMap(X_verification, P);
+%     projected_lidar = P * X_verification;
+%     projected_lidar = projected_lidar ./ projected_lidar(3,:);
+    square_summed_error = (norm(projected_lidar(1:2,:) - Y_verification(1:2,:), 'fro'))^2;
 end
