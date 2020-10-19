@@ -32,7 +32,9 @@
 function showLinedAprilTag(fig_handle, camera_target, display)
     hold(fig_handle, 'on');
     scatter(fig_handle, camera_target.corners(1,:), camera_target.corners(2,:), 20, 'yo')
-    plot(fig_handle, camera_target.four_corners_line(1,:), camera_target.four_corners_line(2,:))
+    line = camera_target.four_corners_line;
+    line = line(:, [1 2 6 4 1]);
+    plot(fig_handle, line(1,:), line(2,:))
     
     if checkDisplay(display)
         set(get(fig_handle,'parent'),'visible','on');% show the current axes
