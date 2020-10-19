@@ -95,7 +95,7 @@ function opt = optimizeConstraintCustomizedLieGroupCost(opt, X, target_size, box
     % x0.T = opt.H_init(1:3, 4);
 %             options = optimoptions('fmincon', 'MaxIter',5e2,'Display','iter', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
 %     options = optimoptions('fminunc', 'MaxIter',5e3, 'Display','iter', 'TolX', 1e-6, 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4);
-    options = optimoptions('fminunc', 'MaxIter',5e3, 'Display','iter', 'TolX', 1e-6, ...
+    options = optimoptions('fminunc', 'MaxIter',5e3, 'Display','off', 'TolX', 1e-6, ...
                 'TolFun', 1e-6, 'MaxFunctionEvaluations', 3e4, 'Algorithm','quasi-newton');
 
 %     [sol, fval, status, ~] = solve(prob, x0, 'Options', options);
