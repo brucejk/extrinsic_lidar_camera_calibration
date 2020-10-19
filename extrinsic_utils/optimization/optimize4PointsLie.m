@@ -29,24 +29,42 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function [H_LC, P, total_cost, RMSE] = optimize4PointsLie(opt, X, Y, intrinsic)
-%         theta_x = opt.rpy_init(1);
-%         theta_y = opt.rpy_init(2);
-%         theta_z = opt.rpy_init(3);
-%         T = opt.T_init;
-%         cost = cost4Points(theta_x, theta_y, theta_z, T, X, Y, intrinsic)
-%         
+function [H_LC, P, total_cost, RMSE] = optimize4PointsLie(opt, X, Y, intrinsic, display)
+    if ~exist('display', 'var')
+        display = 0;
+    end
+    if isfield(opt, 'weighted_lie')
+        weighted_lie = opt.weighted_lie;
+    else
+        weighted_lie = 0;
+    end
+    
+    if ~isfield(opt, 'tight_optimization')
+        opt.tight_optimization = 0;
+    end
+    
     R_v = optimvar('R_v', 1, 3); % 1x3
-    T_v = optimvar('T_v', 1, 3,'LowerBound',-0.5,'UpperBound',0.5);
+    if isfield(opt, 'T_lb') && isfield(opt, 'T_ub')
+        T_v = optimvar('T_v', 1, 3, 'LowerBound', opt.T_lb, 'UpperBound', opt.T_ub);
+    else
+        warning("Using lb: -0.5, ub: 0.5 for translation")
+        T_v = optimvar('T_v', 1, 3, 'LowerBound', -0.5, 'UpperBound', 0.5);
+    end
     prob = optimproblem;
-
-    f = fcn2optimexpr(@cost4PointsLie, R_v, T_v, X, Y, intrinsic);
+    
+    if weighted_lie
+        f = fcn2optimexpr(@costWeighted4PointsLie, R_v, T_v, X, Y, intrinsic);
+    else
+        f = fcn2optimexpr(@cost4PointsLie, R_v, T_v, X, Y, intrinsic);
+    end
+    
     prob.Objective = f;
     if isstruct(opt)
         R = rotx(opt.rpy_init(1)) * roty(opt.rpy_init(2)) * rotz(opt.rpy_init(3));
         init_Rv = Log_SO3(R);
         x0.R_v = init_Rv;
         x0.T_v = opt.T_init;
+        
     else
         R = rotx(opt(1)) * roty(opt(2)) * rotz(opt(3));
         init_Rv = Log_SO3(R);
@@ -57,8 +75,19 @@ function [H_LC, P, total_cost, RMSE] = optimize4PointsLie(opt, X, Y, intrinsic)
             x0.T_v = [0 0 0];
         end
     end
-
-    options = optimoptions('fmincon', 'MaxIter',5e2, 'TolX', 1e-12, 'Display','off', 'FunctionTolerance', 1e-8, 'MaxFunctionEvaluations', 3e4);
+    
+    if weighted_lie && checkDisplay(display)
+        cost_init = costWeighted4PointsLie(x0.R_v, x0.T_v, X, Y, intrinsic)
+    elseif ~weighted_lie && checkDisplay(display)
+        cost_init = cost4PointsLie(x0.R_v, x0.T_v, X, Y, intrinsic)
+    end
+    
+    if opt.tight_optimization
+        options = optimoptions('fmincon', 'MaxIter',5e12, 'TolX', 1e-12, 'Display','off', 'FunctionTolerance', 1e-12, 'MaxFunctionEvaluations', 5e12, 'OptimalityTolerance', 1e-12);
+    else
+        options = optimoptions('fmincon', 'MaxIter',5e2, 'TolX', 1e-12, 'Display','off', 'FunctionTolerance', 1e-8, 'MaxFunctionEvaluations', 3e4);
+    end
+%     
     [sol, fval, ~, ~] = solve(prob, x0, 'Options', options);
     H_LC = eye(4);
     H_LC(1:3, 1:3) = Exp_SO3(sol.R_v);
