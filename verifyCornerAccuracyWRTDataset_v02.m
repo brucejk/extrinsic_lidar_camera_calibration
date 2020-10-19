@@ -29,13 +29,36 @@
  * WEBSITE: https://www.brucerobot.com/
 %}
 
-function line = point2DToLineForDrawing(points)
-    line = [points(1,1), points(2,1);
-            points(1,2), points(2,2);
-            points(1,2), points(2,2);
-            points(1,4), points(2,4);
-            points(1,4), points(2,4);
-            points(1,3), points(2,3);
-            points(1,3), points(2,3);
-            points(1,1), points(2,1)]';
+function cost = verifyCornerAccuracyWRTDataset_v02(indices, bag_data, P, method, refinement)
+    for i = 1:length(indices) % which dataset
+        current_index = indices(i);
+        num_scans = length(bag_data(current_index).scans);
+        num_corners = 0;
+        square_summed_error = 0;
+        for scan_num = 1:num_scans % which scan in this dataset
+            num_tag = size(bag_data(current_index).scans(scan_num).lidar_target, 2);
+            for tag_num = 1:num_tag % which tag in this dataset
+                % refinement and no-refinement should be the same
+                if isempty(bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).corners) 
+                    continue
+                else
+                    if strcmpi(refinement, 'no_refinement')
+                        current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).corners];
+                    else
+                        current_corners_X = [bag_data(current_index).scans(scan_num).lidar_target(tag_num).(method).refined_corners];
+                    end
+                    current_corners_Y = [bag_data(current_index).scans(scan_num).camera_target(tag_num).(method).corners];
+
+                    num_corners = num_corners + length(current_corners_Y);
+                    scan_cost = verifyCornerAccuracy(current_corners_X(:, 1:4), current_corners_Y(:, 1:4), P);
+                    square_summed_error = square_summed_error + scan_cost;
+                end
+            end
+        end
+        cost(i).name = bag_data(current_index).bagfile;
+        cost(i).square_summed_error = square_summed_error;
+        cost(i).num_corners = num_corners;
+        cost(i).RMSE = sqrt(square_summed_error/num_corners); % total cost of this dataset
+%         cost(i).std = std(cost_array'); % std of cost of each scan
+    end
 end
