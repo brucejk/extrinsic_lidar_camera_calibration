@@ -30,6 +30,7 @@
 %}
 
 function cost = regulizedCostOfFineTuneLiDARTagPose(theta_x, theta_y, theta_z, T, X, PC, Y, H_LT, P, target_len)
+    addpath("/home/brucebot/workspace/lc-calibration/extrinsic_lidar_camera_calibration/extrinsic_utils/computeCost/")
     R = rotx(theta_x) * roty(theta_y) * rotz(theta_z);
     H_LC = eye(4);
     H_LC(1:3,1:3) = R;
@@ -56,5 +57,5 @@ function cost = regulizedCostOfFineTuneLiDARTagPose(theta_x, theta_y, theta_z, T
     total_cost = cost_x + cost_y + cost_z;
     cost = 1*norm(C_X_transformed(1:2,:) - Y(1:2,:), 'fro')^2 + 1e2*total_cost; %1e3 for RSS paper for now
 %     cost = 1*norm(C_X_transformed(1:2,:) - Y(1:2,:), 'fro')^2 + 1e3*total_cost; %1e3 for RSS paper for now
-
+    rmpath("/home/brucebot/workspace/lc-calibration/extrinsic_lidar_camera_calibration/extrinsic_utils/computeCost/")
 end
