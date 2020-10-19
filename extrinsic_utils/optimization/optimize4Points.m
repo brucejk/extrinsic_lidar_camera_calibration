@@ -30,10 +30,11 @@
 %}
 
 function [final_H, final_P, min_cost, final_result, results] = optimize4Points(opt, X, Y, intrinsic, display)
+%     addpath("/home/brucebot/workspace/lc-calibration/extrinsic_lidar_camera_calibration/extrinsic_utils/computeCost/")
     for i = 1:1
         if isstruct(opt)
             if opt.method == "LieGroup"
-                [H_LC, P, total_cost, RMSE] = optimize4PointsLie(opt.H_LC, X, Y, intrinsic);
+                [H_LC, P, total_cost, RMSE] = optimize4PointsLie(opt.H_LC, X, Y, intrinsic, display);
             elseif opt.method == "EulerAngle"
                 [H_LC, P, total_cost, RMSE] = optimize4PointsEulerAngle(opt.H_LC, X, Y, intrinsic);
             else
