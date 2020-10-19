@@ -1,9 +1,14 @@
-function refined_camera_corners = refineCameraCorners(camera_corners, img, display, t_clean)
-    if nargin > 3
+function refined_camera_corners = refineCameraCorners(camera_corners, img, display, t_clean, sort_corners)
+    if exist('t_clean', 'var')
         clean = t_clean;
     else
         clean = 1;
     end
+    
+    if ~exist("sort_corners", 'var')
+        sort_corners = 1;
+    end
+    
     extend_fac = 2;
     corner_array = [1 1 2 3
                     2 3 4 4];
@@ -62,7 +67,7 @@ function refined_camera_corners = refineCameraCorners(camera_corners, img, displ
                 data = [data, [x_dim(t); y_dim(t)]];
             end
         end
-        [x, y, line_model, inlier_pts] = ransacLineWithInlier(data', 0.1);
+        [x, y, line_model, inlier_pts] = ransacLineWithInlier(data', 0.2);
 
         if checkDisplay(display)
             figure(2000)
@@ -97,7 +102,9 @@ function refined_camera_corners = refineCameraCorners(camera_corners, img, displ
         point = intersection(t_edge(corner_array(1,i)).line, t_edge(corner_array(2,i)).line);
         cross_big_2d = [cross_big_2d, point];
     end
-    cross_big_2d = sortrows(cross_big_2d', 2, 'ascend')';
+    if sort_corners
+        cross_big_2d = sortrows(cross_big_2d', 2, 'ascend')';
+    end
     cross_big_2d = [cross_big_2d; 
                     ones(1, 4)];
     refined_camera_corners = cross_big_2d;
